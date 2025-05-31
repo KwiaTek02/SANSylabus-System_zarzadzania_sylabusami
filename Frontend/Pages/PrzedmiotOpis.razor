@@ -142,12 +142,12 @@ else
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <p><strong>Nazwa jednostki:</strong> @SelectedSylabus.NazwaJednostkiOrganizacyjnej</p>
+                        <p><strong>Nazwa jednostki organizacyjnej prowadzącej kierunek:</strong> @SelectedSylabus.NazwaJednostkiOrganizacyjnej</p>
                         <p><strong>Nazwa kierunku studiów, poziom kształcenia</strong> @Przedmiot.Kierunek <strong>,</strong> @Przedmiot.Stopien <strong>stopień</strong></p>
                         <p><strong>Wydział:</strong> @Przedmiot.Osrodek</p>
-                        <p><strong>Profil:</strong> @SelectedSylabus.ProfilKsztalcenia</p>
-                        <p><strong>Specjalność:</strong> @SelectedSylabus.NazwaSpecjalnosci</p>
-                        <p><strong>Moduł:</strong> @SelectedSylabus.RodzajModuluKsztalcenia</p>
+                        <p><strong>Profil kształcenia:</strong> @SelectedSylabus.ProfilKsztalcenia</p>
+                        <p><strong>Nazwa specjalności:</strong> @SelectedSylabus.NazwaSpecjalnosci</p>
+                        <p><strong>Rodzaj modułu kształcenia:</strong> @SelectedSylabus.RodzajModuluKsztalcenia</p>
                         <p><strong>Semestr:</strong> @Przedmiot.Semestr</p>
                         
                         @if (SelectedSylabus.Koordynatorzy != null && SelectedSylabus.Koordynatorzy.Any())
@@ -155,7 +155,7 @@ else
                             <p><strong>Osoba koordynująca przedmiot:</strong> @string.Join(", ", SelectedSylabus.Koordynatorzy)</p>
                         }
 
-                        <p><strong>Wymagania:</strong> @SelectedSylabus.WymaganiaWstepne</p>
+                        <p><strong>Wymagania wstępne:</strong> @SelectedSylabus.WymaganiaWstepne</p>
                         <button class="btn btn-outline-primary mt-3" @onclick="EditPlaceholder">Edytuj</button>
                     </div>
                     <div class="col-md-8">
@@ -277,8 +277,8 @@ else
                                             <thead class="table-header">
                                                 <tr>
                                                     <th style="width: 10%">Lp.</th>
-                                                    <th>Opis metody</th>
-                                                    <th style="width: 30%">Forma zajęć</th>
+                                                    <th>Metoda weryfikacji</th>
+                                                    <th style="width: 30%">Forma zajęć, w ramach której weryfikowany jest EK</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -323,8 +323,8 @@ else
                                             <thead class="table-header">
                                                 <tr>
                                                     <th>Rodzaj aktywności</th>
-                                                    <th>Stacjonarne (S)</th>
-                                                    <th>Niestacjonarne (N)</th>
+                                                    <th>Studia stacjonarne</th>
+                                                    <th>Studia niestacjonarne</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -348,7 +348,7 @@ else
                                         <table class="table table-bordered table-striped mb-4 w-100">
                                             <tbody>
                                                 <tr>
-                                                    <td class="effects-subheader">Podstawowa</td>
+                                                    <td class="effects-subheader">Literatura podstawowa przedmiotu:</td>
                                                 </tr>
                                                 @foreach (var l in lit["podstawowa"].AsArray())
                                                 {
@@ -356,7 +356,7 @@ else
                                                 }
 
                                                 <tr>
-                                                    <td class="effects-subheader">Uzupełniająca</td>
+                                                    <td class="effects-subheader">Literatura uzupełniająca przedmiotu:</td>
                                                 </tr>
                                                 @foreach (var l in lit["uzupelniajaca"].AsArray())
                                                 {
@@ -366,7 +366,7 @@ else
                                                 @if (lit.TryGetPropertyValue("inne", out var inne) && inne.AsArray().Any())
                                                 {
                                                     <tr>
-                                                        <td class="effects-subheader">Inne</td>
+                                                        <td class="effects-subheader">Inne materiały dydaktyczne:</td>
                                                     </tr>
                                                     @foreach (var l in inne.AsArray())
                                                     {
@@ -391,7 +391,7 @@ else
                                                 <th>Zakres ocen 4,0-4,5 
                                                     Student potrafi:</th>
                                                 <th>Ocena bardzo dobra 
-                                                    Student potrafi: </th>
+                                                    Student potrafi:</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -411,7 +411,7 @@ else
 
                                     case "realizacja":
                                         var rel = SelectedSylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
-                                        <div class="effects-title">Formy i metody realizacji zajęć</div>
+                                        <div class="effects-title">III. Metody realizacji zajęć dydaktycznych</div>
                                         <table class="table table-bordered table-striped mb-4">
                                             <thead class="table-header">
                                             <tr>
