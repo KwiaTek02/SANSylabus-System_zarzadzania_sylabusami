@@ -1,0 +1,39 @@
+﻿@page "/kierunki"
+@inject NavigationManager Navigation
+
+<PageTitle>Kierunki</PageTitle>
+
+<h3>Wybierz kierunek</h3>
+
+<ul class="list-group">
+    @foreach (var kierunek in KierunkiList)
+    {
+        <li class="list-group-item">
+            <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>@kierunek</a>
+        </li>
+
+        @*<li class="list-group-item">
+            <a href="" @onclick="() => NavigateToPrzedmioty(kierunek)">@kierunek</a>
+        </li>*@
+    }
+</ul>
+
+@code {
+    // Lista kierunków hardkodowana
+    public readonly List<string> KierunkiList = new()
+    {
+        "Informatyka",
+        "Zarządzanie",
+        "Ekonomia",
+        "Mechanika",
+        "Biologia"
+    };
+
+    
+
+    private void NavigateToPrzedmioty(string kierunek)
+    {
+        // Przekierowanie do strony z przedmiotami dla wybranego kierunku
+        Navigation.NavigateTo($"/przedmioty/{Uri.EscapeDataString(kierunek)}");
+    }
+}

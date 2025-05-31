@@ -1,0 +1,6 @@
+@SANSylabusApi_HostAddress = http://localhost:5024
+
+GET {{SANSylabusApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

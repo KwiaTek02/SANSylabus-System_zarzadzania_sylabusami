@@ -1,0 +1,71 @@
+﻿@page "/przedmioty/{Kierunek}"
+@using Frontend.Shared
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Przedmioty - @Kierunek</PageTitle>
+
+<h3>Przedmioty dla kierunku: @Kierunek</h3>
+
+@if (PrzedmiotyList == null)
+{
+    <p><em>Ładowanie...</em></p>
+}
+else
+{
+    <div class="mb-3">
+        <input class="form-control" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
+    </div>
+
+    var filtered = string.IsNullOrWhiteSpace(SearchTerm)
+        ? PrzedmiotyList
+        : PrzedmiotyList.Where(p => p.Nazwa.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    @if (!filtered.Any())
+    {
+        <p>Brak przedmiotów spełniających kryterium wyszukiwania.</p>
+    }
+    else
+    {
+        @foreach (var sem in filtered.GroupBy(p => p.Semestr).OrderBy(g => g.Key))
+        {
+            <h4>Semestr @sem.Key</h4>
+            <ul class="list-group mb-4">
+                @foreach (var p in sem)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span @onclick="() => NavigateToPrzedmiot(p.Id)" style="cursor:pointer;">@p.Nazwa</span>
+                        @if (IsLecturer)
+                        {
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditPrzedmiot(p.Id)">Edytuj</button>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public string Kierunek { get; set; } = default!;
+
+    private List<PrzedmiotDto>? PrzedmiotyList;
+    private string SearchTerm { get; set; } = string.Empty;
+    private bool IsLecturer => false; // TODO: sprawdzić rolę z JWT
+
+    protected override async Task OnInitializedAsync()
+    {
+        PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+    }
+
+    private void NavigateToPrzedmiot(int id)
+    {
+        Navigation.NavigateTo($"/przedmiot/{id}");
+    }
+
+    private void EditPrzedmiot(int id)
+    {
+        Navigation.NavigateTo($"/przedmiot/{id}/edit");
+    }
+}
