@@ -1,0 +1,60 @@
+﻿@page "/sylabus/{SylabusId:int}/historia"
+@using Frontend.Shared
+@inject HttpClient Http
+
+<h3>Historia zmian sylabusa</h3>
+
+@if (Historia == null)
+{
+    <p>Ładowanie...</p>
+}
+else
+{
+    var grupy = Historia.GroupBy(h => h.WersjaWtedy).OrderByDescending(g => g.Key);
+
+    <div class="year-tab-nav">
+        @foreach (var grupa in grupy)
+        {
+            <button class="year-tab-btn @(grupa.Key == ActiveVersion ? "active" : "")"
+                    @onclick="() => SelectVersion(grupa.Key)">
+                @grupa.Key
+            </button>
+        }
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-header">
+        <tr>
+            <th>Data zmiany</th>
+            <th>Godzina</th>
+            <th>Opis zmiany</th>
+            <th>Wersja wtedy</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var h in Historia.Where(h => h.WersjaWtedy == ActiveVersion))
+        {
+            <tr>
+                <td>@h.DataZmiany</td>
+                <td>@h.CzasZmiany.ToShortTimeString()</td>
+                <td>@h.OpisZmiany</td>
+                <td>@h.WersjaWtedy</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] public int SylabusId { get; set; }
+    private List<SylabusHistoriaDto>? Historia;
+    private string? ActiveVersion;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Historia = await Http.GetFromJsonAsync<List<SylabusHistoriaDto>>($"/api/sylabusy/{SylabusId}/historia");
+        ActiveVersion = Historia?.FirstOrDefault()?.WersjaWtedy;
+    }
+
+    void SelectVersion(string wersja) => ActiveVersion = wersja;
+}

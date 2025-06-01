@@ -1,0 +1,59 @@
+﻿@using Frontend.Shared
+@code {
+    [Parameter] public List<SylabusDto> Sylabusy { get; set; } = new();
+    [Parameter] public SylabusDto? Selected { get; set; }
+    [Parameter] public EventCallback<SylabusDto> OnChange { get; set; }
+
+    private async Task Select(SylabusDto syl)
+    {
+        await OnChange.InvokeAsync(syl);
+    }
+}
+
+<style>
+    .year-tab-nav {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .year-tab-btn {
+        padding: 0.5rem 1.2rem;
+        border-radius: 30px;
+        border: 2px solid var(--primary-color);
+        background-color: white;
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        letter-spacing: 0.3px;
+    }
+
+        .year-tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 82, 147, 0.2);
+        }
+
+        .year-tab-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 82, 147, 0.25);
+        }
+</style>
+
+<div class="year-tab-nav">
+    @foreach (var syl in Sylabusy.OrderByDescending(s => s.RokData))
+    {
+        var isActive = Selected?.RokData == syl.RokData;
+        <button class="year-tab-btn @(isActive ? "active" : "")"
+                @onclick="() => Select(syl)">
+            @syl.RokData
+        </button>
+    }
+</div>

@@ -13,6 +13,7 @@
     .card-header {
         background-color: var(--primary-color);
         color: #fff;
+        text-align: center;
     }
 
     .nav-pills .nav-link {
@@ -53,6 +54,11 @@
         max-width: 97%;
     }
 
+    .table-header {
+        text-align: center;
+        
+    }
+
     .table-header th {
         background-color: var(--primary-color) !important;
         color: white;
@@ -72,7 +78,7 @@
     .table th,
     .table td {
         vertical-align: middle;
-        text-align: left;
+        text-align: center;
         padding: 0.75rem;
         border-color: #dee2e6;
     }
@@ -114,6 +120,12 @@
             .FirstOrDefault();
     }
 
+    private Task OnTabChange(SylabusDto syl)
+    {
+        SelectedSylabus = syl;
+        return Task.CompletedTask;
+    }
+
     void ShowInfo() => ActiveSection = "info";
     void ShowTresci() => ActiveSection = "tresci";
     void ShowEfekty() => ActiveSection = "efekty";
@@ -135,29 +147,64 @@
 else
 { 
     <div class="main-container">
+
+        <RokAkademickiTabs Sylabusy="Sylabusy" Selected="SelectedSylabus" OnChange="OnTabChange" />
+        <div class="d-flex justify-content-end mb-3">
+            <button class="btn-action" @onclick="@(() => Navigation.NavigateTo($"/sylabus/{SelectedSylabus.Id}/historia"))">Zobacz wersje</button>
+            <button class="btn-action">Edytuj</button>
+        </div>
         <div class="card mb-4">
             <div class="card-header">
                 <h2 class="mb-0">@Przedmiot.Nazwa</h2>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Nazwa jednostki organizacyjnej prowadzącej kierunek:</strong> @SelectedSylabus.NazwaJednostkiOrganizacyjnej</p>
-                        <p><strong>Nazwa kierunku studiów, poziom kształcenia</strong> @Przedmiot.Kierunek <strong>,</strong> @Przedmiot.Stopien <strong>stopień</strong></p>
-                        <p><strong>Wydział:</strong> @Przedmiot.Osrodek</p>
-                        <p><strong>Profil kształcenia:</strong> @SelectedSylabus.ProfilKsztalcenia</p>
-                        <p><strong>Nazwa specjalności:</strong> @SelectedSylabus.NazwaSpecjalnosci</p>
-                        <p><strong>Rodzaj modułu kształcenia:</strong> @SelectedSylabus.RodzajModuluKsztalcenia</p>
-                        <p><strong>Semestr:</strong> @Przedmiot.Semestr</p>
-                        
-                        @if (SelectedSylabus.Koordynatorzy != null && SelectedSylabus.Koordynatorzy.Any())
-                        {
-                            <p><strong>Osoba koordynująca przedmiot:</strong> @string.Join(", ", SelectedSylabus.Koordynatorzy)</p>
-                        }
-
-                        <p><strong>Wymagania wstępne:</strong> @SelectedSylabus.WymaganiaWstepne</p>
-                        <button class="btn btn-outline-primary mt-3" @onclick="EditPlaceholder">Edytuj</button>
-                    </div>
+    <div class="col-md-4">
+        <div class="effects-title">Informacje ogólne o przedmiocie</div>
+        <table class="table table-bordered table-striped mb-4">
+            <tbody>
+            <tr>
+                <td class="table-header">Jednostka organizacyjna</td> 
+                <td>@SelectedSylabus.NazwaJednostkiOrganizacyjnej</td>
+            </tr>
+            <tr>
+                <td class="table-header">Kierunek i stopień</td>
+                <td>@Przedmiot.Kierunek, @Przedmiot.Stopien stopień</td>
+            </tr>
+            <tr>
+                <td class="table-header">Wydział</td>
+                <td>@Przedmiot.Osrodek</td>
+            </tr>
+            <tr>
+                <td class="table-header">Profil kształcenia</td>
+                <td>@SelectedSylabus.ProfilKsztalcenia</td>
+            </tr>
+            <tr>
+                <td class="table-header">Specjalność</td>
+                <td>@SelectedSylabus.NazwaSpecjalnosci</td>
+            </tr>
+            <tr>
+                <td class="table-header">Rodzaj modułu</td>
+                <td>@SelectedSylabus.RodzajModuluKsztalcenia</td>
+            </tr>
+            <tr>
+                <td class="table-header">Semestr</td>
+                <td>@Przedmiot.Semestr</td>
+            </tr>
+            @if (SelectedSylabus.Koordynatorzy != null && SelectedSylabus.Koordynatorzy.Any())
+            {
+                <tr>
+                                        <td class="table-header">Koordynator</td>
+                    <td>@string.Join(", ", SelectedSylabus.Koordynatorzy)</td>
+                </tr>
+            }
+            <tr>
+                                    <td class="table-header">Wymagania wstępne</td>
+                <td>@SelectedSylabus.WymaganiaWstepne</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
                     <div class="col-md-8">
                         <h5 class="text-secondary">Rok akademicki: @SelectedSylabus.RokData</h5>
                         <div class="d-flex">
