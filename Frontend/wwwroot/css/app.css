@@ -122,7 +122,8 @@ code {
     padding: 0.8rem 1rem;
     text-align: center;
     border-radius: 0.25rem 0.25rem 0 0;
-    margin-bottom: 0;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 .effects-subheader {
@@ -136,6 +137,7 @@ code {
     padding: 0;
     margin: 0;
     line-height: 2.2rem;
+    
 }
 
 .btn-action {
@@ -149,10 +151,36 @@ code {
     margin-left: 1rem;
 }
 
-    .btn-action:hover {
+.btn-action:hover {
         background-color: var(--primary-color);
         color: white;
         box-shadow: 0 4px 12px rgba(0, 82, 147, 0.2);
         cursor: pointer;
         transform: translateY(-1px);
+
+}
+table, h2, h3, .effects-title, .section-title, table-header {
+    page-break-inside: avoid;
+}
+
+@media print {
+    .no-print,
+    .btn-action,
+    .year-tab-nav,
+    .nav,
+    .nav-pills,
+    .nav-link,
+    .nav.flex-column {
+        display: none !important;
     }
+}
+
+.effects-title,
+.effects-subheader,
+.table,
+.table thead,
+.table tbody,
+.table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid;
+}

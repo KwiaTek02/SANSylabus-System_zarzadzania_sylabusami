@@ -6,100 +6,103 @@
 
 <style>
     :root {
-        --primary-color: #005293;
-        --accent-color: #d71920;
+    --primary-color: #005293;
+    --accent-color: #d71920;
     }
 
     .card-header {
-        background-color: var(--primary-color);
-        color: #fff;
-        text-align: center;
+    background-color: var(--primary-color);
+    color: #fff;
+    text-align: center;
     }
 
     .nav-pills .nav-link {
-        margin-bottom: .5rem;
-        border-radius: .25rem;
-        color: var(--primary-color);
+    margin-bottom: .5rem;
+    border-radius: .25rem;
+    color: var(--primary-color);
     }
 
-        .nav-pills .nav-link.active {
-            background-color: var(--accent-color);
-            color: #fff;
-        }
+    .nav-pills .nav-link.active {
+    background-color: var(--accent-color);
+    color: #fff;
+    }
 
     .list-group-item {
-        border: 1px solid #dee2e6;
-        padding: 0.75rem 1rem;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
     }
 
     .section-title {
-        background-color: #e9f1f9;
-        color: #003f6b;
-        font-weight: 500;
-        padding: 0.45rem 1rem;
-        font-size: 1rem;
-        border-bottom: 1px solid #ccc;
-        margin-top: 1.5rem;
+    background-color: #e9f1f9;
+    color: #003f6b;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    font-size: 1rem;
+    border-bottom: 1px solid #ccc;
+    margin-top: 1.5rem;
     }
 
     .effects-title {
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 600;
-        padding: 0.75rem 1rem;
-        font-size: 1.1rem;
-        border-bottom: 1px solid #ccc;
-        text-align: center;
-        width: 97%;
-        max-width: 97%;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    width: 97%;
+    max-width: 97%;
     }
 
     .table-header {
-        text-align: center;
-        
+    text-align: center;
+
     }
 
     .table-header th {
-        background-color: var(--primary-color) !important;
-        color: white;
-        text-align: center;
-        vertical-align: middle;
+    background-color: var(--primary-color) !important;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
     }
 
     .table-bordered th,
     .table-bordered td {
-        border: 1px solid #dee2e6 !important;
+    border: 1px solid #dee2e6 !important;
     }
 
     .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f8f9fa;
+    background-color: #f8f9fa;
     }
 
     .table th,
     .table td {
-        vertical-align: middle;
-        text-align: center;
-        padding: 0.75rem;
-        border-color: #dee2e6;
+    vertical-align: middle;
+    text-align: center;
+    padding: 0.75rem;
+    border-color: #dee2e6;
     }
 
     .effects-subheader {
-        background-color: #e1ecf4;
-        color: #003f6b;
-        font-weight: 500;
-        font-size: 0.95rem;
-        height: 2.2rem;
-        vertical-align: middle;
-        padding: 0;
-        margin: 0;
-        line-height: 2.2rem;
-        text-align: center !important;
-        width: 100%;
+    background-color: #e1ecf4;
+    color: #003f6b;
+    font-weight: 500;
+    font-size: 0.95rem;
+    height: 2.2rem;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+    line-height: 2.2rem;
+    text-align: center !important;
+    width: 100%;
     }
 
     table.table {
-        width: 100% !important;
+    width: 100% !important;
     }
+
+
+
 </style>
 
 <PageTitle>Szczegóły przedmiotu</PageTitle>
@@ -110,6 +113,9 @@
     private List<SylabusDto>? Sylabusy;
     private SylabusDto? SelectedSylabus;
     private string ActiveSection = "tresci";
+    [Inject] IJSRuntime JS { get; set; } = default!;
+    bool IsExporting = false;
+    private bool ExportingPdf = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,6 +132,22 @@
         return Task.CompletedTask;
     }
 
+    private async Task DownloadPdf()
+    {
+        ExportingPdf = true;
+        StateHasChanged(); // wymuś render z wszystkimi sekcjami
+
+        await Task.Delay(800); // pozwól na pełny render
+
+        await JS.InvokeVoidAsync("exportPdfFromDiv", "pdf-content", $"sylabus_{SelectedSylabus?.RokData}.pdf");
+
+        ExportingPdf = false;
+        StateHasChanged(); // przywróć standardowy widok
+    }
+
+
+
+
     void ShowInfo() => ActiveSection = "info";
     void ShowTresci() => ActiveSection = "tresci";
     void ShowEfekty() => ActiveSection = "efekty";
@@ -135,7 +157,309 @@
     void ShowKryteria() => ActiveSection = "kryteria";
     void ShowRealizacja() => ActiveSection = "realizacja";
     void EditPlaceholder() { /* TODO: implement edit */ }
+
+    RenderFragment RenderAllSections() => __builder =>
+    {
+        void AddSection(RenderFragment section)
+        {
+            __builder.OpenElement(0, "div");
+            __builder.AddAttribute(1, "style", "page-break-inside: avoid; break-inside: avoid; margin-bottom: 1rem;");
+            __builder.AddContent(2, section);
+            __builder.CloseElement();
+        }
+
+        AddSection(RenderTresci());
+        AddSection(RenderEfekty());
+        AddSection(RenderMetody());
+        AddSection(RenderNaklad());
+        AddSection(RenderLiteratura());
+        AddSection(RenderKryteria());
+        AddSection(RenderRealizacja());
+    };
+    
+    RenderFragment RenderTresci() => __builder =>
+    {
+        var tresci = SelectedSylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
+        <div class="effects-title">Treści kształcenia</div>
+        <table class="table table-bordered table-striped mb-4">
+            <thead class="table-header">
+                <tr>
+                    <th style="width: 10%">Lp.</th>
+                    <th>Wykład</th>
+                    <th style="width: 30%">Odniesienie do przedmiotowych efektów kształcenia</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var w in tresci["wyklady"].AsArray())
+                {
+                    <tr>
+                        <td class="text-center">@w["lp"]</td>
+                        <td>@w["opis"]</td>
+                        <td>@string.Join(", ", w["odniesienie"].AsArray().Select(o => o.ToString()))</td>
+                    </tr>
+                }
+            </tbody>
+            <thead class="table-header">
+                <tr>
+                    <th style="width: 10%">Lp.</th>
+                    <th>Ćwiczenia</th>
+                    <th style="width: 30%">Odniesienie do przedmiotowych efektów kształcenia</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in tresci["cwiczenia"].AsArray())
+                {
+                    <tr>
+                        <td class="text-center">@c["lp"]</td>
+                        <td>@c["opis"]</td>
+                        <td>@string.Join(", ", c["odniesienie"].AsArray().Select(o => o.ToString()))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    };
+
+    RenderFragment RenderEfekty() => __builder =>
+    {
+        var grouped = SelectedSylabus.EfektyKsztalcenia
+            .AsArray()
+            .GroupBy(e => e["rodzaj"]?.ToString())
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var rodzajLabels = new Dictionary<string, string>
+        {
+            { "wiedza", "Wiedza:" },
+            { "umiejetnosci", "Umiejętności:" },
+            { "kompetencje spoleczne", "Kompetencje społeczne:" }
+        };
+
+        <div class="effects-container mb-4">
+            <div class="effects-title text-center text-uppercase">
+                II. Efekty kształcenia
+            </div>
+
+            <table class="table table-bordered table-striped mb-4">
+                <thead class="table-header">
+                    <tr>
+                        <th style="width: 15%;">Lp.</th>
+                        <th style="width: 55%;">Opis przedmiotowych efektów kształcenia</th>
+                        <th style="width: 30%;">Odniesienie do efektu kierunkowego</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var grupa in grouped)
+                    {
+                        <tr>
+                            <td colspan="3" style="text-align: center;" class="effects-subheader">
+                                @rodzajLabels.GetValueOrDefault(grupa.Key, grupa.Key)
+                            </td>
+                        </tr>
+                        @foreach (var efekt in grupa.Value)
+                        {
+                            <tr>
+                                <td class="text-center">@efekt["lp"]</td>
+                                <td>@efekt["opis"]</td>
+                                <td>@string.Join(", ", efekt["odniesienie"].AsArray().Select(o => o.ToString()))</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    };
+    RenderFragment RenderMetody() => __builder =>
+    {
+        var metody = SelectedSylabus.MetodyWeryfikacji.AsArray();
+        var groupedMetody = metody.GroupBy(m => m["rodzaj"]?.ToString()).ToDictionary(g => g.Key, g => g.ToList());
+        var rodzajLabels2 = new Dictionary<string, string>
+        {
+            { "wiedza", "Wiedza:" },
+            { "umiejetnosci", "Umiejętności:" },
+            { "kompetencje_spoleczne", "Kompetencje społeczne:" }
+        };
+        <div class="effects-title">Metody weryfikacji efektów</div>
+        <table class="table table-bordered table-striped mb-4">
+            <thead class="table-header">
+                <tr>
+                    <th style="width: 10%">Lp.</th>
+                    <th>Metoda weryfikacji</th>
+                    <th style="width: 30%">Forma zajęć, w ramach której weryfikowany jest EK</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var grupa in groupedMetody)
+                {
+                    <tr>
+                        <td colspan="3" style="text-align: center;" class="effects-subheader">
+                            @rodzajLabels2.GetValueOrDefault(grupa.Key, grupa.Key)
+                        </td>
+                    </tr>
+                    @foreach (var m in grupa.Value)
+                    {
+                        <tr>
+                            <td class="text-center">@m["lp"]</td>
+                            <td>@m["opis"]</td>
+                            <td>@m["forma_zajec"]</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    };
+    RenderFragment RenderNaklad() => __builder =>
+    {
+        var nak = SelectedSylabus.NakladPracy as JsonObject ?? new JsonObject();
+        var keys = new[] { "zajecia", "konsultacje", "projekt", "sam_przygotowanie", "zaliczenia", "sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" };
+        var labels = new Dictionary<string, string>
+        {
+            { "zajecia", "Udział w zajęciach dydaktycznych (wykłady, ćwiczenia, konwersatoria, projekt, laboratoria, warsztaty, seminaria) – SUMA godzin – z punktu II" },
+            { "konsultacje", "Udział w konsultacjach" },
+            { "projekt", "Projekt / esej" },
+            { "sam_przygotowanie", "Samodzielne przygotowanie się do zajęć dydaktycznych" },
+            { "zaliczenia", "Przygotowanie się do zaliczenia zajęć dydaktycznych" },
+            { "sumaryczne", "Sumaryczne obciążenie pracą studenta (25h = 1 ECTS) SUMA godzin/ECTS" },
+            { "kontakt", "Obciążenie studenta w ramach zajęć w bezpośrednim kontakcie z nauczycielem" },
+            { "praktyczne", "Obciążenie studenta w ramach zajęć o charakterze praktycznym" },
+            { "zawodowe", "Obciążenie studenta w ramach zajęć związanych z praktycznym przygotowaniem zawodowym" },
+            { "badania", "Obciążenie studenta w ramach zajęć związanych z przygotowaniem do prowadzenia badań" }
+        };
+        <div class="effects-title">Nakład pracy studenta</div>
+        <table class="table table-bordered table-striped mb-4">
+            <thead class="table-header">
+                <tr>
+                    <th>Rodzaj aktywności</th>
+                    <th>Studia stacjonarne</th>
+                    <th>Studia niestacjonarne</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in keys)
+                {
+                    var s = nak.TryGetPropertyValue($"{k}_S", out var vs) ? vs : nak["S"];
+                    var n = nak.TryGetPropertyValue($"{k}_N", out var vn) ? vn : null;
+                    <tr>
+                        <td>@labels[k]</td>
+                        <td>@s</td>
+                        <td>@n</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    };
+    RenderFragment RenderLiteratura() => __builder =>
+    {
+        var lit = SelectedSylabus.Literatura as JsonObject ?? new JsonObject();
+        <div class="effects-title w-100">Literatura</div>
+        <table class="table table-bordered table-striped mb-4 w-100">
+            <tbody>
+                <tr>
+                    <td class="effects-subheader">Literatura podstawowa przedmiotu:</td>
+                </tr>
+                @foreach (var l in lit["podstawowa"].AsArray())
+                {
+                    <tr><td>@l</td></tr>
+                }
+
+                <tr>
+                    <td class="effects-subheader">Literatura uzupełniająca przedmiotu:</td>
+                </tr>
+                @foreach (var l in lit["uzupelniajaca"].AsArray())
+                {
+                    <tr><td>@l</td></tr>
+                }
+
+                @if (lit.TryGetPropertyValue("inne", out var inne) && inne.AsArray().Any())
+                {
+                    <tr>
+                        <td class="effects-subheader">Inne materiały dydaktyczne:</td>
+                    </tr>
+                    @foreach (var l in inne.AsArray())
+                    {
+                        <tr><td>@l</td></tr>
+                    }
+                }
+            </tbody>
+        </table>
+    };
+    RenderFragment RenderKryteria() => __builder =>
+    {
+        var kryteria = SelectedSylabus.KryteriaOceny.AsArray();
+        <div class="effects-title">VII. Kryteria oceny osiągniętych efektów kształcenia</div>
+        <table class="table table-bordered table-striped mb-4">
+            <thead class="table-header">
+                <tr>
+                    <th>Efekty kształcenia</th>
+                    <th>Ocena niedostateczna
+                        Student nie potrafi:</th>
+                    <th>Zakres ocen 3,0-3,5
+                        Student potrafi:</th>
+                    <th>Zakres ocen 4,0-4,5
+                        Student potrafi:</th>
+                    <th>Ocena bardzo dobra
+                        Student potrafi:</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in kryteria)
+                {
+                    <tr>
+                        <td class="text-center font-weight-bold">@k["lp"]</td>
+                        <td>@k["ocena2"]</td>
+                        <td>@k["ocena3"]</td>
+                        <td>@k["ocena4"]</td>
+                        <td>@k["ocena5"]</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    };
+    RenderFragment RenderRealizacja() => __builder =>
+    {
+        var rel = SelectedSylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
+        <div class="effects-title">III. Metody realizacji zajęć dydaktycznych</div>
+        <table class="table table-bordered table-striped mb-4">
+            <thead class="table-header">
+                <tr>
+                    <th>Formy zajęć</th>
+                    <th>Metody dydaktyczne</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Wykład</td>
+                    <td>@rel["wyklad_opis"]</td>
+                </tr>
+                <tr>
+                    <td>Ćwiczenia</td>
+                    <td>@rel["cwiczenia_opis"]</td>
+                </tr>
+                @if (rel.ContainsKey("inne_materialy_dydaktyczne"))
+                {
+                    <tr>
+                        <td>Inne materiały dydaktyczne</td>
+                        <td>@rel["inne_materialy_dydaktyczne"]</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    };
+
+    @code {
+        private RenderFragment RenderActiveSection() => ActiveSection switch
+        {
+            "tresci" => RenderTresci(),
+            "efekty" => RenderEfekty(),
+            "metody" => RenderMetody(),
+            "naklad" => RenderNaklad(),
+            "literatura" => RenderLiteratura(),
+            "kryteria" => RenderKryteria(),
+            "realizacja" => RenderRealizacja(),
+            _ => builder => builder.AddContent(0, "Nieznana sekcja.")
+        };
+    }
+
 }
+
 
 @if (Przedmiot == null || SelectedSylabus == null)
 {
@@ -145,13 +469,14 @@
     </div>
 }
 else
-{ 
-    <div class="main-container">
+{
+    <div class="main-container" id="pdf-content">
 
         <RokAkademickiTabs Sylabusy="Sylabusy" Selected="SelectedSylabus" OnChange="OnTabChange" />
-        <div class="d-flex justify-content-end mb-3">
-            <button class="btn-action" @onclick="@(() => Navigation.NavigateTo($"/sylabus/{SelectedSylabus.Id}/historia"))">Zobacz wersje</button>
-            <button class="btn-action">Edytuj</button>
+        <div class="d-flex justify-content-end mb-3 no-print">
+            <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/{SelectedSylabus.Id}/historia"))">Zobacz wersje</button>
+            <button class="btn-action no-print">Edytuj</button>
+            <button class="btn-action no-print" @onclick="DownloadPdf">Pobierz sylabus</button>
         </div>
         <div class="card mb-4">
             <div class="card-header">
@@ -159,56 +484,56 @@ else
             </div>
             <div class="card-body">
                 <div class="row">
-    <div class="col-md-4">
-        <div class="effects-title">Informacje ogólne o przedmiocie</div>
-        <table class="table table-bordered table-striped mb-4">
-            <tbody>
-            <tr>
-                <td class="table-header">Jednostka organizacyjna</td> 
-                <td>@SelectedSylabus.NazwaJednostkiOrganizacyjnej</td>
-            </tr>
-            <tr>
-                <td class="table-header">Kierunek i stopień</td>
-                <td>@Przedmiot.Kierunek, @Przedmiot.Stopien stopień</td>
-            </tr>
-            <tr>
-                <td class="table-header">Wydział</td>
-                <td>@Przedmiot.Osrodek</td>
-            </tr>
-            <tr>
-                <td class="table-header">Profil kształcenia</td>
-                <td>@SelectedSylabus.ProfilKsztalcenia</td>
-            </tr>
-            <tr>
-                <td class="table-header">Specjalność</td>
-                <td>@SelectedSylabus.NazwaSpecjalnosci</td>
-            </tr>
-            <tr>
-                <td class="table-header">Rodzaj modułu</td>
-                <td>@SelectedSylabus.RodzajModuluKsztalcenia</td>
-            </tr>
-            <tr>
-                <td class="table-header">Semestr</td>
-                <td>@Przedmiot.Semestr</td>
-            </tr>
-            @if (SelectedSylabus.Koordynatorzy != null && SelectedSylabus.Koordynatorzy.Any())
-            {
-                <tr>
+                    <div class="col-md-4">
+                        <div class="effects-title">Informacje ogólne o przedmiocie</div>
+                        <table class="table table-bordered table-striped mb-4">
+                            <tbody>
+                                <tr>
+                                    <td class="table-header">Jednostka organizacyjna</td> 
+                                    <td>@SelectedSylabus.NazwaJednostkiOrganizacyjnej</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Kierunek i stopień</td>
+                                    <td>@Przedmiot.Kierunek, @Przedmiot.Stopien stopień</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Wydział</td>
+                                    <td>@Przedmiot.Osrodek</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Profil kształcenia</td>
+                                    <td>@SelectedSylabus.ProfilKsztalcenia</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Specjalność</td>
+                                    <td>@SelectedSylabus.NazwaSpecjalnosci</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Rodzaj modułu</td>
+                                    <td>@SelectedSylabus.RodzajModuluKsztalcenia</td>
+                                </tr>
+                                <tr>
+                                    <td class="table-header">Semestr</td>
+                                    <td>@Przedmiot.Semestr</td>
+                                </tr>
+                                @if (SelectedSylabus.Koordynatorzy != null && SelectedSylabus.Koordynatorzy.Any())
+                                {
+                                    <tr>
                                         <td class="table-header">Koordynator</td>
-                    <td>@string.Join(", ", SelectedSylabus.Koordynatorzy)</td>
-                </tr>
-            }
-            <tr>
+                                        <td>@string.Join(", ", SelectedSylabus.Koordynatorzy)</td>
+                                    </tr>
+                                }
+                                <tr>
                                     <td class="table-header">Wymagania wstępne</td>
-                <td>@SelectedSylabus.WymaganiaWstepne</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                                    <td>@SelectedSylabus.WymaganiaWstepne</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="col-md-8">
                         <h5 class="text-secondary">Rok akademicki: @SelectedSylabus.RokData</h5>
                         <div class="d-flex">
-                            <nav class="nav flex-column nav-pills me-3">
+                            <nav class="nav flex-column nav-pills me-3 no-print">
                                 <a class="nav-link @(ActiveSection=="tresci"?"active":null)" @onclick="ShowTresci">Treści</a>
                                 <a class="nav-link @(ActiveSection=="efekty"?"active":null)" @onclick="ShowEfekty">Efekty</a>
                                 <a class="nav-link @(ActiveSection=="metody"?"active":null)" @onclick="ShowMetody">Metody</a>
@@ -218,20 +543,33 @@ else
                                 <a class="nav-link @(ActiveSection=="realizacja"?"active":null)" @onclick="ShowRealizacja">Realizacja</a>
                             </nav>
                             <div class="flex-fill">
-                                @switch (ActiveSection)
+
+                                @*@if (ExportingPdf)
                                 {
-                                    case "tresci":
-                                        var tresci = SelectedSylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
-                                        <div class="effects-title">Treści kształcenia</div>
-                                        <table class="table table-bordered table-striped mb-4">
-                                            <thead class="table-header">
+                                    @RenderAllSections()
+                                }
+                                else
+                                {
+                                    @RenderActiveSection()
+                                }*@
+                                
+                                @RenderAllSections()
+
+
+                                @*@switch (ActiveSection)
+                                    {
+                                        case "tresci":
+                                            var tresci = SelectedSylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
+                                            <div class="effects-title">Treści kształcenia</div>
+                                            <table class="table table-bordered table-striped mb-4">
+                                                <thead class="table-header">
                                                 <tr>
                                                     <th style="width: 10%">Lp.</th>
                                                     <th>Wykład</th>
                                                     <th style="width: 30%">Odniesienie do przedmiotowych efektów kształcenia</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
+                                                </thead>
+                                                <tbody>
                                                 @foreach (var w in tresci["wyklady"].AsArray())
                                                 {
                                                     <tr>
@@ -240,15 +578,15 @@ else
                                                         <td>@string.Join(", ", w["odniesienie"].AsArray().Select(o => o.ToString()))</td>
                                                     </tr>
                                                 }
-                                            </tbody>
-                                            <thead class="table-header">
+                                                </tbody>
+                                                <thead class="table-header">
                                                 <tr>
                                                     <th style="width: 10%">Lp.</th>
                                                     <th>Ćwiczenia</th>
                                                     <th style="width: 30%">Odniesienie do przedmiotowych efektów kształcenia</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
+                                                </thead>
+                                                <tbody>
                                                 @foreach (var c in tresci["cwiczenia"].AsArray())
                                                 {
                                                     <tr>
@@ -257,78 +595,78 @@ else
                                                         <td>@string.Join(", ", c["odniesienie"].AsArray().Select(o => o.ToString()))</td>
                                                     </tr>
                                                 }
-                                            </tbody>
-                                        </table>
-                                        break;
-
-                                    case "efekty":
-                                        var grouped = SelectedSylabus.EfektyKsztalcenia
-                                            .AsArray()
-                                            .GroupBy(e => e["rodzaj"]?.ToString())
-                                            .ToDictionary(g => g.Key, g => g.ToList());
-
-                                        var rodzajLabels = new Dictionary<string, string>
-                                        {
-                                            { "wiedza", "Wiedza:" },
-                                            { "umiejetnosci", "Umiejętności:" },
-                                            { "kompetencje spoleczne", "Kompetencje społeczne:" }
-                                        };
-
-                                        <div class="effects-container mb-4">
-                                            <div class="effects-title text-center text-uppercase">
-                                                II. Efekty kształcenia
-                                            </div>
-
-                                            <table class="table table-bordered table-striped mb-4">
-                                                <thead class="table-header">
-                                                <tr>
-                                                    <th style="width: 15%;">Lp.</th>
-                                                    <th style="width: 55%;">Opis przedmiotowych efektów kształcenia</th>
-                                                    <th style="width: 30%;">Odniesienie do efektu kierunkowego</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach (var grupa in grouped)
-                                                {
-                                                    <tr>
-                                                            <td colspan="3" style="text-align: center;" class="effects-subheader">
-                                                            @rodzajLabels.GetValueOrDefault(grupa.Key, grupa.Key)
-                                                        </td>
-                                                    </tr>
-                                                    @foreach (var efekt in grupa.Value)
-                                                    {
-                                                        <tr>
-                                                            <td class="text-center">@efekt["lp"]</td>
-                                                            <td>@efekt["opis"]</td>
-                                                            <td>@string.Join(", ", efekt["odniesienie"].AsArray().Select(o => o.ToString()))</td>
-                                                        </tr>
-                                                    }
-                                                }
                                                 </tbody>
                                             </table>
-                                        </div>
+                                            break;
 
-                                        break;
+                                        case "efekty":
+                                            var grouped = SelectedSylabus.EfektyKsztalcenia
+                                                .AsArray()
+                                                .GroupBy(e => e["rodzaj"]?.ToString())
+                                                .ToDictionary(g => g.Key, g => g.ToList());
 
-                                    case "metody":
-                                        var metody = SelectedSylabus.MetodyWeryfikacji.AsArray();
-                                        var groupedMetody = metody.GroupBy(m => m["rodzaj"]?.ToString()).ToDictionary(g => g.Key, g => g.ToList());
-                                        var rodzajLabels2 = new Dictionary<string, string>
-                            {
-                            { "wiedza", "Wiedza:" },
-                            { "umiejetnosci", "Umiejętności:" },
-                            { "kompetencje_spoleczne", "Kompetencje społeczne:" }
-                            };
-                                        <div class="effects-title">Metody weryfikacji efektów</div>
-                                        <table class="table table-bordered table-striped mb-4">
-                                            <thead class="table-header">
+                                            var rodzajLabels = new Dictionary<string, string>
+                                            {
+                                                { "wiedza", "Wiedza:" },
+                                                { "umiejetnosci", "Umiejętności:" },
+                                                { "kompetencje spoleczne", "Kompetencje społeczne:" }
+                                            };
+
+                                            <div class="effects-container mb-4">
+                                                <div class="effects-title text-center text-uppercase">
+                                                    II. Efekty kształcenia
+                                                </div>
+
+                                                <table class="table table-bordered table-striped mb-4">
+                                                    <thead class="table-header">
+                                                    <tr>
+                                                        <th style="width: 15%;">Lp.</th>
+                                                        <th style="width: 55%;">Opis przedmiotowych efektów kształcenia</th>
+                                                        <th style="width: 30%;">Odniesienie do efektu kierunkowego</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (var grupa in grouped)
+                                                    {
+                                                        <tr>
+                                                            <td colspan="3" style="text-align: center;" class="effects-subheader">
+                                                                @rodzajLabels.GetValueOrDefault(grupa.Key, grupa.Key)
+                                                            </td>
+                                                        </tr>
+                                                        @foreach (var efekt in grupa.Value)
+                                                        {
+                                                            <tr>
+                                                                <td class="text-center">@efekt["lp"]</td>
+                                                                <td>@efekt["opis"]</td>
+                                                                <td>@string.Join(", ", efekt["odniesienie"].AsArray().Select(o => o.ToString()))</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            break;
+
+                                        case "metody":
+                                            var metody = SelectedSylabus.MetodyWeryfikacji.AsArray();
+                                            var groupedMetody = metody.GroupBy(m => m["rodzaj"]?.ToString()).ToDictionary(g => g.Key, g => g.ToList());
+                                            var rodzajLabels2 = new Dictionary<string, string>
+                                            {
+                                                { "wiedza", "Wiedza:" },
+                                                { "umiejetnosci", "Umiejętności:" },
+                                                { "kompetencje_spoleczne", "Kompetencje społeczne:" }
+                                            };
+                                            <div class="effects-title">Metody weryfikacji efektów</div>
+                                            <table class="table table-bordered table-striped mb-4">
+                                                <thead class="table-header">
                                                 <tr>
                                                     <th style="width: 10%">Lp.</th>
                                                     <th>Metoda weryfikacji</th>
                                                     <th style="width: 30%">Forma zajęć, w ramach której weryfikowany jest EK</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
+                                                </thead>
+                                                <tbody>
                                                 @foreach (var grupa in groupedMetody)
                                                 {
                                                     <tr>
@@ -345,36 +683,36 @@ else
                                                         </tr>
                                                     }
                                                 }
-                                            </tbody>
-                                        </table>
-                                        break;
+                                                </tbody>
+                                            </table>
+                                            break;
 
-                                    case "naklad":
-                                        var nak = SelectedSylabus.NakladPracy as JsonObject ?? new JsonObject();
-                                        var keys = new[] { "zajecia", "konsultacje", "projekt", "sam_przygotowanie","zaliczenia","sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" };
-                                        var labels = new Dictionary<string, string>
-                            {
-                            { "zajecia", "Udział w zajęciach dydaktycznych (wykłady, ćwiczenia, konwersatoria, projekt, laboratoria, warsztaty, seminaria) – SUMA godzin – z punktu II" },
-                            { "konsultacje", "Udział w konsultacjach" },
-                            { "projekt", "Projekt / esej" },
-                            { "sam_przygotowanie", "Samodzielne przygotowanie się do zajęć dydaktycznych" },
-                            { "zaliczenia", "Przygotowanie się do zaliczenia zajęć dydaktycznych"},
-                            { "sumaryczne", "Sumaryczne obciążenie pracą studenta (25h = 1 ECTS) SUMA godzin/ECTS" },
-                            { "kontakt", "Obciążenie studenta w ramach zajęć w bezpośrednim kontakcie z nauczycielem" },
-                            { "praktyczne", "Obciążenie studenta w ramach zajęć o charakterze praktycznym" },
-                            { "zawodowe", "Obciążenie studenta w ramach zajęć związanych z praktycznym przygotowaniem zawodowym" },
-                            { "badania", "Obciążenie studenta w ramach zajęć związanych z przygotowaniem do prowadzenia badań" }
-                            };
-                                        <div class="effects-title">Nakład pracy studenta</div>
-                                        <table class="table table-bordered table-striped mb-4">
-                                            <thead class="table-header">
+                                        case "naklad":
+                                            var nak = SelectedSylabus.NakladPracy as JsonObject ?? new JsonObject();
+                                            var keys = new[] { "zajecia", "konsultacje", "projekt", "sam_przygotowanie", "zaliczenia", "sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" };
+                                            var labels = new Dictionary<string, string>
+                                            {
+                                                { "zajecia", "Udział w zajęciach dydaktycznych (wykłady, ćwiczenia, konwersatoria, projekt, laboratoria, warsztaty, seminaria) – SUMA godzin – z punktu II" },
+                                                { "konsultacje", "Udział w konsultacjach" },
+                                                { "projekt", "Projekt / esej" },
+                                                { "sam_przygotowanie", "Samodzielne przygotowanie się do zajęć dydaktycznych" },
+                                                { "zaliczenia", "Przygotowanie się do zaliczenia zajęć dydaktycznych" },
+                                                { "sumaryczne", "Sumaryczne obciążenie pracą studenta (25h = 1 ECTS) SUMA godzin/ECTS" },
+                                                { "kontakt", "Obciążenie studenta w ramach zajęć w bezpośrednim kontakcie z nauczycielem" },
+                                                { "praktyczne", "Obciążenie studenta w ramach zajęć o charakterze praktycznym" },
+                                                { "zawodowe", "Obciążenie studenta w ramach zajęć związanych z praktycznym przygotowaniem zawodowym" },
+                                                { "badania", "Obciążenie studenta w ramach zajęć związanych z przygotowaniem do prowadzenia badań" }
+                                            };
+                                            <div class="effects-title">Nakład pracy studenta</div>
+                                            <table class="table table-bordered table-striped mb-4">
+                                                <thead class="table-header">
                                                 <tr>
                                                     <th>Rodzaj aktywności</th>
                                                     <th>Studia stacjonarne</th>
                                                     <th>Studia niestacjonarne</th>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
+                                                </thead>
+                                                <tbody>
                                                 @foreach (var k in keys)
                                                 {
                                                     var s = nak.TryGetPropertyValue($"{k}_S", out var vs) ? vs : nak["S"];
@@ -385,15 +723,15 @@ else
                                                         <td>@n</td>
                                                     </tr>
                                                 }
-                                            </tbody>
-                                        </table>
-                                        break;
+                                                </tbody>
+                                            </table>
+                                            break;
 
-                                    case "literatura":
-                                        var lit = SelectedSylabus.Literatura as JsonObject ?? new JsonObject();
-                                        <div class="effects-title w-100">Literatura</div>
-                                        <table class="table table-bordered table-striped mb-4 w-100">
-                                            <tbody>
+                                        case "literatura":
+                                            var lit = SelectedSylabus.Literatura as JsonObject ?? new JsonObject();
+                                            <div class="effects-title w-100">Literatura</div>
+                                            <table class="table table-bordered table-striped mb-4 w-100">
+                                                <tbody>
                                                 <tr>
                                                     <td class="effects-subheader">Literatura podstawowa przedmiotu:</td>
                                                 </tr>
@@ -420,72 +758,73 @@ else
                                                         <tr><td>@l</td></tr>
                                                     }
                                                 }
-                                            </tbody>
-                                        </table>
-                                        break;
+                                                </tbody>
+                                            </table>
+                                            break;
 
-                                    case "kryteria":
-                                        var kryteria = SelectedSylabus.KryteriaOceny.AsArray();
-                                        <div class="effects-title">VII. Kryteria oceny osiągniętych efektów kształcenia</div>
-                                        <table class="table table-bordered table-striped mb-4">
-                                            <thead class="table-header">
-                                            <tr>
-                                                <th>Efekty kształcenia</th>
-                                                <th>Ocena niedostateczna 
-                                                    Student nie potrafi:</th>
-                                                <th>Zakres ocen 3,0-3,5 
-                                                    Student potrafi:</th>
-                                                <th>Zakres ocen 4,0-4,5 
-                                                    Student potrafi:</th>
-                                                <th>Ocena bardzo dobra 
-                                                    Student potrafi:</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach (var k in kryteria)
-                                            {
+                                        case "kryteria":
+                                            var kryteria = SelectedSylabus.KryteriaOceny.AsArray();
+                                            <div class="effects-title">VII. Kryteria oceny osiągniętych efektów kształcenia</div>
+                                            <table class="table table-bordered table-striped mb-4">
+                                                <thead class="table-header">
                                                 <tr>
-                                                    <td class="text-center font-weight-bold">@k["lp"]</td>
-                                                    <td>@k["ocena2"]</td>
-                                                    <td>@k["ocena3"]</td>
-                                                    <td>@k["ocena4"]</td>
-                                                    <td>@k["ocena5"]</td>
+                                                    <th>Efekty kształcenia</th>
+                                                    <th>Ocena niedostateczna
+                                                        Student nie potrafi:</th>
+                                                    <th>Zakres ocen 3,0-3,5
+                                                        Student potrafi:</th>
+                                                    <th>Zakres ocen 4,0-4,5
+                                                        Student potrafi:</th>
+                                                    <th>Ocena bardzo dobra
+                                                        Student potrafi:</th>
                                                 </tr>
-                                            }
-                                            </tbody>
-                                        </table>
-                                        break;
+                                                </thead>
+                                                <tbody>
+                                                @foreach (var k in kryteria)
+                                                {
+                                                    <tr>
+                                                        <td class="text-center font-weight-bold">@k["lp"]</td>
+                                                        <td>@k["ocena2"]</td>
+                                                        <td>@k["ocena3"]</td>
+                                                        <td>@k["ocena4"]</td>
+                                                        <td>@k["ocena5"]</td>
+                                                    </tr>
+                                                }
+                                                </tbody>
+                                            </table>
+                                            break;
 
-                                    case "realizacja":
-                                        var rel = SelectedSylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
-                                        <div class="effects-title">III. Metody realizacji zajęć dydaktycznych</div>
-                                        <table class="table table-bordered table-striped mb-4">
-                                            <thead class="table-header">
-                                            <tr>
-                                                <th>Formy zajęć</th>
-                                                <th>Metody dydaktyczne</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr>
-                                                <td>Wykład</td>
-                                                <td>@rel["wyklad_opis"]</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Ćwiczenia</td>
-                                                <td>@rel["cwiczenia_opis"]</td>
-                                            </tr>
-                                            @if (rel.ContainsKey("inne_materialy_dydaktyczne"))
-                                            {
+                                        case "realizacja":
+                                            var rel = SelectedSylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
+                                            <div class="effects-title">III. Metody realizacji zajęć dydaktycznych</div>
+                                            <table class="table table-bordered table-striped mb-4">
+                                                <thead class="table-header">
                                                 <tr>
-                                                    <td>Inne materiały dydaktyczne</td>
-                                                    <td>@rel["inne_materialy_dydaktyczne"]</td>
+                                                    <th>Formy zajęć</th>
+                                                    <th>Metody dydaktyczne</th>
                                                 </tr>
-                                            }
-                                            </tbody>
-                                        </table>
-                                        break;
-                                }
+                                                </thead>
+                                                <tbody>
+                                                <tr>
+                                                    <td>Wykład</td>
+                                                    <td>@rel["wyklad_opis"]</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Ćwiczenia</td>
+                                                    <td>@rel["cwiczenia_opis"]</td>
+                                                </tr>
+                                                @if (rel.ContainsKey("inne_materialy_dydaktyczne"))
+                                                {
+                                                    <tr>
+                                                        <td>Inne materiały dydaktyczne</td>
+                                                        <td>@rel["inne_materialy_dydaktyczne"]</td>
+                                                    </tr>
+                                                }
+                                                </tbody>
+                                            </table>
+                                            break;
+                                    }*@
+                                
                             </div>
                         </div>
                     </div>
