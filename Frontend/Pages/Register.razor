@@ -27,17 +27,19 @@
                 <InputText class="form-control icon-input" @bind-Value="RegisterModel.Email" type="email" placeholder="Adres email" />
             </div>
 
-            <div class="d-flex align-items-center gap-2 mb-4">
-                <div class="input-with-icon flex-grow-1 position-relative">
+            <div class="input-icon-row mb-4">
+                <div class="input-with-icon">
                     <i class="bi bi-lock-fill"></i>
                     <input
                         @ref="RegisterPasswordInput"
-                        class="form-control icon-input"
+                        class="form-control icon-input no-right-radius"
                         @bind="RegisterModel.Password"
                         placeholder="Hasło"
                         type="@RegisterPasswordInputType" />
                 </div>
-                <i class="bi @(ShowRegisterPassword ? "bi-eye-slash-fill" : "bi-eye-fill") eye-outside" @onclick="ToggleRegisterPasswordVisibility"></i>
+                <button type="button" class="eye-button" @onclick="ToggleRegisterPasswordVisibility">
+                    <i class="bi @(ShowRegisterPassword ? "bi-eye-slash-fill" : "bi-eye-fill")"></i>
+                </button>
             </div>
 
             @if (!string.IsNullOrEmpty(ErrorMessage))

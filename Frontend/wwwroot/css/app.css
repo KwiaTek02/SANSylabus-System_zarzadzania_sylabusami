@@ -528,3 +528,46 @@ table, h2, h3, .effects-title, .section-title, table-header {
     .eye-outside:hover {
         color: #005293;
     }
+
+.input-icon-row {
+    display: flex;
+    align-items: center;
+}
+
+    .input-icon-row .input-with-icon {
+        flex: 1;
+        position: relative;
+    }
+    .input-icon-row .icon-input {
+        padding-left: 2.75rem !important;
+        border-radius: 12px 0 0 12px;
+        height: 45px;
+    }
+
+.eye-button {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-left: none;
+    height: 45px;
+    padding: 0 0.75rem;
+    border-radius: 0 12px 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+    .eye-button i {
+        font-size: 1.2rem;
+        color: #888;
+    }
+
+    .eye-button:hover i {
+        color: #005293;
+    }
+
+.no-right-radius {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
