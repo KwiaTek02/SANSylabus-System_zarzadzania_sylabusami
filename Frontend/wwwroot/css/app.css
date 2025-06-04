@@ -1,3 +1,10 @@
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -184,3 +191,340 @@ table, h2, h3, .effects-title, .section-title, table-header {
     page-break-inside: avoid !important;
     break-inside: avoid;
 }
+
+.navbar {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 12px 12px;
+}
+
+.btn-outline-light:hover {
+    background-color: #ffffff !important;
+    color: #005293 !important;
+}
+
+.btn-light.text-primary:hover {
+    background-color: #dbe9ff;
+    color: #003b6f;
+}
+
+.main-nav {
+    background-color: #e9f1f9;
+    padding: 0.75rem 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    font-weight: 500;
+    font-size: 1.05rem;
+    border-bottom: 1px solid #ccc;
+}
+
+    .main-nav a {
+        color: #003f6b;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+        .main-nav a:hover {
+            color: #d71920;
+            text-decoration: underline;
+        }
+
+/* KONTENER G£ÓWNY */
+.main-content {
+    max-width: 1200px;
+    margin: auto;
+    padding: 2rem;
+}
+
+.main-header {
+    background-color: #005293; /* Kolor SAN */
+    color: white;
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .brand .logo {
+        height: 48px;
+        width: auto;
+    }
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .auth-buttons a,
+    .btn-logout {
+        font-weight: 500;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        border: 1px solid #fff;
+        background: transparent;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+        .auth-buttons a:hover,
+        .btn-logout:hover {
+            background-color: white;
+            color: #005293;
+            text-decoration: none;
+        }
+
+.auth-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background-color: #f8f9fb;
+    padding: 2rem;
+}
+
+.auth-card.elegant-card {
+        background-color: #ffffff;
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        max-width: 450px;
+        width: 100%;
+}
+    .auth-card.elegant-card form {
+        width: 100%;
+    }
+
+.auth-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #005293;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Styl t³a ca³ej strony logowania */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background: #007cf8;
+}
+
+/* Karta logowania */
+.login-card {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 380px;
+}
+
+/* Grupa input + ikona */
+.input-icon-group {
+    position: relative;
+}
+
+    .input-icon-group .icon {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        color: #888;
+    }
+
+.form-control::placeholder {
+    color: #aaa;
+}
+
+.btn-primary {
+    background-color: #007cf8;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #005fc1;
+    }
+
+
+.elegant-input {
+    position: relative;
+}
+
+.input-icon-top {
+    font-size: 1.6rem;
+    color: #005293;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.custom-input {
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    transition: border 0.3s ease;
+    width: 100%;
+    box-shadow: none;
+}
+
+    .custom-input:focus {
+        border-color: #005293;
+        outline: none;
+        box-shadow: 0 0 0 0.15rem rgba(0, 82, 147, 0.2);
+    }
+
+
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #005293;
+    font-size: 1.2rem;
+}
+
+
+.icon-input {
+    padding-left: 2.75rem !important;
+    padding-right: 2.75rem !important;
+    border-radius: 12px;
+    height: 45px;
+    border: 1px solid #ccc;
+    width: 100%; /* <- TO zostaje */
+    max-width: 100%; /* <- DODAJ TO */
+    box-sizing: border-box; /* <- DODAJ TO */
+    transition: border 0.3s ease;
+}
+
+
+.icon-input:focus {
+    border-color: #005293;
+    box-shadow: 0 0 0 0.1rem rgba(0, 82, 147, 0.2);
+    outline: none;
+}
+
+
+.login-button {
+    background-color: #005293;
+    color: #fff;
+    border: none;
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+        background-color: #003e78;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #888;
+    cursor: pointer;
+}
+
+.pr-icon {
+    padding-right: 2.75rem !important; /* miejsce na ikonê oczka */
+}
+
+.left-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #005293;
+    font-size: 1.2rem;
+    z-index: 2;
+}
+
+.right-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.password-input {
+    padding-left: 2.75rem; /* miejsce na ikonê po lewej */
+    padding-right: 2.75rem; /* miejsce na ikonê po prawej */
+    border-radius: 12px;
+    height: 45px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #005293;
+    font-size: 1.2rem;
+    pointer-events: none;
+}
+
+/* Ikona z prawej (toggle password) */
+.input-icon-right {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.eye-outside {
+    font-size: 1.3rem;
+    color: #888;
+    cursor: pointer;
+    padding: 0.4rem;
+    transition: color 0.2s ease;
+}
+
+    .eye-outside:hover {
+        color: #005293;
+    }

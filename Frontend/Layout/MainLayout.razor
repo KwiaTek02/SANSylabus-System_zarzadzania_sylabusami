@@ -1,14 +1,55 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS
 @inject NavigationManager Navigation
 
-<div class="sidebar bg-light">
-    <nav class="nav flex-column p-2">
-        <a class="nav-link" href="/kierunki">Kierunki</a>
-        <a class="nav-link" href="/login">Zaloguj</a>
-        <a class="nav-link" href="/register">Zarejestruj</a>
-    </nav>
-</div>
+<header class="main-header">
+    <div class="header-content">
+        <div class="brand">
+            <img src="images/san-logo.png" alt="SAN Logo" class="logo" />
+            <span class="brand-name">Społeczna Akademia Nauk</span>
+        </div>
 
-<div class="main p-3">
+        <div class="auth-buttons">
+            @if (IsLoggedIn)
+            {
+                <span class="user-info">👤 @Login</span>
+                <button class="btn btn-logout" @onclick="Logout">Wyloguj</button>
+            }
+            else
+            {
+                <a href="@($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}")" class="btn btn-outline-light me-2">Zaloguj się</a>
+                <a href="/register" class="btn btn-register">Rejestracja</a>
+            }
+        </div>
+    </div>
+</header>
+
+<nav class="main-nav">
+    <a href="/kierunki">Kierunki</a>
+    <a href="#">Student</a>
+    <a href="#">Nauka i Badania</a>
+    <a href="#">Współpraca</a>
+    <a href="#">Kontakt</a>
+</nav>
+
+<div class="main-content px-4 py-4">
     @Body
 </div>
+
+@code {
+    private string? Login;
+    private bool IsLoggedIn;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Login = await JS.InvokeAsync<string>("localStorage.getItem", "authUser");
+        IsLoggedIn = !string.IsNullOrWhiteSpace(Login);
+    }
+
+    private async Task Logout()
+    {
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        await JS.InvokeVoidAsync("localStorage.removeItem", "authUser");
+        Navigation.NavigateTo("/login", true);
+    }
+}
