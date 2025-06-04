@@ -62,15 +62,16 @@ window.exportPdfFromDiv = function (elementId, filename) {
     const element = document.getElementById(elementId);
 
     const opt = {
-        margin: 0.5,
+        margin: [0.5, 0.5, 0.5, 0.5],  // top, left, bottom, right in inches
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0, logging: false },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     // Ukryj przyciski i zakładki
-    const toHide = [...document.querySelectorAll('.btn-action, .nav, .no-print')];
+    const toHide = [...document.querySelectorAll('.btn-action, .nav, .no-print, .year-tab-btn.active, .year-tab-btn:hover, .year-tab-btn, .year-tab-nav')];
     const originalDisplay = toHide.map(el => el.style.display);
     toHide.forEach(el => el.style.display = 'none');
 
