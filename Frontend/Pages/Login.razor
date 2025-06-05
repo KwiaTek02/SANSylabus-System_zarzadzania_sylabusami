@@ -17,19 +17,17 @@
                 <InputText class="form-control icon-input" @bind-Value="LoginModel.Login" placeholder="Wpisz login" />
             </div>
 
-            <div class="input-icon-row mb-4">
-                <div class="input-with-icon">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <div class="input-with-icon flex-grow-1 position-relative">
                     <i class="bi bi-lock-fill"></i>
                     <input
                         @ref="PasswordInput"
-                        class="form-control icon-input no-right-radius"
+                        class="form-control icon-input"
                         @bind="LoginModel.Password"
                         placeholder="Wpisz hasło"
                         type="@PasswordInputType" />
                 </div>
-                <button type="button" class="eye-button" @onclick="TogglePasswordVisibility">
-                    <i class="bi @(ShowPassword ? "bi-eye-slash-fill" : "bi-eye-fill")"></i>
-                </button>
+                <i class="bi @(ShowPassword ? "bi-eye-slash-fill" : "bi-eye-fill") eye-outside" @onclick="TogglePasswordVisibility"></i>
             </div>
 
             @if (!string.IsNullOrEmpty(ErrorMessage))
