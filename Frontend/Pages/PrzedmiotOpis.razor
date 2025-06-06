@@ -27,6 +27,14 @@
 
 @code {
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("updateNavScroll");
+        }
+    }
+
     private async Task ScrollToSection(string sectionId)
     {
         await JS.InvokeVoidAsync("scrollToElement", sectionId);

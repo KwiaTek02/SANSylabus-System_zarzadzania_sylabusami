@@ -32,6 +32,10 @@
     <script>
         function updateNavScroll() {
             const nav = document.querySelector('.nawigacja-przedmiot');
+            if (!nav) {
+                console.warn('Element .nawigacja-przedmiot nie został znaleziony.');
+                return;
+            }
 
             // Media query dla "mobilnej wersji"
             const isSmallScreen = window.matchMedia(
