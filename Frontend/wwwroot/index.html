@@ -17,6 +17,43 @@
         }
     </script>
 
+    <script>
+        window.scrollToElement = function (id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+
+    <script src="js/site.js"></script>
+
+
+    <script>
+        function updateNavScroll() {
+            const nav = document.querySelector('.nawigacja-przedmiot');
+
+            // Media query dla "mobilnej wersji"
+            const isSmallScreen = window.matchMedia(
+                '(max-width: 1400px), (max-height: 800px), (resolution: 2dppx), (max-aspect-ratio: 16/9)'
+            ).matches;
+
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        }
+
+        window.addEventListener('scroll', updateNavScroll);
+        window.addEventListener('resize', updateNavScroll);
+        document.addEventListener('DOMContentLoaded', updateNavScroll);
+    </script>
+
+
+
+
+
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

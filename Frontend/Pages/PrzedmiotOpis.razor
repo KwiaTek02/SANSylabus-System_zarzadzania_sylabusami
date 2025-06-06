@@ -3,118 +3,41 @@
 @using System.Text.Json.Nodes
 @inject HttpClient Http
 @inject NavigationManager Navigation
-
-<style>
-    :root {
-    --primary-color: #005293;
-    --accent-color: #d71920;
-    }
-
-    .card-header {
-    background-color: var(--primary-color);
-    color: #fff;
-    text-align: center;
-    }
-
-    .nav-pills .nav-link {
-    margin-bottom: .5rem;
-    border-radius: .25rem;
-    color: var(--primary-color);
-    }
-
-    .nav-pills .nav-link.active {
-    background-color: var(--accent-color);
-    color: #fff;
-    }
-
-    .list-group-item {
-    border: 1px solid #dee2e6;
-    padding: 0.75rem 1rem;
-    }
-
-    .section-title {
-    background-color: #e9f1f9;
-    color: #003f6b;
-    font-weight: 500;
-    padding: 0.45rem 1rem;
-    font-size: 1rem;
-    border-bottom: 1px solid #ccc;
-    margin-top: 1.5rem;
-    }
-
-    .effects-title {
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem 1rem;
-    font-size: 1.1rem;
-    border-bottom: 1px solid #ccc;
-    text-align: center;
-    width: 97%;
-    max-width: 97%;
-    }
-
-    .table-header {
-    text-align: center;
-
-    }
-
-    .table-header th {
-    background-color: var(--primary-color) !important;
-    color: white;
-    text-align: center;
-    vertical-align: middle;
-    }
-
-    .table-bordered th,
-    .table-bordered td {
-    border: 1px solid #dee2e6 !important;
-    }
-
-    .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f8f9fa;
-    }
-
-    .table th,
-    .table td {
-    vertical-align: middle;
-    text-align: center;
-    padding: 0.75rem;
-    border-color: #dee2e6;
-    }
-
-    .effects-subheader {
-    background-color: #e1ecf4;
-    color: #003f6b;
-    font-weight: 500;
-    font-size: 0.95rem;
-    height: 2.2rem;
-    vertical-align: middle;
-    padding: 0;
-    margin: 0;
-    line-height: 2.2rem;
-    text-align: center !important;
-    width: 100%;
-    }
-
-    table.table {
-    width: 100% !important;
-    }
-
-    .no-break {
-        page-break-inside: avoid;
-    }
-
-    .page-break {
-        page-break-after: always;
-    }
+@inject IJSRuntime JSRuntime
 
 
-</style>
+
+
 
 <PageTitle>Szczegóły przedmiotu</PageTitle>
 
+
+<nav class="nawigacja-przedmiot">
+    <a class="nav-link" @onclick="@(() => ScrollToSection("info"))">Główne informacje</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("naklad"))">TUTAJ BD TO CZEGO NIE MA</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("realizacja"))">Metody realizacji zajęć dydaktycznych</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("efekty"))">Efekty kształcenia</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("tresci"))">Treści kształcenia</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("metody"))">Metody weryfikacji efektów</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("kryteria"))">Kryteria oceny osiągniętych efektów kształcenia</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("naklad"))">Nakład pracy studenta</a>
+    <a class="nav-link" @onclick="@(() => ScrollToSection("literatura"))">Literatura</a>
+    
+</nav>
+
 @code {
+
+    private async Task ScrollToSection(string sectionId)
+    {
+        await JS.InvokeVoidAsync("scrollToElement", sectionId);
+    }
+
+    private async Task ScrollToTop()
+    {
+        await JS.InvokeVoidAsync("window.scrollTo", new { top = 0, behavior = "smooth" });
+    }
+
+
     [Parameter] public int Id { get; set; }
     private PrzedmiotDto? Przedmiot;
     private List<SylabusDto>? Sylabusy;
@@ -156,13 +79,13 @@
 
 
     void ShowInfo() => ActiveSection = "info";
-    void ShowTresci() => ActiveSection = "tresci";
-    void ShowEfekty() => ActiveSection = "efekty";
-    void ShowMetody() => ActiveSection = "metody";
     void ShowNaklad() => ActiveSection = "naklad";
-    void ShowLiteratura() => ActiveSection = "literatura";
-    void ShowKryteria() => ActiveSection = "kryteria";
+    void ShowMetody() => ActiveSection = "metody";
+    void ShowEfekty() => ActiveSection = "efekty";
+    void ShowTresci() => ActiveSection = "tresci";
     void ShowRealizacja() => ActiveSection = "realizacja";
+    void ShowKryteria() => ActiveSection = "kryteria";
+    void ShowLiteratura() => ActiveSection = "literatura";
     void EditPlaceholder() { /* TODO: implement edit */ }
 
     RenderFragment RenderAllSections() => __builder =>
@@ -175,19 +98,22 @@
             __builder.CloseElement();
         }
 
-        AddSection(RenderTresci());
+
+        AddSection(RenderNaklad()); //TUTAJ BĘDZIE "FORMA ZAJĘĆ DYDAKTYCZNYCH ORAZ WYMIAR GODZIN"
+        AddSection(RenderRealizacja());
         AddSection(RenderEfekty());
+        AddSection(RenderTresci());
         AddSection(RenderMetody());
+        AddSection(RenderKryteria());
         AddSection(RenderNaklad());
         AddSection(RenderLiteratura());
-        AddSection(RenderKryteria());
-        AddSection(RenderRealizacja());
+
     };
     
     RenderFragment RenderTresci() => __builder =>
     {
         var tresci = SelectedSylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
-        <div class="effects-title">Treści kształcenia</div>
+        <div id="tresci" class="effects-title">Treści kształcenia</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
                 <tr>
@@ -240,7 +166,7 @@
             { "kompetencje spoleczne", "Kompetencje społeczne:" }
         };
 
-        <div class="effects-container mb-4">
+        <div id="efekty" class="effects-container mb-4">
             <div class="effects-title text-center text-uppercase">
                 II. Efekty kształcenia
             </div>
@@ -284,7 +210,7 @@
             { "umiejetnosci", "Umiejętności:" },
             { "kompetencje_spoleczne", "Kompetencje społeczne:" }
         };
-        <div class="effects-title">Metody weryfikacji efektów</div>
+        <div id="metody" class="effects-title">Metody weryfikacji efektów</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
                 <tr>
@@ -330,7 +256,7 @@
             { "zawodowe", "Obciążenie studenta w ramach zajęć związanych z praktycznym przygotowaniem zawodowym" },
             { "badania", "Obciążenie studenta w ramach zajęć związanych z przygotowaniem do prowadzenia badań" }
         };
-        <div class="effects-title">Nakład pracy studenta</div>
+        <div id="naklad" class="effects-title">Nakład pracy studenta</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
                 <tr>
@@ -356,7 +282,7 @@
     RenderFragment RenderLiteratura() => __builder =>
     {
         var lit = SelectedSylabus.Literatura as JsonObject ?? new JsonObject();
-        <div class="effects-title w-100">Literatura</div>
+        <div id="literatura" class="effects-title w-100">Literatura</div>
         <table class="table table-bordered table-striped mb-4 w-100">
             <tbody>
                 <tr>
@@ -391,7 +317,7 @@
     RenderFragment RenderKryteria() => __builder =>
     {
         var kryteria = SelectedSylabus.KryteriaOceny.AsArray();
-        <div class="effects-title">VII. Kryteria oceny osiągniętych efektów kształcenia</div>
+        <div id="kryteria" class="effects-title">VII. Kryteria oceny osiągniętych efektów kształcenia</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
                 <tr>
@@ -423,7 +349,7 @@
     RenderFragment RenderRealizacja() => __builder =>
     {
         var rel = SelectedSylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
-        <div class="effects-title">III. Metody realizacji zajęć dydaktycznych</div>
+        <div id="realizacja" class="effects-title">III. Metody realizacji zajęć dydaktycznych</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
                 <tr>
@@ -492,7 +418,7 @@ else
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <div class="effects-title">Informacje ogólne o przedmiocie</div>
+                        <div id="info" class="effects-title">Informacje ogólne o przedmiocie</div>
                         <table class="table table-bordered table-striped mb-4">
                             <tbody>
                                 <tr>
@@ -538,17 +464,15 @@ else
                         </table>
                     </div>
                     <div class="col-md-8">
-                        <h5 class="text-secondary">Rok akademicki: @SelectedSylabus.RokData</h5>
+                        <h5 class="text-secondary">Rok akademicki: @SelectedSylabus.RokData</h5> //TO WJEBAĆ DO TABELI NA GÓRZE
+
+
+                        <button class="scroll-top-btn" @onclick="ScrollToTop">
+                            ⬆ Na górę
+                        </button>
+
                         <div class="d-flex">
-                            <nav class="nav flex-column nav-pills me-3 no-print">
-                                <a class="nav-link @(ActiveSection=="tresci"?"active":null)" @onclick="ShowTresci">Treści</a>
-                                <a class="nav-link @(ActiveSection=="efekty"?"active":null)" @onclick="ShowEfekty">Efekty</a>
-                                <a class="nav-link @(ActiveSection=="metody"?"active":null)" @onclick="ShowMetody">Metody</a>
-                                <a class="nav-link @(ActiveSection=="naklad"?"active":null)" @onclick="ShowNaklad">Nakład pracy</a>
-                                <a class="nav-link @(ActiveSection=="literatura"?"active":null)" @onclick="ShowLiteratura">Literatura</a>
-                                <a class="nav-link @(ActiveSection=="kryteria"?"active":null)" @onclick="ShowKryteria">Kryteria</a>
-                                <a class="nav-link @(ActiveSection=="realizacja"?"active":null)" @onclick="ShowRealizacja">Realizacja</a>
-                            </nav>
+                           
                             <div class="flex-fill">
 
                                 @*@if (ExportingPdf)

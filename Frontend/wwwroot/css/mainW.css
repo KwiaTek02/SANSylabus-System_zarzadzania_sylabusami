@@ -1,4 +1,10 @@
-﻿/* === Globalne ustawienia === */
+﻿/*
+    ------------------------------------------------------------
+    glowna strona
+    ------------------------------------------------------------
+*/
+
+/* === Globalne ustawienia === */
 html, body, #app {
     width: 100%;
     margin: 0;
@@ -99,3 +105,277 @@ main, .page, .main-layout, .main-content {
     border-radius: 6px;
     background: #eee;
 }
+/*
+    ------------------------------------------------------------
+    kierunki
+    ------------------------------------------------------------
+*/
+
+
+
+
+/* 
+    ------------------------------------------------------------
+    do przedmiotow
+    ------------------------------------------------------------
+*/
+.list-group-item {
+    max-width: 700px;
+    margin: auto;
+    padding: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+li.list-group-item {
+    transition: background-color 0.5s ease;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    background-color: #005999;
+}
+
+    li.list-group-item:hover {
+        background-color: #e6f0ff;
+    }
+
+#nazwa {
+    width: 10%;
+    margin: auto;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+.mb-3 {
+    margin: auto;
+    max-width: 45%;
+    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
+}
+.form-control {
+    margin: auto;
+    width: 100%;
+    height: 50px;
+    font-size: 1.2rem;
+}
+
+
+
+/*
+    ------------------------------------------------------------
+    sylabus
+    ------------------------------------------------------------
+*/
+
+
+:root {
+    --primary-color: #005293;
+    --accent-color: #d71920;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: #fff;
+    text-align: center;
+}
+
+.nav-pills .nav-link {
+    margin-bottom: .5rem;
+    border-radius: .25rem;
+    color: var(--primary-color);
+}
+
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-color);
+        color: #fff;
+    }
+
+.list-group-item {
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+}
+
+.section-title {
+    background-color: #e9f1f9;
+    color: #003f6b;
+    font-weight: 500;
+    padding: 0.45rem 1rem;
+    font-size: 1rem;
+    border-bottom: 1px solid #ccc;
+    margin-top: 1.5rem;
+}
+
+.effects-title {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    width: 97%;
+    max-width: 97%;
+}
+
+.table-header {
+    text-align: center;
+}
+
+    .table-header th {
+        background-color: var(--primary-color) !important;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6 !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+    text-align: center;
+    padding: 0.75rem;
+    border-color: #dee2e6;
+}
+
+.effects-subheader {
+    background-color: #e1ecf4;
+    color: #003f6b;
+    font-weight: 500;
+    font-size: 0.95rem;
+    height: 2.2rem;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+    line-height: 2.2rem;
+    text-align: center !important;
+    width: 100%;
+}
+
+table.table {
+    width: 100% !important;
+}
+
+.no-break {
+    page-break-inside: avoid;
+}
+
+.page-break {
+    page-break-after: always;
+}
+
+.nawigacja-przedmiot {
+    position: fixed;
+    top: 200px;
+    left: 20px;
+    background-color: #D3D3D3;
+    padding: 0.75rem; /* mniej paddingu */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 40%;
+    width: 15%; /* było 20%, teraz ~25% mniej */
+    overflow-y: auto;
+    overflow-x: hidden; /* ukrywa poziomy scroll */
+    transition: top 1.2s ease-in-out, box-shadow 0.6s ease;
+}
+
+    .nawigacja-przedmiot.scrolled {
+        top: 10px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+
+    .nawigacja-przedmiot:hover {
+        cursor: pointer;
+    }
+
+
+    .nawigacja-przedmiot .nav-link {
+        text-decoration: none;
+        color: #007bff;
+        font-weight: 500;
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+        white-space: normal; /* pozwala łamać wiersze */
+        word-break: break-word; /* łamie długie słowa */
+        overflow-wrap: break-word; /* dodatkowe wsparcie */
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
+
+        .nawigacja-przedmiot .nav-link:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+    @media (max-width: 1400px), (max-height: 800px), (resolution: 2dppx), (max-aspect-ratio: 16/9) {
+        .nawigacja-przedmiot {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            background-color: #f1f1f1;
+            padding: 0.5rem;
+            box-shadow: none;
+            transition: box-shadow 0.4s ease, background-color 0.4s ease;
+            z-index: 100;
+        }
+
+            .nawigacja-przedmiot.scrolled {
+                top: 10px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                background-color: #e9e9e9;
+            }
+
+            .nawigacja-przedmiot .nav-link {
+                white-space: nowrap;
+                font-size: 0.85rem;
+                padding: 0.3rem 0.6rem;
+            }
+    }
+
+
+
+
+
+
+
+.scroll-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    font-size: 1rem;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+    .scroll-top-btn:hover {
+        background-color: #0056b3;
+    }
+
+/*
+    ------------------------------------------------------------
+    edycja sylabusa
+    ------------------------------------------------------------
+*/
