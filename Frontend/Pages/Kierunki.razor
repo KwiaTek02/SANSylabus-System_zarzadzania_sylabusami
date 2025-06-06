@@ -3,37 +3,39 @@
 
 <PageTitle>Kierunki</PageTitle>
 
-<h3>Wybierz kierunek</h3>
+<div class="glowny">
+    <h3 id="glowny-naglowek">Wybierz kierunek:</h3>
 
-<ul class="list-group">
-    @foreach (var kierunek in KierunkiList)
-    {
-        <li class="list-group-item">
-            <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>@kierunek</a>
-        </li>
+    <ul class="lista">
+        @foreach (var kierunek in KierunkiList)
+        {
+            <li class="lista-itemow">
+                <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>@kierunek</a>
+            </li>
 
-        @*<li class="list-group-item">
-            <a href="" @onclick="() => NavigateToPrzedmioty(kierunek)">@kierunek</a>
-        </li>*@
-    }
-</ul>
+            @*<li class="list-group-item">
+                <a href="" @onclick="() => NavigateToPrzedmioty(kierunek)">@kierunek</a>
+            </li>*@
+        }
+    </ul>
 
-@code {
-    // Lista kierunków hardkodowana
-    public readonly List<string> KierunkiList = new()
-    {
-        "Informatyka",
-        "Zarządzanie",
-        "Ekonomia",
-        "Mechanika",
-        "Biologia"
-    };
+    @code {
+        // Lista kierunków hardkodowana
+        public readonly List<string> KierunkiList = new()
+        {
+            "Informatyka",
+            "Zarządzanie",
+            "Ekonomia",
+            "Mechanika",
+            "Biologia"
+        };
 
     
 
-    private void NavigateToPrzedmioty(string kierunek)
-    {
-        // Przekierowanie do strony z przedmiotami dla wybranego kierunku
-        Navigation.NavigateTo($"/przedmioty/{Uri.EscapeDataString(kierunek)}");
+        private void NavigateToPrzedmioty(string kierunek)
+        {
+            // Przekierowanie do strony z przedmiotami dla wybranego kierunku
+            Navigation.NavigateTo($"/przedmioty/{Uri.EscapeDataString(kierunek)}");
+        }
     }
-}
+</div>
