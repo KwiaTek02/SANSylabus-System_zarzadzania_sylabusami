@@ -482,7 +482,7 @@ else
         <RokAkademickiTabs Sylabusy="Sylabusy" Selected="SelectedSylabus" OnChange="OnTabChange" />
         <div class="d-flex justify-content-end mb-3 no-print">
             <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/{SelectedSylabus.Id}/historia"))">Zobacz wersje</button>
-            <button class="btn-action no-print">Edytuj</button>
+            <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/edit/{SelectedSylabus.Id}"))">Edytuj</button>
             <button class="btn-action no-print" @onclick="DownloadPdf">Pobierz sylabus</button>
         </div>
         <div class="card mb-4">

@@ -1,0 +1,524 @@
+﻿@page "/sylabus/edit/{Id:int}"
+@using System.Text.Json.Nodes
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Edytuj sylabus</h3>
+
+@if (Model == null)
+{
+    <p>Ładowanie...</p>
+}
+else
+{
+    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <h4>Informacje ogólne</h4>
+        <InputText class="form-control mb-2" @bind-Value="Model.NazwaJednostkiOrganizacyjnej" placeholder="Jednostka organizacyjna" />
+        <InputText class="form-control mb-2" @bind-Value="Model.ProfilKsztalcenia" placeholder="Profil kształcenia" />
+        <InputText class="form-control mb-2" @bind-Value="Model.NazwaSpecjalnosci" placeholder="Specjalność" />
+        <InputText class="form-control mb-2" @bind-Value="Model.RodzajModuluKsztalcenia" placeholder="Rodzaj modułu" />
+        <InputText class="form-control mb-2" @bind-Value="Model.WymaganiaWstepne" placeholder="Wymagania wstępne" />
+        <InputText class="form-control mb-2" @bind-Value="Model.RokData" placeholder="Rok akademicki" />
+        <InputTextArea class="form-control mb-3" @bind-Value="Model.OpisZmiany" placeholder="Opis zmiany (dla historii)..." />
+
+        <hr />
+
+        @*Treści kształcenia*@
+
+        <h4>Treści kształcenia – wykłady</h4>
+        @foreach (var item in Wyklady)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" />
+                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+            </div>
+        }
+
+        <h4>Treści kształcenia – ćwiczenia</h4>
+        @foreach (var item in Cwiczenia)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" />
+                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+            </div>
+        }
+
+        @*Efekty kształcenia*@
+
+        <h4>Efekty kształcenia – wiedza</h4>
+        @foreach (var item in EfektyWiedza)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
+            </div>
+        }
+
+        <h4>Efekty kształcenia – umiejętności</h4>
+        @foreach (var item in EfektyUmiejetnosci)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
+            </div>
+        }
+
+        <h4>Efekty kształcenia – kompetencje społeczne</h4>
+        @foreach (var item in EfektyKompetencje)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
+            </div>
+        }
+
+        @*Metody weyfikacji*@
+
+        <h4>Metody weryfikacji – wiedza</h4>
+        @foreach (var item in MetodyWeryfikacjiWiedza)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="form-control mt-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+            </div>
+        }
+
+        <h4>Metody weryfikacji – umiejętności</h4>
+        @foreach (var item in MetodyWeryfikacjiUmiejetnosci)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="form-control mt-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+            </div>
+        }
+
+        <h4>Metody weryfikacji – kompetencje społeczne</h4>
+        @foreach (var item in MetodyWeryfikacjiKompetencje)
+        {
+            <div class="mb-2">
+                <label>Lp. @item.Lp</label>
+                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="form-control mt-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+            </div>
+        }
+
+        @*Kryteria Oceny*@
+
+        <h4>Kryteria oceny osiągniętych efektów kształcenia</h4>
+
+        @foreach (var item in KryteriaOceny)
+        {
+            <div class="border rounded p-3 mb-3">
+                <label class="fw-bold">Lp. @item.Lp</label>
+                <InputText class="form-control mb-2" @bind-Value="item.Lp" placeholder="Efekt kształcenia (np. P_W01)" />
+                <InputText class="form-control mb-2" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." />
+                <InputText class="form-control mb-2" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." />
+                <InputText class="form-control mb-2" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." />
+                <InputText class="form-control mb-2" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." />
+            </div>
+        }
+
+        @*Nakład pracy*@
+
+        <hr />
+        <h4>Nakład pracy studenta</h4>
+
+        <table class="table table-bordered table-striped w-100">
+            <thead>
+                <tr>
+                    <th>Rodzaj aktywności</th>
+                    <th>Studia stacjonarne</th>
+                    <th>Studia niestacjonarne</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in NakladPracy)
+                {
+                    <tr>
+                        <td>@row.Label</td>
+                        <td>
+                            <InputNumber class="form-control" @bind-Value="row.Stacjonarne" />
+                        </td>
+                        <td>
+                            <InputNumber class="form-control" @bind-Value="row.Niestacjonarne" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @*Literatura*@
+
+        <hr />
+        <h4>Literatura</h4>
+
+        <h5>Podstawowa</h5>
+        @for (int i = 0; i < LiteraturaPodstawowa.Count; i++)
+        {
+            <div class="input-group mb-2">
+                <InputText class="form-control" @bind-Value="LiteraturaPodstawowa[i]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaPodstawowa.RemoveAt(i)">Usuń</button>
+            </div>
+        }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => LiteraturaPodstawowa.Add(string.Empty)">Dodaj pozycję</button>
+
+        <h5>Uzupełniająca</h5>
+        @for (int i = 0; i < LiteraturaUzupelniajaca.Count; i++)
+        {
+            <div class="input-group mb-2">
+                <InputText class="form-control" @bind-Value="LiteraturaUzupelniajaca[i]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(i)">Usuń</button>
+            </div>
+        }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => LiteraturaUzupelniajaca.Add(string.Empty)">Dodaj pozycję</button>
+
+        <h5>Inne materiały dydaktyczne</h5>
+        @for (int i = 0; i < LiteraturaInne.Count; i++)
+        {
+            <div class="input-group mb-2">
+                <InputText class="form-control" @bind-Value="LiteraturaInne[i]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaInne.RemoveAt(i)">Usuń</button>
+            </div>
+        }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => LiteraturaInne.Add(string.Empty)">Dodaj pozycję</button>
+
+        @*Metody realizacji*@
+
+        <hr />
+        <h4>Metody realizacji zajęć dydaktycznych</h4>
+
+        <div class="mb-3">
+            <label class="form-label">Wykład – opis metody dydaktycznej</label>
+            <InputTextArea class="form-control" @bind-Value="MetodyWyklad" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Ćwiczenia – opis metody dydaktycznej</label>
+            <InputTextArea class="form-control" @bind-Value="MetodyCwiczenia" />
+        </div>
+
+        <h5>Inne materiały dydaktyczne</h5>
+        @for (int i = 0; i < MetodyInne.Count; i++)
+        {
+            <div class="input-group mb-2">
+                <InputText class="form-control" @bind-Value="MetodyInne[i]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => MetodyInne.RemoveAt(i)">Usuń</button>
+            </div>
+        }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => MetodyInne.Add(string.Empty)">Dodaj pozycję</button>
+
+
+        <hr />
+        <button class="btn btn-primary">Zapisz zmiany</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private UpdateSylabusRequest? Model;
+    private SylabusDto? Sylabus;
+
+    private List<TrescViewModel> Wyklady = new();
+    private List<TrescViewModel> Cwiczenia = new();
+    private List<EfektViewModel> EfektyWiedza = new();
+    private List<EfektViewModel> EfektyUmiejetnosci = new();
+    private List<EfektViewModel> EfektyKompetencje = new();
+    private List<MetodaViewModel> MetodyWeryfikacjiWiedza = new();
+    private List<MetodaViewModel> MetodyWeryfikacjiUmiejetnosci = new();
+    private List<MetodaViewModel> MetodyWeryfikacjiKompetencje = new();
+    private List<KryteriumOcenyViewModel> KryteriaOceny = new();
+    private List<NakladPracyViewModel> NakladPracy = new();
+    private List<string> LiteraturaPodstawowa = new();
+    private List<string> LiteraturaUzupelniajaca = new();
+    private List<string> LiteraturaInne = new();
+    private string MetodyWyklad = "";
+    private string MetodyCwiczenia = "";
+    private List<string> MetodyInne = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sylabus = await Http.GetFromJsonAsync<SylabusDto>($"api/sylabusy/{Id}");
+        if (Sylabus is null) return;
+
+        Model = new UpdateSylabusRequest
+            {
+                RokData = Sylabus.RokData,
+                WymaganiaWstepne = Sylabus.WymaganiaWstepne,
+                ProfilKsztalcenia = Sylabus.ProfilKsztalcenia,
+                NazwaJednostkiOrganizacyjnej = Sylabus.NazwaJednostkiOrganizacyjnej,
+                NazwaSpecjalnosci = Sylabus.NazwaSpecjalnosci,
+                RodzajModuluKsztalcenia = Sylabus.RodzajModuluKsztalcenia,
+            };
+
+        var tresci = Sylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
+
+        Wyklady = tresci["wyklady"]?.AsArray().Select(ParseTresc).ToList() ?? new();
+        Cwiczenia = tresci["cwiczenia"]?.AsArray().Select(ParseTresc).ToList() ?? new();
+
+        var efekty = Sylabus.EfektyKsztalcenia?.AsArray() ?? new JsonArray();
+
+        EfektyWiedza = efekty
+            .Where(e => e?["rodzaj"]?.ToString() == "wiedza")
+            .Select(ParseEfekt).ToList();
+
+        EfektyUmiejetnosci = efekty
+            .Where(e => e?["rodzaj"]?.ToString() == "umiejetnosci")
+            .Select(ParseEfekt).ToList();
+
+        EfektyKompetencje = efekty
+            .Where(e => e?["rodzaj"]?.ToString() == "kompetencje spoleczne")
+            .Select(ParseEfekt).ToList();
+
+
+        var metody = Sylabus.MetodyWeryfikacji?.AsArray() ?? new JsonArray();
+
+        MetodyWeryfikacjiWiedza = metody
+            .Where(m => m?["rodzaj"]?.ToString() == "wiedza")
+            .Select(ParseMetoda).ToList();
+
+        MetodyWeryfikacjiUmiejetnosci = metody
+            .Where(m => m?["rodzaj"]?.ToString() == "umiejetnosci")
+            .Select(ParseMetoda).ToList();
+
+        MetodyWeryfikacjiKompetencje = metody
+            .Where(m => m?["rodzaj"]?.ToString() == "kompetencje_spoleczne")
+            .Select(ParseMetoda).ToList();
+
+        var kryteria = Sylabus.KryteriaOceny?.AsArray() ?? new JsonArray();
+
+        KryteriaOceny = kryteria.Select(ParseKryterium).ToList();
+
+        var naklad = Sylabus.NakladPracy as JsonObject ?? new JsonObject();
+
+        NakladPracy = NakladKeys.Select(k => new NakladPracyViewModel
+            {
+                Klucz = k.Klucz,
+                Label = k.Label,
+                Stacjonarne = naklad.TryGetPropertyValue($"{k.Klucz}_S", out var s) ? (int?)s : null,
+                Niestacjonarne = naklad.TryGetPropertyValue($"{k.Klucz}_N", out var n) ? (int?)n : null
+            }).ToList();
+
+
+        var lit = Sylabus.Literatura as JsonObject ?? new JsonObject();
+
+        LiteraturaPodstawowa = lit["podstawowa"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
+        LiteraturaUzupelniajaca = lit["uzupelniajaca"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
+        LiteraturaInne = lit["inne"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
+
+
+        var metodyrealizacji = Sylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
+
+        MetodyWyklad = metodyrealizacji["wyklad_opis"]?.ToString() ?? "";
+        MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
+        MetodyInne = metodyrealizacji["inne_materialy_dydaktyczne"]?.AsArray()?.Select(x => x.ToString()).ToList() ?? new();
+
+
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (Model is null) return;
+
+        var tresciObj = new JsonObject
+            {
+                ["wyklady"] = new JsonArray(Wyklady.Select(x => x.ToJson()).ToArray()),
+                ["cwiczenia"] = new JsonArray(Cwiczenia.Select(x => x.ToJson()).ToArray())
+            };
+
+        var efektyJson = new JsonArray(
+            EfektyWiedza.Select(e => { e.Rodzaj = "wiedza"; return e.ToJson(); })
+                .Concat(EfektyUmiejetnosci.Select(e => { e.Rodzaj = "umiejetnosci"; return e.ToJson(); }))
+                .Concat(EfektyKompetencje.Select(e => { e.Rodzaj = "kompetencje spoleczne"; return e.ToJson(); }))
+                .ToArray());
+
+        var metodyJson = new JsonArray(
+            MetodyWeryfikacjiWiedza.Select(m => { m.Rodzaj = "wiedza"; return m.ToJson(); })
+                .Concat(MetodyWeryfikacjiUmiejetnosci.Select(m => { m.Rodzaj = "umiejetnosci"; return m.ToJson(); }))
+                .Concat(MetodyWeryfikacjiKompetencje.Select(m => { m.Rodzaj = "kompetencje_spoleczne"; return m.ToJson(); }))
+                .ToArray());
+
+
+        var nakladObj = new JsonObject();
+
+        foreach (var item in NakladPracy)
+        {
+            nakladObj[$"{item.Klucz}_S"] = item.Stacjonarne ?? 0;
+            nakladObj[$"{item.Klucz}_N"] = item.Niestacjonarne ?? 0;
+        }
+
+        var litObj = new JsonObject
+            {
+                ["podstawowa"] = new JsonArray(LiteraturaPodstawowa.Select(x => (JsonNode)x).ToArray()),
+                ["uzupelniajaca"] = new JsonArray(LiteraturaUzupelniajaca.Select(x => (JsonNode)x).ToArray()),
+                ["inne"] = new JsonArray(LiteraturaInne.Select(x => (JsonNode)x).ToArray())
+            };
+
+
+        var metodyObj = new JsonObject
+            {
+                ["wyklad_opis"] = MetodyWyklad,
+                ["cwiczenia_opis"] = MetodyCwiczenia,
+                ["inne_materialy_dydaktyczne"] = new JsonArray(MetodyInne.Select(x => (JsonNode)x).ToArray())
+            };
+
+        Model.TresciKsztalcenia = tresciObj;
+        Model.EfektyKsztalcenia = efektyJson;
+        Model.MetodyWeryfikacji = metodyJson;
+        Model.KryteriaOceny = new JsonArray(
+            KryteriaOceny.Select(k => k.ToJson()).ToArray()
+        );
+        Model.NakladPracy = nakladObj;
+        Model.Literatura = litObj;
+        Model.MetodyRealizacji = metodyObj;
+        Model.DataPowstania = DateTime.UtcNow;
+
+        var response = await Http.PutAsJsonAsync($"api/sylabusy/{Id}", Model);
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo($"/przedmiot/{Sylabus!.PrzedmiotId}");
+        }
+        else
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            Console.Error.WriteLine(error);
+        }
+    }
+
+    private static TrescViewModel ParseTresc(JsonNode node) => new()
+        {
+            Lp = node?["lp"]?.ToString() ?? "",
+            Opis = node?["opis"]?.ToString() ?? "",
+            OdniesienieRaw = string.Join(", ", node?["odniesienie"]?.AsArray()?.Select(x => x.ToString()) ?? Enumerable.Empty<string>())
+        };
+
+    private class TrescViewModel
+    {
+        public string Lp { get; set; } = "";
+        public string Opis { get; set; } = "";
+        public string OdniesienieRaw { get; set; } = "";
+
+        public JsonObject ToJson() => new()
+            {
+                ["lp"] = Lp,
+                ["opis"] = Opis,
+                ["odniesienie"] = new JsonArray(OdniesienieRaw
+                        .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(x => (JsonNode)x).ToArray())
+            };
+    }
+
+
+    private class EfektViewModel
+    {
+        public string Lp { get; set; } = "";
+        public string Opis { get; set; } = "";
+        public string OdniesienieRaw { get; set; } = "";
+        public string Rodzaj { get; set; } = "";
+
+        public JsonObject ToJson() => new()
+            {
+                ["lp"] = Lp,
+                ["opis"] = Opis,
+                ["rodzaj"] = Rodzaj,
+                ["odniesienie"] = new JsonArray(
+                    OdniesienieRaw
+                        .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(x => (JsonNode)x).ToArray())
+            };
+    }
+
+    private static EfektViewModel ParseEfekt(JsonNode node) => new()
+        {
+            Lp = node?["lp"]?.ToString() ?? "",
+            Opis = node?["opis"]?.ToString() ?? "",
+            Rodzaj = node?["rodzaj"]?.ToString() ?? "",
+            OdniesienieRaw = string.Join(", ", node?["odniesienie"]?.AsArray()?.Select(x => x.ToString()) ?? Enumerable.Empty<string>())
+        };
+
+
+    private class MetodaViewModel
+    {
+        public string Lp { get; set; } = "";
+        public string Opis { get; set; } = "";
+        public string FormaZajec { get; set; } = "";
+        public string Rodzaj { get; set; } = "";
+
+        public JsonObject ToJson() => new()
+            {
+                ["lp"] = Lp,
+                ["opis"] = Opis,
+                ["forma_zajec"] = FormaZajec,
+                ["rodzaj"] = Rodzaj
+            };
+    }
+
+    private static MetodaViewModel ParseMetoda(JsonNode node) => new()
+        {
+            Lp = node?["lp"]?.ToString() ?? "",
+            Opis = node?["opis"]?.ToString() ?? "",
+            FormaZajec = node?["forma_zajec"]?.ToString() ?? "",
+            Rodzaj = node?["rodzaj"]?.ToString() ?? ""
+        };
+
+    private class KryteriumOcenyViewModel
+    {
+        public string Lp { get; set; } = "";
+        public string Ocena2 { get; set; } = "";
+        public string Ocena3 { get; set; } = "";
+        public string Ocena4 { get; set; } = "";
+        public string Ocena5 { get; set; } = "";
+
+        public JsonObject ToJson() => new()
+            {
+                ["lp"] = Lp,
+                ["ocena2"] = Ocena2,
+                ["ocena3"] = Ocena3,
+                ["ocena4"] = Ocena4,
+                ["ocena5"] = Ocena5
+            };
+    }
+
+    private static KryteriumOcenyViewModel ParseKryterium(JsonNode node) => new()
+        {
+            Lp = node?["lp"]?.ToString() ?? "",
+            Ocena2 = node?["ocena2"]?.ToString() ?? "",
+            Ocena3 = node?["ocena3"]?.ToString() ?? "",
+            Ocena4 = node?["ocena4"]?.ToString() ?? "",
+            Ocena5 = node?["ocena5"]?.ToString() ?? ""
+        };
+
+
+    private class NakladPracyViewModel
+    {
+        public string Klucz { get; set; } = "";
+        public string Label { get; set; } = "";
+        public int? Stacjonarne { get; set; }
+        public int? Niestacjonarne { get; set; }
+    }
+
+    private static readonly (string Klucz, string Label)[] NakladKeys = new[]
+    {
+        ("zajecia", "Udział w zajęciach dydaktycznych (wykłady, ćwiczenia, projekt itd.) – SUMA godzin"),
+        ("konsultacje", "Udział w konsultacjach"),
+        ("projekt", "Projekt / esej"),
+        ("sam_przygotowanie", "Samodzielne przygotowanie się do zajęć dydaktycznych"),
+        ("zaliczenia", "Przygotowanie się do zaliczenia zajęć dydaktycznych"),
+        ("sumaryczne", "Sumaryczne obciążenie pracą studenta (25h = 1 ECTS)"),
+        ("kontakt", "Zajęcia z bezpośrednim kontaktem z nauczycielem"),
+        ("praktyczne", "Zajęcia o charakterze praktycznym"),
+        ("zawodowe", "Zajęcia związane z przygotowaniem zawodowym"),
+        ("badania", "Zajęcia związane z przygotowaniem do badań")
+    };
+}
