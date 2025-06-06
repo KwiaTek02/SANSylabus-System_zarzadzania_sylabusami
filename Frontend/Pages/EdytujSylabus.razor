@@ -30,104 +30,158 @@ else
         @*Treści kształcenia*@
 
         <h4>Treści kształcenia – wykłady</h4>
-        @foreach (var item in Wyklady)
+        @for (int i = 0; i < Wyklady.Count; i++)
         {
+            var localIndex = i; // WAŻNE: na górze
+            var item = Wyklady[localIndex];
             <div class="mb-2">
                 <label>Lp. @item.Lp</label>
                 <InputText class="form-control" @bind-Value="item.Opis" />
                 <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+                <button type="button" class="btn btn-outline-danger btn-sm mt-1"
+                        @onclick="() => { Wyklady.RemoveAt(localIndex); UpdateLp(Wyklady); }">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddWyklad">Dodaj wiersz wykładu</button>
 
         <h4>Treści kształcenia – ćwiczenia</h4>
-        @foreach (var item in Cwiczenia)
+        @for (int i = 0; i < Cwiczenia.Count; i++)
         {
+            var localIndex = i;
+            var item = Cwiczenia[localIndex];
             <div class="mb-2">
                 <label>Lp. @item.Lp</label>
                 <InputText class="form-control" @bind-Value="item.Opis" />
                 <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+                <button type="button" class="btn btn-outline-danger btn-sm mt-1"
+                        @onclick="() => { Cwiczenia.RemoveAt(localIndex); UpdateLp(Cwiczenia); }">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddCwiczenie">Dodaj wiersz ćwiczenia</button>
 
         @*Efekty kształcenia*@
 
         <h4>Efekty kształcenia – wiedza</h4>
-        @foreach (var item in EfektyWiedza)
+        @for (int i = 0; i < EfektyWiedza.Count; i++)
         {
+            var localIndex = i;
+            var item = EfektyWiedza[localIndex];
             <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
+                <label>Lp.</label>
+                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. P_W01" />
+                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="form-control mb-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                        @onclick="() => EfektyWiedza.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektWiedza">Dodaj efekt wiedzy</button>
+
 
         <h4>Efekty kształcenia – umiejętności</h4>
-        @foreach (var item in EfektyUmiejetnosci)
+        @for (int i = 0; i < EfektyUmiejetnosci.Count; i++)
         {
+            var localIndex = i;
+            var item = EfektyUmiejetnosci[localIndex];
             <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
+                <label>Lp.</label>
+                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. P_U01" />
+                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="form-control mb-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                        @onclick="() => EfektyUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektUmiejetnosc">Dodaj efekt umiejętności</button>
+
 
         <h4>Efekty kształcenia – kompetencje społeczne</h4>
-        @foreach (var item in EfektyKompetencje)
+        @for (int i = 0; i < EfektyKompetencje.Count; i++)
         {
+            var localIndex = i;
+            var item = EfektyKompetencje[localIndex];
             <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
+                <label>Lp.</label>
+                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. P_K01" />
+                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="form-control mb-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                        @onclick="() => EfektyKompetencje.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektKompetencja">Dodaj efekt kompetencji</button>
+
 
         @*Metody weyfikacji*@
 
         <h4>Metody weryfikacji – wiedza</h4>
-        @foreach (var item in MetodyWeryfikacjiWiedza)
+        @for (int i = 0; i < MetodyWeryfikacjiWiedza.Count; i++)
         {
+            var localIndex = i;
+            var item = MetodyWeryfikacjiWiedza[localIndex];
             <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="form-control mt-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <label>Lp.</label>
+                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. M_W01" />
+                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="form-control mb-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiWiedza.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiWiedza">Dodaj metodę weryfikacji wiedzy</button>
+
 
         <h4>Metody weryfikacji – umiejętności</h4>
-        @foreach (var item in MetodyWeryfikacjiUmiejetnosci)
+        @for (int i = 0; i < MetodyWeryfikacjiUmiejetnosci.Count; i++)
         {
+            var localIndex = i;
+            var item = MetodyWeryfikacjiUmiejetnosci[localIndex];
             <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="form-control mt-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <label>Lp.</label>
+                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. M_U01" />
+                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="form-control mb-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiUmiejetnosc">Dodaj metodę weryfikacji umiejętności</button>
+
 
         <h4>Metody weryfikacji – kompetencje społeczne</h4>
-        @foreach (var item in MetodyWeryfikacjiKompetencje)
+        @for (int i = 0; i < MetodyWeryfikacjiKompetencje.Count; i++)
         {
+            var localIndex = i;
+            var item = MetodyWeryfikacjiKompetencje[localIndex];
             <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="form-control mt-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <label>Lp.</label>
+                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. M_K01" />
+                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="form-control mb-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiKompetencje.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiKompetencja">Dodaj metodę weryfikacji kompetencji</button>
+
 
         @*Kryteria Oceny*@
 
         <h4>Kryteria oceny osiągniętych efektów kształcenia</h4>
 
-        @foreach (var item in KryteriaOceny)
+        @for (int i = 0; i < KryteriaOceny.Count; i++)
         {
+            var localIndex = i;
+            var item = KryteriaOceny[localIndex];
             <div class="border rounded p-3 mb-3">
-                <label class="fw-bold">Lp. @item.Lp</label>
+                <label class="fw-bold">Lp.</label>
                 <InputText class="form-control mb-2" @bind-Value="item.Lp" placeholder="Efekt kształcenia (np. P_W01)" />
                 <InputText class="form-control mb-2" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." />
                 <InputText class="form-control mb-2" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." />
                 <InputText class="form-control mb-2" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." />
                 <InputText class="form-control mb-2" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." />
+                <button type="button" class="btn btn-outline-danger btn-sm mt-1" @onclick="() => KryteriaOceny.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddKryteriumOceny">Dodaj kryterium</button>
+
 
         @*Nakład pracy*@
 
@@ -166,32 +220,38 @@ else
         <h5>Podstawowa</h5>
         @for (int i = 0; i < LiteraturaPodstawowa.Count; i++)
         {
+            var localIndex = i;
             <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="LiteraturaPodstawowa[i]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaPodstawowa.RemoveAt(i)">Usuń</button>
+                <InputText class="form-control" @bind-Value="LiteraturaPodstawowa[localIndex]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaPodstawowa.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => LiteraturaPodstawowa.Add(string.Empty)">Dodaj pozycję</button>
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddLiteraturaPodstawowa">Dodaj pozycję</button>
+
 
         <h5>Uzupełniająca</h5>
         @for (int i = 0; i < LiteraturaUzupelniajaca.Count; i++)
         {
+            var localIndex = i;
             <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="LiteraturaUzupelniajaca[i]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(i)">Usuń</button>
+                <InputText class="form-control" @bind-Value="LiteraturaUzupelniajaca[localIndex]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => LiteraturaUzupelniajaca.Add(string.Empty)">Dodaj pozycję</button>
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddLiteraturaUzupelniajaca">Dodaj pozycję</button>
+
 
         <h5>Inne materiały dydaktyczne</h5>
         @for (int i = 0; i < LiteraturaInne.Count; i++)
         {
+            var localIndex = i;
             <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="LiteraturaInne[i]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaInne.RemoveAt(i)">Usuń</button>
+                <InputText class="form-control" @bind-Value="LiteraturaInne[localIndex]" />
+                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaInne.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => LiteraturaInne.Add(string.Empty)">Dodaj pozycję</button>
+        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddLiteraturaInne">Dodaj pozycję</button>
+
 
         @*Metody realizacji*@
 
@@ -208,15 +268,10 @@ else
             <InputTextArea class="form-control" @bind-Value="MetodyCwiczenia" />
         </div>
 
-        <h5>Inne materiały dydaktyczne</h5>
-        @for (int i = 0; i < MetodyInne.Count; i++)
-        {
-            <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="MetodyInne[i]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => MetodyInne.RemoveAt(i)">Usuń</button>
-            </div>
-        }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="() => MetodyInne.Add(string.Empty)">Dodaj pozycję</button>
+        <div class="mb-3">
+            <label class="form-label">Inne materiały dydaktyczne – opis</label>
+            <InputTextArea class="form-control" @bind-Value="MetodyInneOpis" />
+        </div>
 
 
         <hr />
@@ -245,7 +300,7 @@ else
     private List<string> LiteraturaInne = new();
     private string MetodyWyklad = "";
     private string MetodyCwiczenia = "";
-    private List<string> MetodyInne = new();
+    private string MetodyInneOpis = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -322,7 +377,8 @@ else
 
         MetodyWyklad = metodyrealizacji["wyklad_opis"]?.ToString() ?? "";
         MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
-        MetodyInne = metodyrealizacji["inne_materialy_dydaktyczne"]?.AsArray()?.Select(x => x.ToString()).ToList() ?? new();
+        MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.AsArray()?.FirstOrDefault()?.ToString() ?? "";
+
 
 
     }
@@ -368,9 +424,9 @@ else
 
         var metodyObj = new JsonObject
             {
-                ["wyklad_opis"] = MetodyWyklad,
-                ["cwiczenia_opis"] = MetodyCwiczenia,
-                ["inne_materialy_dydaktyczne"] = new JsonArray(MetodyInne.Select(x => (JsonNode)x).ToArray())
+                ["wyklad_opis"] = new JsonArray {MetodyWyklad},
+                ["cwiczenia_opis"] = new JsonArray {MetodyCwiczenia},
+                ["inne_materialy_dydaktyczne"] = new JsonArray { MetodyInneOpis }
             };
 
         Model.TresciKsztalcenia = tresciObj;
@@ -521,4 +577,102 @@ else
         ("zawodowe", "Zajęcia związane z przygotowaniem zawodowym"),
         ("badania", "Zajęcia związane z przygotowaniem do badań")
     };
+
+
+    private void AddWyklad()
+    {
+        var nextLp = (Wyklady.Count + 1).ToString();
+        Wyklady.Add(new TrescViewModel { Lp = nextLp });
+    }
+
+    private void AddCwiczenie()
+    {
+        var nextLp = (Cwiczenia.Count + 1).ToString();
+        Cwiczenia.Add(new TrescViewModel { Lp = nextLp });
+    }
+
+    private void UpdateLp(List<TrescViewModel> lista)
+    {
+        for (int i = 0; i < lista.Count; i++)
+        {
+            lista[i].Lp = (i + 1).ToString();
+        }
+    }
+
+    private void AddEfektWiedza()
+    {
+        EfektyWiedza.Add(new EfektViewModel { Lp = "", Opis = "", OdniesienieRaw = "", Rodzaj = "wiedza" });
+    }
+
+    private void AddEfektUmiejetnosc()
+    {
+        EfektyUmiejetnosci.Add(new EfektViewModel { Lp = "", Opis = "", OdniesienieRaw = "", Rodzaj = "umiejetnosci" });
+    }
+
+    private void AddEfektKompetencja()
+    {
+        EfektyKompetencje.Add(new EfektViewModel { Lp = "", Opis = "", OdniesienieRaw = "", Rodzaj = "kompetencje spoleczne" });
+    }
+
+    private void AddMetodaWeryfikacjiWiedza()
+    {
+        MetodyWeryfikacjiWiedza.Add(new MetodaViewModel
+        {
+            Lp = $"M_W{MetodyWeryfikacjiWiedza.Count + 1:00}",
+            Opis = "",
+            FormaZajec = "",
+            Rodzaj = "wiedza"
+        });
+    }
+
+    private void AddMetodaWeryfikacjiUmiejetnosc()
+    {
+        MetodyWeryfikacjiUmiejetnosci.Add(new MetodaViewModel
+        {
+            Lp = $"M_U{MetodyWeryfikacjiUmiejetnosci.Count + 1:00}",
+            Opis = "",
+            FormaZajec = "",
+            Rodzaj = "umiejetnosci"
+        });
+    }
+
+    private void AddMetodaWeryfikacjiKompetencja()
+    {
+        MetodyWeryfikacjiKompetencje.Add(new MetodaViewModel
+        {
+            Lp = $"M_K{MetodyWeryfikacjiKompetencje.Count + 1:00}",
+            Opis = "",
+            FormaZajec = "",
+            Rodzaj = "kompetencje_spoleczne"
+        });
+    }
+
+    private void AddKryteriumOceny()
+    {
+        KryteriaOceny.Add(new KryteriumOcenyViewModel
+        {
+            Lp = "",
+            Ocena2 = "",
+            Ocena3 = "",
+            Ocena4 = "",
+            Ocena5 = ""
+        });
+    }
+
+    private void AddLiteraturaPodstawowa()
+    {
+        LiteraturaPodstawowa.Add(string.Empty);
+    }
+
+    private void AddLiteraturaUzupelniajaca()
+    {
+        LiteraturaUzupelniajaca.Add(string.Empty);
+    }
+
+    private void AddLiteraturaInne()
+    {
+        LiteraturaInne.Add(string.Empty);
+    }
+
+
 }
