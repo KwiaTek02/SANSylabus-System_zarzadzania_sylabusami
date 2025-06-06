@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using SANSylabusApi.DTOs;
 using SylabusAPI.Data;
 using SylabusAPI.DTOs;
@@ -197,9 +199,16 @@ namespace SylabusAPI.Services.Implementations
                          ?? throw new KeyNotFoundException("Sylabus nie został znaleziony.");
 
             // 2) Pobierz ID użytkownika z tokena
-            var userIdClaim = _httpContext.HttpContext!
-                .User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            //var userIdClaim = _httpContext.HttpContext!
+            //.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+            var userIdClaim = _httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                throw new UnauthorizedAccessException("Brak identyfikatora użytkownika w tokenie.");
             var userId = int.Parse(userIdClaim);
+
+            Console.WriteLine($"User ID from token: {userId}");
 
             // 3) Sprawdź uprawnienia: albo admin, albo koordynator
             var isAdmin = _httpContext.HttpContext.User.IsInRole("admin");
@@ -208,7 +217,12 @@ namespace SylabusAPI.Services.Implementations
                 var isCoordinator = await _db.koordynatorzy_sylabusus
                     .AnyAsync(k => k.sylabus_id == id && k.uzytkownik_id == userId);
                 if (!isCoordinator)
+                {
+                    Console.WriteLine($"Brak uprawnień – userId: {userId}, sylabusId: {id}");
                     throw new UnauthorizedAccessException("Nie jesteś koordynatorem tego sylabusu.");
+                }
+                    
+                
             }
 
 
@@ -301,7 +315,10 @@ namespace SylabusAPI.Services.Implementations
                 var isCoordinator = await _db.koordynatorzy_sylabusus
                     .AnyAsync(k => k.sylabus_id == id && k.uzytkownik_id == userId);
                 if (!isCoordinator)
+                {
                     throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tego sylabusu.");
+                }
+                    
             }
 
             // Usuń i zapisz zmiany
@@ -344,6 +361,12 @@ namespace SylabusAPI.Services.Implementations
                 MetodyRealizacji = JsonNode.Parse(s.metody_realizacji_json ?? "{}"),
                 Koordynatorzy = koordynatorzy
             };
+        }
+
+        public async Task<bool> IsKoordynatorAsync(int sylabusId, int userId)
+        {
+            return await _db.koordynatorzy_sylabusus
+                .AnyAsync(k => k.sylabus_id == sylabusId && k.uzytkownik_id == userId);
         }
     }
 }

@@ -14,5 +14,6 @@ namespace SylabusAPI.Services.Interfaces
         Task UpdateAsync(int id, UpdateSylabusRequest req);
 
         Task<KoordynatorDto?> GetKoordynatorBySylabusIdAsync(int sylabusId);
+        Task<bool> IsKoordynatorAsync(int sylabusId, int userId);
     }
 }

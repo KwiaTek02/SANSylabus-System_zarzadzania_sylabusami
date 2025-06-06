@@ -63,6 +63,7 @@ namespace SylabusAPI.Controllers
             }
             catch (UnauthorizedAccessException)
             {
+                Console.WriteLine("Tutaj błąd autoryzacji XD");
                 return Forbid();
             }
         }
@@ -83,6 +84,7 @@ namespace SylabusAPI.Controllers
                 await _svc.DeleteAsync(id);
                 return NoContent();
             }
+
             catch (UnauthorizedAccessException)
             {
                 // 3) Jeżeli serwis rzuci, że nie jestes koordynatorem, zwróć 403
@@ -100,6 +102,15 @@ namespace SylabusAPI.Controllers
 
             return Ok(koordynator);
         }
+
+        [HttpGet("{sylabusId}/czy-koordynator/{userId}")]
+        [AllowAnonymous] // lub [Authorize] jeśli chcesz wymusić token
+        public async Task<IActionResult> CzyKoordynator(int sylabusId, int userId)
+        {
+            var isKoordynator = await _svc.IsKoordynatorAsync(sylabusId, userId);
+            return Ok(isKoordynator);
+        }
+
 
     }
 }

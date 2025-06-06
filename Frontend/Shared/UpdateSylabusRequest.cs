@@ -1,9 +1,11 @@
-﻿using System.Text.Json.Nodes;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Nodes;
 
 namespace Frontend.Shared
 {
     public class UpdateSylabusRequest
     {
+        [Required]
         public string OpisZmiany { get; set; } = default!;        // tekst podany przez wykładowcę
         public DateTime? DataPowstania { get; set; }
         public JsonNode? TresciKsztalcenia { get; set; }

@@ -85,7 +85,8 @@ namespace SylabusAPI.Services.Implementations
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim("login", login),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SecretKey));
