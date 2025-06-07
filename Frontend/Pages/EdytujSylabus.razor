@@ -23,14 +23,14 @@ else
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <h4>Informacje ogólne</h4>
-        <InputText class="form-control mb-2" @bind-Value="Model.NazwaJednostkiOrganizacyjnej" placeholder="Jednostka organizacyjna" />
-        <InputText class="form-control mb-2" @bind-Value="Model.ProfilKsztalcenia" placeholder="Profil kształcenia" />
-        <InputText class="form-control mb-2" @bind-Value="Model.NazwaSpecjalnosci" placeholder="Specjalność" />
-        <InputText class="form-control mb-2" @bind-Value="Model.RodzajModuluKsztalcenia" placeholder="Rodzaj modułu" />
-        <InputText class="form-control mb-2" @bind-Value="Model.WymaganiaWstepne" placeholder="Wymagania wstępne" />
-        <InputText class="form-control mb-2" @bind-Value="Model.RokData" placeholder="Rok akademicki" />
-        <InputText class="form-control mb-3"
+        <h4 class="naglowki-edycja">Informacje ogólne</h4>
+        <InputText class="do-wpisywania" @bind-Value="Model.NazwaJednostkiOrganizacyjnej" placeholder="Jednostka organizacyjna" />
+        <InputText class="do-wpisywania" @bind-Value="Model.ProfilKsztalcenia" placeholder="Profil kształcenia" />
+        <InputText class="do-wpisywania" @bind-Value="Model.NazwaSpecjalnosci" placeholder="Specjalność" />
+        <InputText class="do-wpisywania" @bind-Value="Model.RodzajModuluKsztalcenia" placeholder="Rodzaj modułu" />
+        <InputText class="do-wpisywania" @bind-Value="Model.WymaganiaWstepne" placeholder="Wymagania wstępne" />
+        <InputText class="do-wpisywania" @bind-Value="Model.RokData" placeholder="Rok akademicki" />
+        <InputText class="do-wpisywania"
                        @bind-Value="Model.OpisZmiany"
                        placeholder="Opis zmiany (dla historii)..."
                        required />
@@ -40,30 +40,30 @@ else
 
         @*Treści kształcenia*@
 
-        <h4>Treści kształcenia – wykłady</h4>
+        <h4 class="naglowki-edycja">Treści kształcenia – wykłady</h4>
         @for (int i = 0; i < Wyklady.Count; i++)
         {
             var localIndex = i; // WAŻNE: na górze
             var item = Wyklady[localIndex];
             <div class="mb-2">
                 <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" />
-                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" />
+                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
                 <button type="button" class="btn btn-outline-danger btn-sm mt-1"
                         @onclick="() => { Wyklady.RemoveAt(localIndex); UpdateLp(Wyklady); }">Usuń</button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddWyklad">Dodaj wiersz wykładu</button>
 
-        <h4>Treści kształcenia – ćwiczenia</h4>
+        <h4 class="naglowki-edycja">Treści kształcenia – ćwiczenia</h4>
         @for (int i = 0; i < Cwiczenia.Count; i++)
         {
             var localIndex = i;
             var item = Cwiczenia[localIndex];
             <div class="mb-2">
                 <label>Lp. @item.Lp</label>
-                <InputText class="form-control" @bind-Value="item.Opis" />
-                <InputText class="form-control mt-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" />
+                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
                 <button type="button" class="btn btn-outline-danger btn-sm mt-1"
                         @onclick="() => { Cwiczenia.RemoveAt(localIndex); UpdateLp(Cwiczenia); }">Usuń</button>
             </div>
@@ -72,16 +72,16 @@ else
 
         @*Efekty kształcenia*@
 
-        <h4>Efekty kształcenia – wiedza</h4>
+        <h4 class="naglowki-edycja">Efekty kształcenia – wiedza</h4>
         @for (int i = 0; i < EfektyWiedza.Count; i++)
         {
             var localIndex = i;
             var item = EfektyWiedza[localIndex];
             <div class="mb-2">
                 <label>Lp.</label>
-                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. P_W01" />
-                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="form-control mb-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_W01" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
                 <button type="button" class="btn btn-outline-danger btn-sm"
                         @onclick="() => EfektyWiedza.RemoveAt(localIndex)">Usuń</button>
             </div>
@@ -89,16 +89,16 @@ else
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektWiedza">Dodaj efekt wiedzy</button>
 
 
-        <h4>Efekty kształcenia – umiejętności</h4>
+        <h4 class="naglowki-edycja">Efekty kształcenia – umiejętności</h4>
         @for (int i = 0; i < EfektyUmiejetnosci.Count; i++)
         {
             var localIndex = i;
             var item = EfektyUmiejetnosci[localIndex];
             <div class="mb-2">
                 <label>Lp.</label>
-                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. P_U01" />
-                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="form-control mb-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_U01" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
                 <button type="button" class="btn btn-outline-danger btn-sm"
                         @onclick="() => EfektyUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
             </div>
@@ -106,16 +106,16 @@ else
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektUmiejetnosc">Dodaj efekt umiejętności</button>
 
 
-        <h4>Efekty kształcenia – kompetencje społeczne</h4>
+        <h4 class="naglowki-edycja">Efekty kształcenia – kompetencje społeczne</h4>
         @for (int i = 0; i < EfektyKompetencje.Count; i++)
         {
             var localIndex = i;
             var item = EfektyKompetencje[localIndex];
             <div class="mb-2">
                 <label>Lp.</label>
-                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. P_K01" />
-                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="form-control mb-1" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_K01" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
                 <button type="button" class="btn btn-outline-danger btn-sm"
                         @onclick="() => EfektyKompetencje.RemoveAt(localIndex)">Usuń</button>
             </div>
@@ -125,48 +125,48 @@ else
 
         @*Metody weyfikacji*@
 
-        <h4>Metody weryfikacji – wiedza</h4>
+        <h4 class="naglowki-edycja">Metody weryfikacji – wiedza</h4>
         @for (int i = 0; i < MetodyWeryfikacjiWiedza.Count; i++)
         {
             var localIndex = i;
             var item = MetodyWeryfikacjiWiedza[localIndex];
             <div class="mb-2">
                 <label>Lp.</label>
-                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. M_W01" />
-                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="form-control mb-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. M_W01" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="do-wpisywania" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
                 <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiWiedza.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiWiedza">Dodaj metodę weryfikacji wiedzy</button>
 
 
-        <h4>Metody weryfikacji – umiejętności</h4>
+        <h4 class="naglowki-edycja">Metody weryfikacji – umiejętności</h4>
         @for (int i = 0; i < MetodyWeryfikacjiUmiejetnosci.Count; i++)
         {
             var localIndex = i;
             var item = MetodyWeryfikacjiUmiejetnosci[localIndex];
             <div class="mb-2">
                 <label>Lp.</label>
-                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. M_U01" />
-                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="form-control mb-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. M_U01" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="do-wpisywania" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
                 <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiUmiejetnosc">Dodaj metodę weryfikacji umiejętności</button>
 
 
-        <h4>Metody weryfikacji – kompetencje społeczne</h4>
+        <h4 class="naglowki-edycja">Metody weryfikacji – kompetencje społeczne</h4>
         @for (int i = 0; i < MetodyWeryfikacjiKompetencje.Count; i++)
         {
             var localIndex = i;
             var item = MetodyWeryfikacjiKompetencje[localIndex];
             <div class="mb-2">
                 <label>Lp.</label>
-                <InputText class="form-control mb-1" @bind-Value="item.Lp" placeholder="Np. M_K01" />
-                <InputText class="form-control mb-1" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="form-control mb-1" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. M_K01" />
+                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                <InputText class="do-wpisywania" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
                 <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiKompetencje.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
@@ -175,7 +175,7 @@ else
 
         @*Kryteria Oceny*@
 
-        <h4>Kryteria oceny osiągniętych efektów kształcenia</h4>
+        <h4 class="naglowki-edycja">Kryteria oceny osiągniętych efektów kształcenia</h4>
 
         @for (int i = 0; i < KryteriaOceny.Count; i++)
         {
@@ -183,11 +183,11 @@ else
             var item = KryteriaOceny[localIndex];
             <div class="border rounded p-3 mb-3">
                 <label class="fw-bold">Lp.</label>
-                <InputText class="form-control mb-2" @bind-Value="item.Lp" placeholder="Efekt kształcenia (np. P_W01)" />
-                <InputText class="form-control mb-2" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." />
-                <InputText class="form-control mb-2" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." />
-                <InputText class="form-control mb-2" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." />
-                <InputText class="form-control mb-2" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." />
+                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Efekt kształcenia (np. P_W01)" />
+                <InputText class="do-wpisywania" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." />
+                <InputText class="do-wpisywania" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." />
+                <InputText class="do-wpisywania" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." />
+                <InputText class="do-wpisywania" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." />
                 <button type="button" class="btn btn-outline-danger btn-sm mt-1" @onclick="() => KryteriaOceny.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
@@ -197,7 +197,7 @@ else
         @*Nakład pracy*@
 
         <hr />
-        <h4>Nakład pracy studenta</h4>
+        <h4 class="naglowki-edycja">Nakład pracy studenta</h4>
 
         <table class="table table-bordered table-striped w-100">
             <thead>
@@ -226,14 +226,14 @@ else
         @*Literatura*@
 
         <hr />
-        <h4>Literatura</h4>
+        <h4 class="naglowki-edycja">Literatura</h4>
 
         <h5>Podstawowa</h5>
         @for (int i = 0; i < LiteraturaPodstawowa.Count; i++)
         {
             var localIndex = i;
             <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="LiteraturaPodstawowa[localIndex]" />
+                <InputText class="do-wpisywania" @bind-Value="LiteraturaPodstawowa[localIndex]" />
                 <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaPodstawowa.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
@@ -245,7 +245,7 @@ else
         {
             var localIndex = i;
             <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="LiteraturaUzupelniajaca[localIndex]" />
+                <InputText class="do-wpisywania" @bind-Value="LiteraturaUzupelniajaca[localIndex]" />
                 <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
@@ -257,7 +257,7 @@ else
         {
             var localIndex = i;
             <div class="input-group mb-2">
-                <InputText class="form-control" @bind-Value="LiteraturaInne[localIndex]" />
+                <InputText class="do-wpisywania" @bind-Value="LiteraturaInne[localIndex]" />
                 <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaInne.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
@@ -267,21 +267,21 @@ else
         @*Metody realizacji*@
 
         <hr />
-        <h4>Metody realizacji zajęć dydaktycznych</h4>
+        <h4 class="naglowki-edycja">Metody realizacji zajęć dydaktycznych</h4>
 
         <div class="mb-3">
             <label class="form-label">Wykład – opis metody dydaktycznej</label>
-            <InputText class="form-control" @bind-Value="MetodyWyklad" />
+            <InputText class="do-wpisywania" @bind-Value="MetodyWyklad" />
         </div>
 
         <div class="mb-3">
             <label class="form-label">Ćwiczenia – opis metody dydaktycznej</label>
-            <InputText class="form-control" @bind-Value="MetodyCwiczenia" />
+            <InputText class="do-wpisywania" @bind-Value="MetodyCwiczenia" />
         </div>
 
         <div class="mb-3">
             <label class="form-label">Inne materiały dydaktyczne – opis</label>
-            <InputText class="form-control" @bind-Value="MetodyInneOpis" />
+            <InputText class="do-wpisywania" @bind-Value="MetodyInneOpis" />
         </div>
 
 

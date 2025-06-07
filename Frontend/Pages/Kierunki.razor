@@ -3,55 +3,98 @@
 
 <PageTitle>Kierunki</PageTitle>
 
-<div class="glowny">
+<div class="glowny" style="position: relative;">
     <h3 id="glowny-naglowek">Wybierz kierunek:</h3>
 
-    <ul class="lista">
+    <input type="text" placeholder="Szukaj kierunku..." value="@searchTerm" @oninput="OnSearchChanged" class="form-control mb-1" />
+
+    @if (!string.IsNullOrWhiteSpace(searchTerm) && FilteredKierunki.Any())
+    {
+        <ul class="suggestions-list">
+            @foreach (var suggestion in FilteredKierunki.Take(5))
+            {
+                <li @onclick="() => SelectSuggestion(suggestion)" class="suggestion-item">
+                    @suggestion
+                </li>
+            }
+        </ul>
+    }
+
+    <ul class="lista mt-3">
         @foreach (var kierunek in KierunkiList)
         {
             <li class="lista-itemow">
-                <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>@kierunek</a>
+                <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>
+                    @if (!string.IsNullOrWhiteSpace(searchTerm) && kierunek.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    {
+                        <strong>@kierunek</strong>  @* lub podświetl jeśli pasuje *@
+                    }
+                    else
+                    {
+                        @kierunek
+                    }
+                </a>
             </li>
-
-            @*<li class="list-group-item">
-                <a href="" @onclick="() => NavigateToPrzedmioty(kierunek)">@kierunek</a>
-            </li>*@
         }
     </ul>
 
-    @code {
-        // Lista kierunków hardkodowana
-        public readonly List<string> KierunkiList = new()
+</div>
+
+
+@code {
+    private string searchTerm = "";
+
+    public readonly List<string> KierunkiList = new()
+    {
+        "Informatyka",
+        "Administracja",
+        "Bezpieczeństwo narodowe",
+        "Dziennikarstwo i komunikacja społeczna",
+        "Filologia",
+        "Finanse i rachunkowość",
+        "Grafika",
+        "Kosmetologia",
+        "Logistyka",
+        "Organizacja produkcji filmowej i telewizyjnej",
+        "Pedagogika",
+        "Stosunki międzynarodowe",
+        "Turystyka i rekreacja",
+        "Zarządzanie",
+        "Rachunkowość i zarządzanie finansami",
+        "Fizjoterapia",
+        "Kierunek lekarski",
+        "Pedagogika przedszkolna i wczesnoszkolna ",
+        "Prawo",
+        "Psychologia"
+    };
+
+    private IEnumerable<string> FilteredKierunki =>
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? KierunkiList
+            : KierunkiList.Where(k => k.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
+    private void NavigateToPrzedmioty(string kierunek)
+    {
+        Navigation.NavigateTo($"/przedmioty/{Uri.EscapeDataString(kierunek)}");
+    }
+
+    private void SelectSuggestion(string suggestion)
+    {
+        searchTerm = suggestion;
+        NavigateToPrzedmioty(suggestion);
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+
+        // Automatyczne przekierowanie jeśli wpis idealnie pasuje
+        var match = KierunkiList.FirstOrDefault(k =>
+            string.Equals(k, searchTerm, StringComparison.OrdinalIgnoreCase));
+
+        if (match is not null)
         {
-            "Informatyka",
-            "Administracja",
-            "Bezpieczeństwo narodowe",
-            "Dziennikarstwo i komunikacja społeczna",
-            "Filologia",
-            "Finanse i rachunkowość",
-            "Grafika",
-            "Kosmetologia",
-            "Logistyka",
-            "Organizacja produkcji filmowej i telewizyjnej",
-            "Pedagogika",
-            "Stosunki międzynarodowe",
-            "Turystyka i rekreacja",
-            "Zarządzanie",
-            "Rachunkowość i zarządzanie finansami",
-            "Fizjoterapia",
-            "Kierunek lekarski",
-            "Pedagogika przedszkolna i wczesnoszkolna ",
-            "Prawo",
-            "Psychologia",
-
-        };
-
-    
-
-        private void NavigateToPrzedmioty(string kierunek)
-        {
-            // Przekierowanie do strony z przedmiotami dla wybranego kierunku
-            Navigation.NavigateTo($"/przedmioty/{Uri.EscapeDataString(kierunek)}");
+            NavigateToPrzedmioty(match);
         }
     }
-</div>
+}
