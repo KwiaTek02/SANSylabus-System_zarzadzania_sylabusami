@@ -113,7 +113,11 @@ builder.Services.AddAuthorization(); // --
 
 builder.Services.AddEndpointsApiExplorer(); // --
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+    });
 
 
 builder.Services.AddCors(options =>

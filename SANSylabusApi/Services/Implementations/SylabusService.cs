@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -242,13 +243,34 @@ namespace SylabusAPI.Services.Implementations
 
             // 3) Nadpisz resztę pól z req
             entity.data_powstania = req.DataPowstania ?? entity.data_powstania;
-            entity.tresci_ksztalcenia_json = req.TresciKsztalcenia?.ToJsonString() ?? entity.tresci_ksztalcenia_json;
-            entity.efekty_ksztalcenia_json = req.EfektyKsztalcenia?.ToJsonString() ?? entity.efekty_ksztalcenia_json;
-            entity.metody_weryfikacji_json = req.MetodyWeryfikacji?.ToJsonString() ?? entity.metody_weryfikacji_json;
-            entity.kryteria_oceny_json = req.KryteriaOceny?.ToJsonString() ?? entity.kryteria_oceny_json;
-            entity.naklad_pracy_json = req.NakladPracy?.ToJsonString() ?? entity.naklad_pracy_json;
-            entity.literatura_json = req.Literatura?.ToJsonString() ?? entity.literatura_json;
-            entity.metody_realizacji_json = req.MetodyRealizacji?.ToJsonString() ?? entity.metody_realizacji_json;
+            entity.tresci_ksztalcenia_json = req.TresciKsztalcenia?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.tresci_ksztalcenia_json;
+            entity.efekty_ksztalcenia_json = req.EfektyKsztalcenia?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.efekty_ksztalcenia_json;
+            entity.metody_weryfikacji_json = req.MetodyWeryfikacji?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.metody_weryfikacji_json;
+            entity.kryteria_oceny_json = req.KryteriaOceny?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.kryteria_oceny_json;
+            entity.naklad_pracy_json = req.NakladPracy?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.naklad_pracy_json;
+            entity.literatura_json = req.Literatura?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.literatura_json;
+            entity.metody_realizacji_json = req.MetodyRealizacji?.ToJsonString(new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            }) ?? entity.metody_realizacji_json;
 
 
             entity.nazwa_jednostki_organizacyjnej = req.NazwaJednostkiOrganizacyjnej ?? entity.nazwa_jednostki_organizacyjnej;

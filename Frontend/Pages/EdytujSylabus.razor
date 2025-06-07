@@ -410,7 +410,8 @@ else
         var metodyrealizacji = Sylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
         MetodyWyklad = metodyrealizacji["wyklad_opis"]?.ToString() ?? "";
         MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
-        MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.AsArray()?.FirstOrDefault()?.ToString() ?? "";
+        MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.ToString() ?? "";
+
     }
 
     private async Task HandleSubmit()
@@ -454,9 +455,9 @@ else
 
         var metodyObj = new JsonObject
             {
-                ["wyklad_opis"] = new JsonArray {MetodyWyklad},
-                ["cwiczenia_opis"] = new JsonArray {MetodyCwiczenia},
-                ["inne_materialy_dydaktyczne"] = new JsonArray { MetodyInneOpis }
+                ["wyklad_opis"] = MetodyWyklad,
+                ["cwiczenia_opis"] = MetodyCwiczenia,
+                ["inne_materialy_dydaktyczne"] = MetodyInneOpis
             };
 
         Model.TresciKsztalcenia = tresciObj;
