@@ -385,6 +385,67 @@ table.table {
     text-align: center;
 }
 
-.do-wpisywania {
 
+
+.wiersz-wykladu {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.komorka {
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 1.2em;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.lp {
+    width: 80px;
+    text-align: center;
+}
+
+.odniesienie {
+    flex: 0 0 200px;
+}
+
+.opis {
+    flex: 1;
+}
+
+
+.wpisywanie-tresci-wykladu {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    background-color: transparent;
+}
+
+.usun-btn {
+    margin-left: 10px;
+}
+
+.dodaj-btn {
+    margin-top: 10px;
+}
+
+.komorka-naglowek {
+    background-color: gray !important; /* jasno szare tło, !important gwarantuje nadpisanie */
+    font-weight: bold;
+}
+
+
+.opisowe {
+    background-color: lightgray;
+}
+
+.naglowek-tresci {
+    margin: auto;
+    text-align: center;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
