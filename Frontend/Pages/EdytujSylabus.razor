@@ -84,13 +84,18 @@ else
                 <div class="komorka opis">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                <button type="button" class="usun-btn" title="Usuń"
                         @onclick="() => { Wyklady.RemoveAt(localIndex); UpdateLp(Wyklady); }">
-                    Usuń
+                    <i class="bi bi-trash"></i> Usuń
                 </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddWyklad">Dodaj wiersz wykładu</button>
+
+                <button type="button"
+                        class="btn-kryt-dodaj"
+                        @onclick="AddWyklad">
+                    Dodaj wiersz wykładu
+                </button>
 
 
 
@@ -117,13 +122,18 @@ else
                 <div class="komorka opis">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                <button type="button" class="usun-btn"
                         @onclick="() => { Cwiczenia.RemoveAt(localIndex); UpdateLp(Cwiczenia); }">
-                    Usuń
+                    <i class="bi bi-trash"></i> Usuń
                 </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddCwiczenie">Dodaj wiersz ćwiczenia</button>
+        
+            <button type="button"
+                    class="btn-kryt-dodaj"
+                    @onclick="AddCwiczenie">
+                Dodaj wiersz ćwiczenia
+            </button>
 
 
 
@@ -156,14 +166,18 @@ else
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
                 </div>
 
-                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                <button type="button" class="usun-btn"
                         @onclick="() => EfektyWiedza.RemoveAt(localIndex)">
-                    Usuń
+                    <i class="bi bi-trash"></i> Usuń
                 </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddEfektWiedza">Dodaj efekt wiedzy</button>
 
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddEfektWiedza">
+            Dodaj efekt wiedzy
+        </button>
 
 
         <h1 class="naglowek-efekty-ksztalcenia">Umiejętności</h1>
@@ -190,13 +204,21 @@ else
                 <div class="komorka opis">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+
+                <button type="button" class="usun-btn"
                         @onclick="() => EfektyUmiejetnosci.RemoveAt(localIndex)">
-                    Usuń
+                    <i class="bi bi-trash"></i> Usuń
                 </button>
+
+
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddEfektUmiejetnosc">Dodaj efekt umiejętności</button>
+
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddEfektUmiejetnosc">
+            Dodaj efekt umiejętności
+        </button>
 
 
 
@@ -224,13 +246,19 @@ else
                 <div class="komorka opis">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+
+                <button type="button" class="usun-btn"
                         @onclick="() => EfektyKompetencje.RemoveAt(localIndex)">
-                    Usuń
+                    <i class="bi bi-trash"></i> Usuń
                 </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddEfektKompetencja">Dodaj efekt kompetencji</button>
+
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddEfektKompetencja">
+            Dodaj efekt kompetencji
+        </button>
 
 
 
@@ -260,11 +288,21 @@ else
                 <div class="komorka odniesienie">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.FormaZajec" placeholder="Forma zajęć" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
-                        @onclick="() => MetodyWeryfikacjiWiedza.RemoveAt(localIndex)">Usuń</button>
+
+                <button type="button" class="usun-btn"
+                        @onclick="() => MetodyWeryfikacjiWiedza.RemoveAt(localIndex)">
+                    <i class="bi bi-trash"></i> Usuń
+                </button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiWiedza">Dodaj metodę weryfikacji wiedzy</button>
+
+
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddMetodaWeryfikacjiWiedza">
+            Dodaj metodę weryfikacji wiedzy
+        </button>
 
 
 
@@ -292,12 +330,19 @@ else
                 <div class="komorka odniesienie">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.FormaZajec" placeholder="Forma zajęć" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
+
+                <button type="button" class="usun-btn"
+                        @onclick="() => MetodyWeryfikacjiUmiejetnosci.RemoveAt(localIndex)">
+                    <i class="bi bi-trash"></i> Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiUmiejetnosc">Dodaj metodę weryfikacji umiejętności</button>
 
-
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddMetodaWeryfikacjiUmiejetnosc">
+            Dodaj metodę weryfikacji umiejętności
+        </button>
 
         <h1 class="naglowek-efekty-ksztalcenia">Kompetencje społeczne</h1>
 
@@ -322,48 +367,62 @@ else
                 <div class="komorka odniesienie">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.FormaZajec" placeholder="Forma zajęć" />
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiKompetencje.RemoveAt(localIndex)">Usuń</button>
+
+                <button type="button" class="usun-btn"
+                        @onclick="() => MetodyWeryfikacjiKompetencje.RemoveAt(localIndex)">
+                    <i class="bi bi-trash"></i> Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiKompetencja">Dodaj metodę weryfikacji kompetencji</button>
 
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddMetodaWeryfikacjiKompetencja">
+            Dodaj metodę weryfikacji kompetencji
+        </button>
 
 
         @*Kryteria Oceny*@
 
         <h4 class="naglowki-edycja">Kryteria oceny osiągniętych efektów kształcenia</h4>
 
-        <!-- OWIŃ nagłówki i wiersze w kontener -->
-        <div class="kryteria-tabela">
+
+        <div class="kryt-tabela">
 
             <!-- Wiersz nagłówkowy -->
-            <div class="wiersz-kryterium naglowek-kryterium">
-                <div class="komorka-naglowek">Efekt kształcenia</div>
-                <div class="komorka-naglowek">Ocena niedostateczna – student nie potrafi</div>
-                <div class="komorka-naglowek">Zakres ocen 3.0–3.5 – student potrafi</div>
-                <div class="komorka-naglowek">Zakres ocen 4.0–4.5 – student potrafi</div>
-                <div class="komorka-naglowek">Ocena bardzo dobra – student potrafi</div>
-                <div style="width: 50px;"></div>
+            <div class="kryt-wiersz kryt-naglowek">
+                <div class="kryt-komorka kryt-col-lp">Efekt kształcenia</div>
+                <div class="kryt-komorka kryt-col">Ocena niedostateczna – student nie potrafi</div>
+                <div class="kryt-komorka kryt-col">Zakres ocen 3.0–3.5 – student potrafi</div>
+                <div class="kryt-komorka kryt-col">Zakres ocen 4.0–4.5 – student potrafi</div>
+                <div class="kryt-komorka kryt-col">Ocena bardzo dobra – student potrafi</div>
+                <div class="kryt-komorka kryt-col-btn"></div>
             </div>
 
-            <!-- Wiersze edytowalne -->
             @for (int i = 0; i < KryteriaOceny.Count; i++)
             {
                 var localIndex = i;
                 var item = KryteriaOceny[localIndex];
-                <div class="wiersz-kryterium">
-                    <InputTextArea class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_W01" Rows="2" />
-                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." Rows="2" />
-                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." Rows="2" />
-                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." Rows="2" />
-                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." Rows="2" />
-                    <button type="button" class="btn btn-outline-danger btn-sm mt-1" @onclick="() => KryteriaOceny.RemoveAt(localIndex)">Usuń</button>
+                <div class="kryt-wiersz">
+                    <InputTextArea class="kryt-input kryt-col-lp" @bind-Value="item.Lp" placeholder="Np. P_W01" Rows="2" />
+                    <InputTextArea class="kryt-input kryt-col" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." Rows="2" />
+                    <InputTextArea class="kryt-input kryt-col" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." Rows="2" />
+                    <InputTextArea class="kryt-input kryt-col" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." Rows="2" />
+                    <InputTextArea class="kryt-input kryt-col" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." Rows="2" />
+
+                    <button type="button" class="kryt-usun kryt-col-btn"
+                            @onclick="() => KryteriaOceny.RemoveAt(localIndex)">
+                        <i class="bi bi-trash"></i> Usuń
+                    </button>
                 </div>
             }
         </div>
 
-        <!-- Przycisk dodawania -->
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddKryteriumOceny">Dodaj kryterium</button>
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddKryteriumOceny">
+            Dodaj kryterium
+        </button>
 
 
 
@@ -403,15 +462,26 @@ else
         <h4 class="naglowki-edycja">Literatura</h4>
 
         <h1 class="naglowek-efekty-ksztalcenia">Podstawowa</h1>
+
         @for (int i = 0; i < LiteraturaPodstawowa.Count; i++)
         {
             var localIndex = i;
-            <div class="input-group mb-2">
-                <InputText class="do-wpisywania" @bind-Value="LiteraturaPodstawowa[localIndex]" />
-                <button type="button" class="buttonLiteratura" @onclick="() => LiteraturaPodstawowa.RemoveAt(localIndex)">Usuń</button>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <InputText class="do-wpisywania flex-grow-1" @bind-Value="LiteraturaPodstawowa[localIndex]" />
+
+                <button type="button" class="usun-literatura"
+                        @onclick="() => LiteraturaPodstawowa.RemoveAt(localIndex)">
+                    <i class="bi bi-trash"></i> Usuń
+                </button>
             </div>
         }
-        <button type="button" class="buttonLiteratura" @onclick="AddLiteraturaPodstawowa">Dodaj pozycję</button>
+
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddLiteraturaPodstawowa">
+            Dodaj pozycję
+        </button>
+
 
 
         <h1 class="naglowek-efekty-ksztalcenia">Uzupełniająca</h1>
@@ -420,10 +490,17 @@ else
             var localIndex = i;
             <div class="input-group mb-2">
                 <InputText class="do-wpisywania" @bind-Value="LiteraturaUzupelniajaca[localIndex]" />
-                <button type="button" class="buttonLiteratura" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(localIndex)">Usuń</button>
+
+                <button type="button" class="usun-literatura"
+                        @onclick="() => LiteraturaUzupelniajaca.RemoveAt(localIndex)">
+                    <i class="bi bi-trash"></i> Usuń
+                </button>
             </div>
         }
-        <button type="button" class="buttonLiteratura" @onclick="AddLiteraturaUzupelniajaca">Dodaj pozycję</button>
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddLiteraturaUzupelniajaca">Dodaj pozycję
+        </button>
 
 
         <h1 class="naglowek-efekty-ksztalcenia">Inne materiały dydaktyczne</h1>
@@ -432,11 +509,18 @@ else
             var localIndex = i;
             <div class="input-group mb-2">
                 <InputText class="do-wpisywania" @bind-Value="LiteraturaInne[localIndex]" />
-                <button type="button" class="buttonLiteratura" @onclick="() => LiteraturaInne.RemoveAt(localIndex)">Usuń</button>
+                <button type="button" class="usun-literatura"
+                        @onclick="() => LiteraturaInne.RemoveAt(localIndex)">
+                    <i class="bi bi-trash"></i> Usuń
+                </button>
+
             </div>
         }
-        <button type="button" class="buttonLiteratura" @onclick="AddLiteraturaInne">Dodaj pozycję</button>
-
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddLiteraturaInne">
+            Dodaj pozycję
+        </button>
 
         @*Metody realizacji*@
 
