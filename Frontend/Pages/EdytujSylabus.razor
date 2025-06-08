@@ -2,6 +2,8 @@
 @using System.Text.Json.Nodes
 @using System.Security.Claims
 @using System.Net.Http.Headers
+@using System.Text
+@using System.Text.Json
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -433,16 +435,17 @@ else
     protected override async Task OnInitializedAsync()
     {
         // 1. Sprawdzenie tokenu i uprawnień
-        var auth = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-        var token = auth?.Split(' ').LastOrDefault();
-        Console.WriteLine(token);
-        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
-        if (string.IsNullOrEmpty(token))
+        if (string.IsNullOrWhiteSpace(token) || IsTokenExpired(token))
         {
-            Navigation.NavigateTo("/login");
+            await JS.InvokeVoidAsync("localStorage.clear");
+            Navigation.NavigateTo("/login", true);
             return;
         }
+
+        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
         var jwt = handler.ReadJwtToken(token);
@@ -528,6 +531,31 @@ else
         MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
         MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.ToString() ?? "";
 
+    }
+
+    private bool IsTokenExpired(string token)
+    {
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length != 3) return true;
+
+            var payloadJson = Encoding.UTF8.GetString(Convert.FromBase64String(PadBase64(parts[1])));
+            var payload = JsonDocument.Parse(payloadJson);
+            var expUnix = payload.RootElement.GetProperty("exp").GetInt64();
+            var exp = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+
+            return DateTime.UtcNow > exp;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private string PadBase64(string base64)
+    {
+        return base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
     }
 
     private async Task HandleSubmit()

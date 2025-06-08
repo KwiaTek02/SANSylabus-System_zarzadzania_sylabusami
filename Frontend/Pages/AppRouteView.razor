@@ -1,0 +1,54 @@
+﻿@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+@if (_shouldRenderContent)
+{
+    <RouteView RouteData="@RouteData" DefaultLayout="@DefaultLayout" />
+}
+
+@code {
+    [Parameter] public RouteData RouteData { get; set; } = default!;
+    [Parameter] public Type DefaultLayout { get; set; } = typeof(MainLayout);
+
+    private bool _shouldRenderContent = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var publicRoutes = new[] { "","/", "/#", "login", "register" };
+        var current = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
+
+        if (publicRoutes.Any(p => current.StartsWith(p)))
+        {
+            _shouldRenderContent = true;
+            return;
+        }
+
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (string.IsNullOrEmpty(token))
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        try
+        {
+            var jwtHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = jwtHandler.ReadJwtToken(token);
+            var exp = jwt.ValidTo;
+
+            if (exp < DateTime.UtcNow)
+            {
+                await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
+                await JS.InvokeVoidAsync("localStorage.removeItem", "authUser");
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            _shouldRenderContent = true;
+        }
+        catch
+        {
+            Navigation.NavigateTo("/login", forceLoad: true);
+        }
+    }
+}
