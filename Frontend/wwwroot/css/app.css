@@ -338,4 +338,5 @@ table, h2, h3, .effects-title, .section-title, table-header {
 select.form-select:focus {
     border-color: #005293;
     box-shadow: 0 0 0 0.1rem rgba(0, 82, 147, 0.25);
+    cursor: pointer;
 }
