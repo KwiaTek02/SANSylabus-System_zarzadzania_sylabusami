@@ -1144,3 +1144,33 @@ table.table {
     .btn-kryt-dodaj:hover {
         background-color: #0056b3;
     }
+
+
+/*
+    Lista w przedmiotach
+*/
+
+.wiersz-filtrów {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.kolumna-filtra {
+    flex: 1 1 200px;
+    min-width: 200px;
+}
+
+    .kolumna-filtra select {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+@media (max-width: 768px) {
+    .wiersz-filtrów {
+        flex-direction: column;
+    }
+}
