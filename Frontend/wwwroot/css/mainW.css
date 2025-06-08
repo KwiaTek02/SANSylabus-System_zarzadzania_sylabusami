@@ -449,3 +449,98 @@ table.table {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
+
+
+
+/*Treści kształcenia*/
+
+
+.sekcja-informacji {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.wiersz-informacji {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.etykieta {
+    width: 200px;
+    font-weight: bold;
+    background-color: #f0f0f0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.pole-tekstowe {
+    flex: 1;
+    padding: 0.5rem;
+}
+
+
+
+/*Efekty kształcenia*/
+
+.wiersz-wykladu {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 0.5rem;
+}
+
+.komorka {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+    .komorka.lp {
+        max-width: 100px;
+    }
+
+    .komorka.opis {
+        flex: 2;
+    }
+
+    .komorka.odniesienie {
+        flex: 1.5;
+    }
+
+.wpisywanie-tresci-wykladu {
+    width: 100%;
+    padding: 0.4rem;
+    border-radius: 4px;
+}
+
+.naglowek-kolumn {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+
+}
+
+.komorka-naglowek {
+    text-align: center;
+    font-weight: bold;
+    background-color: #dcdcdc;
+    padding: 0.4rem;
+    border-radius: 4px;
+    flex: 1;
+}
+
+    .komorka-naglowek.lp {
+        max-width: 100px;
+    }
+
+    .komorka-naglowek.opis {
+        flex: 2;
+    }
+
+    .komorka-naglowek.odniesienie {
+        flex: 1.5;
+    }
+

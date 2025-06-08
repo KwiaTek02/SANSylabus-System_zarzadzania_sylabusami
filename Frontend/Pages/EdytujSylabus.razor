@@ -24,12 +24,34 @@ else
         <ValidationSummary />
 
         <h4 class="naglowki-edycja">Informacje ogólne</h4>
-        <InputText class="do-wpisywania" @bind-Value="Model.NazwaJednostkiOrganizacyjnej" placeholder="Jednostka organizacyjna" />
-        <InputText class="do-wpisywania" @bind-Value="Model.ProfilKsztalcenia" placeholder="Profil kształcenia" />
-        <InputText class="do-wpisywania" @bind-Value="Model.NazwaSpecjalnosci" placeholder="Specjalność" />
-        <InputText class="do-wpisywania" @bind-Value="Model.RodzajModuluKsztalcenia" placeholder="Rodzaj modułu" />
-        <InputText class="do-wpisywania" @bind-Value="Model.WymaganiaWstepne" placeholder="Wymagania wstępne" />
-        <InputText class="do-wpisywania" @bind-Value="Model.RokData" placeholder="Rok akademicki" />
+
+        <div class="sekcja-informacji">
+            <div class="wiersz-informacji">
+                <div class="etykieta">Jednostka organizacyjna</div>
+                <InputText class="pole-tekstowe" @bind-Value="Model.NazwaJednostkiOrganizacyjnej" />
+            </div>
+            <div class="wiersz-informacji">
+                <div class="etykieta">Profil kształcenia</div>
+                <InputText class="pole-tekstowe" @bind-Value="Model.ProfilKsztalcenia" />
+            </div>
+            <div class="wiersz-informacji">
+                <div class="etykieta">Specjalność</div>
+                <InputText class="pole-tekstowe" @bind-Value="Model.NazwaSpecjalnosci" />
+            </div>
+            <div class="wiersz-informacji">
+                <div class="etykieta">Rodzaj modułu</div>
+                <InputText class="pole-tekstowe" @bind-Value="Model.RodzajModuluKsztalcenia" />
+            </div>
+            <div class="wiersz-informacji">
+                <div class="etykieta">Wymagania wstępne</div>
+                <InputText class="pole-tekstowe" @bind-Value="Model.WymaganiaWstepne" />
+            </div>
+            <div class="wiersz-informacji">
+                <div class="etykieta">Rok akademicki</div>
+                <InputText class="pole-tekstowe" @bind-Value="Model.RokData" />
+            </div>
+        </div>
+
 
         <hr />
 
@@ -105,55 +127,106 @@ else
 
         @*Efekty kształcenia*@
 
-        <h4 class="naglowki-edycja">Efekty kształcenia – wiedza</h4>
+        <h4 class="naglowki-edycja">Efekty kształcenia – Wiedza</h4>
+
+        <!-- Nagłówki kolumn -->
+        <div class="wiersz-wykladu naglowek-kolumn">
+            <div class="komorka lp komorka-naglowek">Lp.</div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
+            <div style="width: 60px;"></div>
+        </div>
+
         @for (int i = 0; i < EfektyWiedza.Count; i++)
         {
             var localIndex = i;
             var item = EfektyWiedza[localIndex];
-            <div class="mb-2">
-                <label>Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_W01" />
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
-                <button type="button" class="btn btn-outline-danger btn-sm"
-                        @onclick="() => EfektyWiedza.RemoveAt(localIndex)">Usuń</button>
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. P_W01" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                </div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                        @onclick="() => EfektyWiedza.RemoveAt(localIndex)">
+                    Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektWiedza">Dodaj efekt wiedzy</button>
+        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddEfektWiedza">Dodaj efekt wiedzy</button>
 
 
-        <h4 class="naglowki-edycja">Efekty kształcenia – umiejętności</h4>
+
+        <h1 class="naglowek-efekty-ksztalcenia">Umiejętności</h1>
+
+        <!-- Nagłówek kolumn -->
+        <div class="wiersz-wykladu naglowek-kolumn">
+            <div class="komorka lp komorka-naglowek">Lp.</div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
+            <div style="width: 60px;"></div>
+        </div>
+
         @for (int i = 0; i < EfektyUmiejetnosci.Count; i++)
         {
             var localIndex = i;
             var item = EfektyUmiejetnosci[localIndex];
-            <div class="mb-2">
-                <label>Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_U01" />
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
-                <button type="button" class="btn btn-outline-danger btn-sm"
-                        @onclick="() => EfektyUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. P_U01" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                </div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                        @onclick="() => EfektyUmiejetnosci.RemoveAt(localIndex)">
+                    Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektUmiejetnosc">Dodaj efekt umiejętności</button>
+        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddEfektUmiejetnosc">Dodaj efekt umiejętności</button>
 
 
-        <h4 class="naglowki-edycja">Efekty kształcenia – kompetencje społeczne</h4>
+
+        <h1 class="naglowek-efekty-ksztalcenia">Kompetencje społeczne</h1>
+
+        <!-- Nagłówek kolumn -->
+        <div class="wiersz-wykladu naglowek-kolumn">
+            <div class="komorka lp komorka-naglowek">Lp.</div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
+            <div style="width: 60px;"></div>
+        </div>
+
         @for (int i = 0; i < EfektyKompetencje.Count; i++)
         {
             var localIndex = i;
             var item = EfektyKompetencje[localIndex];
-            <div class="mb-2">
-                <label>Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_K01" />
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
-                <button type="button" class="btn btn-outline-danger btn-sm"
-                        @onclick="() => EfektyKompetencje.RemoveAt(localIndex)">Usuń</button>
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. P_K01" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                </div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                        @onclick="() => EfektyKompetencje.RemoveAt(localIndex)">
+                    Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddEfektKompetencja">Dodaj efekt kompetencji</button>
+        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddEfektKompetencja">Dodaj efekt kompetencji</button>
+
 
 
         @*Metody weyfikacji*@
