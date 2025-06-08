@@ -8,7 +8,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<h3>Edytuj sylabus</h3>
+<h3 id="glownyEdycji">Edytuj sylabus</h3>
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
@@ -59,7 +59,7 @@ else
 
         @*Treści kształcenia*@
 
-        <h4 class="naglowki-edycja">Treści kształcenia – wykłady</h4>
+        <h4 class="naglowki-edycja">Treści kształcenia</h4>
 
 
         <h1 class="naglowek-tresci">Wykłady</h1>
@@ -69,7 +69,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienie</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
         </div>
 
         @for (int i = 0; i < Wyklady.Count; i++)
@@ -106,7 +106,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienie</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
         </div>
 
 
@@ -148,7 +148,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
         </div>
 
         @for (int i = 0; i < EfektyWiedza.Count; i++)
@@ -187,7 +187,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
         </div>
 
         @for (int i = 0; i < EfektyUmiejetnosci.Count; i++)
@@ -229,7 +229,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
         </div>
 
         @for (int i = 0; i < EfektyKompetencje.Count; i++)
@@ -271,7 +271,8 @@ else
             <div class="komorka-naglowek lp">Lp.</div>
             <div class="komorka-naglowek opis">Opis metody weryfikacji</div>
             <div class="komorka-naglowek odniesienie">Forma zajęć</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
+
         </div>
 
         @for (int i = 0; i < MetodyWeryfikacjiWiedza.Count; i++)
@@ -313,7 +314,8 @@ else
             <div class="komorka-naglowek lp">Lp.</div>
             <div class="komorka-naglowek opis">Opis metody weryfikacji</div>
             <div class="komorka-naglowek odniesienie">Forma zajęć</div>
-            <div style="width: 50px;"></div>
+            <div class="kryt-komorka kryt-col-btn"></div>
+
         </div>
 
         @for (int i = 0; i < MetodyWeryfikacjiUmiejetnosci.Count; i++)

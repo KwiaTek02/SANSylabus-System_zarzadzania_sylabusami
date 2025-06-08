@@ -633,10 +633,17 @@ table.table {
 */
 
 
+#glownyEdycji {
+    font-size: 4rem;
+}
+
+
+
+
 .naglowki-edycja {
     font-size: 2rem;
     font-weight: bold;
-    margin-top: 40px;
+    margin-top: 7rem;
     margin-bottom: 20px;
     border-bottom: 3px solid #005293; /* Czerwona dolna linia */
     padding-bottom: 10px;
@@ -704,10 +711,11 @@ table.table {
 }
 
 .naglowek-tresci {
+    font-size: 3rem;
     margin: auto;
     text-align: center;
     padding: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 3rem;
     margin-bottom: 1rem;
 }
 
@@ -830,8 +838,14 @@ table.table {
 }
 
 
-.naglowek-efekty-ksztalcenia{
-    text-align:center;
+.naglowek-efekty-ksztalcenia {
+
+    font-size: 3rem;
+    margin: auto;
+    text-align: center;
+    padding: 0.5rem;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
 }
 
 
@@ -1090,6 +1104,7 @@ table.table {
     flex: 0 0 50px;
     background-color:white;
     border:none;
+
 }
 
 /* Inputy */
