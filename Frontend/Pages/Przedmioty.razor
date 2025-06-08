@@ -75,11 +75,17 @@ else
                 @foreach (var p in sem)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span @onclick="() => NavigateToPrzedmiot(p.Id)" style="cursor:pointer;">@p.Nazwa</span>
-                        @if (IsLecturer)
-                        {
-                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => EditPrzedmiot(p.Id)">Edytuj</button>
-                        }
+                        <div class="d-flex align-items-center justify-content-between w-100">
+                            <span @onclick="() => NavigateToPrzedmiot(p.Id)" style="cursor:pointer;">
+                                @p.Nazwa
+                                <span class="osrodek-badge">@p.Osrodek</span>
+                            </span>
+
+                            @if (IsLecturer)
+                            {
+                                <button class="btn btn-sm btn-outline-secondary ms-3" @onclick="() => EditPrzedmiot(p.Id)">Edytuj</button>
+                            }
+                        </div>
                     </li>
                 }
             </ul>

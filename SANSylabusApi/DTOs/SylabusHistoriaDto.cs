@@ -11,5 +11,9 @@ namespace SylabusAPI.DTOs
         public int ZmienionyPrzez { get; set; }
         public string? OpisZmiany { get; set; }
         public string? WersjaWtedy { get; set; }
+        public string? ZmieniajacyImieNazwiskoTytul { get; set; }
+
+
     }
+
 }
