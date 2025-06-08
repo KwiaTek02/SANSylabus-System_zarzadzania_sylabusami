@@ -283,7 +283,7 @@ table.table {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    max-height: 40%;
+    max-height: 60%;
     width: 15%;
     overflow-y: auto;
     overflow-x: hidden; /* ukrywa poziomy scroll */
