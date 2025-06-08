@@ -69,7 +69,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienie</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 60px;"></div>
+            <div style="width: 50px;"></div>
         </div>
 
         @for (int i = 0; i < Wyklady.Count; i++)
@@ -101,7 +101,7 @@ else
             <div class="komorka lp komorka-naglowek">Lp.</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienie</div>
             <div class="komorka opis komorka-naglowek">Opis</div>
-            <div style="width: 60px;"></div>
+            <div style="width: 50px;"></div>
         </div>
 
 
@@ -129,14 +129,16 @@ else
 
         @*Efekty kształcenia*@
 
-        <h4 class="naglowki-edycja">Efekty kształcenia – Wiedza</h4>
+        <h4 class="naglowki-edycja">Efekty kształcenia</h4>
+
+        <h1 class="naglowek-efekty-ksztalcenia">Wiedza</h1>
 
         <!-- Nagłówki kolumn -->
         <div class="wiersz-wykladu naglowek-kolumn">
             <div class="komorka lp komorka-naglowek">Lp.</div>
-            <div class="komorka opis komorka-naglowek">Opis</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
-            <div style="width: 60px;"></div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div style="width: 50px;"></div>
         </div>
 
         @for (int i = 0; i < EfektyWiedza.Count; i++)
@@ -147,12 +149,13 @@ else
                 <div class="komorka lp">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. P_W01" />
                 </div>
-                <div class="komorka opis">
-                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                </div>
                 <div class="komorka odniesienie">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_W01)" />
                 </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
+                </div>
+
                 <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
                         @onclick="() => EfektyWiedza.RemoveAt(localIndex)">
                     Usuń
@@ -168,9 +171,9 @@ else
         <!-- Nagłówek kolumn -->
         <div class="wiersz-wykladu naglowek-kolumn">
             <div class="komorka lp komorka-naglowek">Lp.</div>
-            <div class="komorka opis komorka-naglowek">Opis</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
-            <div style="width: 60px;"></div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div style="width: 50px;"></div>
         </div>
 
         @for (int i = 0; i < EfektyUmiejetnosci.Count; i++)
@@ -181,11 +184,11 @@ else
                 <div class="komorka lp">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. P_U01" />
                 </div>
-                <div class="komorka opis">
-                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                </div>
                 <div class="komorka odniesienie">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_U01)" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
                 </div>
                 <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
                         @onclick="() => EfektyUmiejetnosci.RemoveAt(localIndex)">
@@ -202,9 +205,9 @@ else
         <!-- Nagłówek kolumn -->
         <div class="wiersz-wykladu naglowek-kolumn">
             <div class="komorka lp komorka-naglowek">Lp.</div>
-            <div class="komorka opis komorka-naglowek">Opis</div>
             <div class="komorka odniesienie komorka-naglowek">Odniesienia</div>
-            <div style="width: 60px;"></div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div style="width: 50px;"></div>
         </div>
 
         @for (int i = 0; i < EfektyKompetencje.Count; i++)
@@ -215,11 +218,11 @@ else
                 <div class="komorka lp">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. P_K01" />
                 </div>
-                <div class="komorka opis">
-                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
-                </div>
                 <div class="komorka odniesienie">
                     <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. K_K01)" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis efektu" />
                 </div>
                 <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
                         @onclick="() => EfektyKompetencje.RemoveAt(localIndex)">
@@ -234,72 +237,135 @@ else
         @*Metody weyfikacji*@
 
         <h4 class="naglowki-edycja">Metody weryfikacji – wiedza</h4>
+        <h1 class="naglowek-efekty-ksztalcenia">Wiedza</h1>
+
+        <div class="naglowek-kolumn">
+            <div class="komorka-naglowek lp">Lp.</div>
+            <div class="komorka-naglowek opis">Opis metody weryfikacji</div>
+            <div class="komorka-naglowek odniesienie">Forma zajęć</div>
+            <div style="width: 50px;"></div>
+        </div>
+
         @for (int i = 0; i < MetodyWeryfikacjiWiedza.Count; i++)
         {
             var localIndex = i;
-            var item = MetodyWeryfikacjiWiedza[localIndex];
-            <div class="mb-2">
-                <label>Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. M_W01" />
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="do-wpisywania" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
-                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiWiedza.RemoveAt(localIndex)">Usuń</button>
+            var item = MetodyWeryfikacjiWiedza[i];
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. M_W01" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                </div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.FormaZajec" placeholder="Forma zajęć" />
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                        @onclick="() => MetodyWeryfikacjiWiedza.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiWiedza">Dodaj metodę weryfikacji wiedzy</button>
 
 
-        <h4 class="naglowki-edycja">Metody weryfikacji – umiejętności</h4>
+
+
+        <h1 class="naglowek-efekty-ksztalcenia">Umiejętności</h1>
+
+        <div class="naglowek-kolumn">
+            <div class="komorka-naglowek lp">Lp.</div>
+            <div class="komorka-naglowek opis">Opis metody weryfikacji</div>
+            <div class="komorka-naglowek odniesienie">Forma zajęć</div>
+            <div style="width: 50px;"></div>
+        </div>
+
         @for (int i = 0; i < MetodyWeryfikacjiUmiejetnosci.Count; i++)
         {
             var localIndex = i;
             var item = MetodyWeryfikacjiUmiejetnosci[localIndex];
-            <div class="mb-2">
-                <label>Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. M_U01" />
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="do-wpisywania" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. M_W01" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                </div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.FormaZajec" placeholder="Forma zajęć" />
+                </div>
                 <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiUmiejetnosci.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiUmiejetnosc">Dodaj metodę weryfikacji umiejętności</button>
 
 
-        <h4 class="naglowki-edycja">Metody weryfikacji – kompetencje społeczne</h4>
+
+        <h1 class="naglowek-efekty-ksztalcenia">Kompetencje społeczne</h1>
+
+        <div class="naglowek-kolumn">
+            <div class="komorka-naglowek lp">Lp.</div>
+            <div class="komorka-naglowek opis">Opis metody weryfikacji</div>
+            <div class="komorka-naglowek odniesienie">Forma zajęć</div>
+            <div style="width: 50px;"></div>
+        </div>
+
         @for (int i = 0; i < MetodyWeryfikacjiKompetencje.Count; i++)
         {
             var localIndex = i;
             var item = MetodyWeryfikacjiKompetencje[localIndex];
-            <div class="mb-2">
-                <label>Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. M_K01" />
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
-                <InputText class="do-wpisywania" @bind-Value="item.FormaZajec" placeholder="Forma zajęć (np. Wykład, Ćwiczenia)" />
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Lp" placeholder="Np. M_W01" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" placeholder="Opis metody weryfikacji" />
+                </div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.FormaZajec" placeholder="Forma zajęć" />
+                </div>
                 <button type="button" class="btn btn-outline-danger btn-sm" @onclick="() => MetodyWeryfikacjiKompetencje.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiKompetencja">Dodaj metodę weryfikacji kompetencji</button>
 
 
+
         @*Kryteria Oceny*@
 
         <h4 class="naglowki-edycja">Kryteria oceny osiągniętych efektów kształcenia</h4>
 
-        @for (int i = 0; i < KryteriaOceny.Count; i++)
-        {
-            var localIndex = i;
-            var item = KryteriaOceny[localIndex];
-            <div class="border rounded p-3 mb-3">
-                <label class="fw-bold">Lp.</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Lp" placeholder="Efekt kształcenia (np. P_W01)" />
-                <InputText class="do-wpisywania" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." />
-                <InputText class="do-wpisywania" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." />
-                <InputText class="do-wpisywania" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." />
-                <InputText class="do-wpisywania" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." />
-                <button type="button" class="btn btn-outline-danger btn-sm mt-1" @onclick="() => KryteriaOceny.RemoveAt(localIndex)">Usuń</button>
+        <!-- OWIŃ nagłówki i wiersze w kontener -->
+        <div class="kryteria-tabela">
+
+            <!-- Wiersz nagłówkowy -->
+            <div class="wiersz-kryterium naglowek-kryterium">
+                <div class="komorka-naglowek">Efekt kształcenia</div>
+                <div class="komorka-naglowek">Ocena niedostateczna – student nie potrafi</div>
+                <div class="komorka-naglowek">Zakres ocen 3.0–3.5 – student potrafi</div>
+                <div class="komorka-naglowek">Zakres ocen 4.0–4.5 – student potrafi</div>
+                <div class="komorka-naglowek">Ocena bardzo dobra – student potrafi</div>
+                <div style="width: 50px;"></div>
             </div>
-        }
+
+            <!-- Wiersze edytowalne -->
+            @for (int i = 0; i < KryteriaOceny.Count; i++)
+            {
+                var localIndex = i;
+                var item = KryteriaOceny[localIndex];
+                <div class="wiersz-kryterium">
+                    <InputTextArea class="do-wpisywania" @bind-Value="item.Lp" placeholder="Np. P_W01" Rows="2" />
+                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena2" placeholder="Ocena 2.0 – Student nie potrafi..." Rows="2" />
+                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena3" placeholder="Ocena 3.0–3.5 – Student potrafi..." Rows="2" />
+                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena4" placeholder="Ocena 4.0–4.5 – Student potrafi..." Rows="2" />
+                    <InputTextArea class="do-wpisywania" @bind-Value="item.Ocena5" placeholder="Ocena 5.0 – Student potrafi..." Rows="2" />
+                    <button type="button" class="btn btn-outline-danger btn-sm mt-1" @onclick="() => KryteriaOceny.RemoveAt(localIndex)">Usuń</button>
+                </div>
+            }
+        </div>
+
+        <!-- Przycisk dodawania -->
         <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddKryteriumOceny">Dodaj kryterium</button>
+
+
 
 
         @*Nakład pracy*@
@@ -336,40 +402,40 @@ else
         <hr />
         <h4 class="naglowki-edycja">Literatura</h4>
 
-        <h5>Podstawowa</h5>
+        <h1 class="naglowek-efekty-ksztalcenia">Podstawowa</h1>
         @for (int i = 0; i < LiteraturaPodstawowa.Count; i++)
         {
             var localIndex = i;
             <div class="input-group mb-2">
                 <InputText class="do-wpisywania" @bind-Value="LiteraturaPodstawowa[localIndex]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaPodstawowa.RemoveAt(localIndex)">Usuń</button>
+                <button type="button" class="buttonLiteratura" @onclick="() => LiteraturaPodstawowa.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddLiteraturaPodstawowa">Dodaj pozycję</button>
+        <button type="button" class="buttonLiteratura" @onclick="AddLiteraturaPodstawowa">Dodaj pozycję</button>
 
 
-        <h5>Uzupełniająca</h5>
+        <h1 class="naglowek-efekty-ksztalcenia">Uzupełniająca</h1>
         @for (int i = 0; i < LiteraturaUzupelniajaca.Count; i++)
         {
             var localIndex = i;
             <div class="input-group mb-2">
                 <InputText class="do-wpisywania" @bind-Value="LiteraturaUzupelniajaca[localIndex]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(localIndex)">Usuń</button>
+                <button type="button" class="buttonLiteratura" @onclick="() => LiteraturaUzupelniajaca.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddLiteraturaUzupelniajaca">Dodaj pozycję</button>
+        <button type="button" class="buttonLiteratura" @onclick="AddLiteraturaUzupelniajaca">Dodaj pozycję</button>
 
 
-        <h5>Inne materiały dydaktyczne</h5>
+        <h1 class="naglowek-efekty-ksztalcenia">Inne materiały dydaktyczne</h1>
         @for (int i = 0; i < LiteraturaInne.Count; i++)
         {
             var localIndex = i;
             <div class="input-group mb-2">
                 <InputText class="do-wpisywania" @bind-Value="LiteraturaInne[localIndex]" />
-                <button type="button" class="btn btn-outline-danger" @onclick="() => LiteraturaInne.RemoveAt(localIndex)">Usuń</button>
+                <button type="button" class="buttonLiteratura" @onclick="() => LiteraturaInne.RemoveAt(localIndex)">Usuń</button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddLiteraturaInne">Dodaj pozycję</button>
+        <button type="button" class="buttonLiteratura" @onclick="AddLiteraturaInne">Dodaj pozycję</button>
 
 
         @*Metody realizacji*@
@@ -377,26 +443,23 @@ else
         <hr />
         <h4 class="naglowki-edycja">Metody realizacji zajęć dydaktycznych</h4>
 
-        <div class="mb-3">
-            <label class="form-label">Wykład – opis metody dydaktycznej</label>
-            <InputText class="do-wpisywania" @bind-Value="MetodyWyklad" />
-        </div>
+        <div class="tabela-metod">
+            <!-- Nagłówki kolumn -->
+            <div class="naglowek-komorka">Forma zajęć</div>
+            <div class="naglowek-komorka">Metody dydaktyczne</div>
 
-        <div class="mb-3">
-            <label class="form-label">Ćwiczenia – opis metody dydaktycznej</label>
-            <InputText class="do-wpisywania" @bind-Value="MetodyCwiczenia" />
-        </div>
+            <!-- Wiersze danych -->
+            <div class="forma-zajec-label">Wykład</div>
+            <InputText class="do-wpisywania" @bind-Value="MetodyWyklad" placeholder="Opis metody dydaktycznej" />
 
-        <div class="mb-3">
-            <label class="form-label">Inne materiały dydaktyczne – opis</label>
-            <InputText class="do-wpisywania" @bind-Value="MetodyInneOpis" />
-        </div>
+            <div class="forma-zajec-label">Ćwiczenia</div>
+            <InputText class="do-wpisywania" @bind-Value="MetodyCwiczenia" placeholder="Opis metody dydaktycznej" />
 
+            <div class="forma-zajec-label">Inne materiały dydaktyczne</div>
+            <InputText class="do-wpisywania" @bind-Value="MetodyInneOpis" placeholder="Opis metody dydaktycznej" />
+        </div>
 
         <hr />
-        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
-
-
 
         <InputText class="do-wpisywania"
                    @bind-Value="Model.OpisZmiany"
@@ -404,8 +467,10 @@ else
                    required />
         <ValidationMessage For="@(() => Model.OpisZmiany)" />
 
+        </EditForm>
 
-    </EditForm>
+    <button type="submit" class="zmiany">Zapisz zmiany</button>
+
 }
 
 @code {

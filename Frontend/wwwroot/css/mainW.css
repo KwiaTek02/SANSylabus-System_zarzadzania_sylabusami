@@ -1,4 +1,258 @@
-﻿/*
+﻿
+
+/* Styl tła całej strony logowania */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background: #007cf8;
+}
+
+/* Karta logowania */
+.login-card {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 380px;
+}
+
+/* Grupa input + ikona */
+.input-icon-group {
+    position: relative;
+}
+
+    .input-icon-group .icon {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        color: #888;
+    }
+
+.form-control::placeholder {
+    color: #aaa;
+}
+
+.btn-primary {
+    background-color: #007cf8;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #005fc1;
+    }
+
+
+.elegant-input {
+    position: relative;
+}
+
+.input-icon-top {
+    font-size: 1.6rem;
+    color: #005293;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.custom-input {
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    transition: border 0.3s ease;
+    width: 100%;
+    box-shadow: none;
+}
+
+    .custom-input:focus {
+        border-color: #005293;
+        outline: none;
+        box-shadow: 0 0 0 0.15rem rgba(0, 82, 147, 0.2);
+    }
+
+
+.input-with-icon {
+    position: relative;
+    width: 100%;
+}
+
+    .input-with-icon i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #005293;
+        font-size: 1.2rem;
+    }
+
+
+.icon-input {
+    padding-left: 2.75rem !important;
+    padding-right: 2.75rem !important;
+    border-radius: 12px;
+    height: 45px;
+    border: 1px solid #ccc;
+    width: 100%; /* <- TO zostaje */
+    max-width: 100%; /* <- DODAJ TO */
+    box-sizing: border-box; /* <- DODAJ TO */
+    transition: border 0.3s ease;
+}
+
+
+    .icon-input:focus {
+        border-color: #005293;
+        box-shadow: 0 0 0 0.1rem rgba(0, 82, 147, 0.2);
+        outline: none;
+    }
+
+
+.login-button {
+    background-color: #005293;
+    color: #fff;
+    border: none;
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+    .login-button:hover {
+        background-color: #003e78;
+    }
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #888;
+    cursor: pointer;
+}
+
+.pr-icon {
+    padding-right: 2.75rem !important; /* miejsce na ikonę oczka */
+}
+
+.left-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #005293;
+    font-size: 1.2rem;
+    z-index: 2;
+}
+
+.right-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.password-input {
+    padding-left: 2.75rem;
+    padding-right: 2.75rem;
+    border-radius: 12px;
+    height: 45px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #005293;
+    font-size: 1.2rem;
+    pointer-events: none;
+}
+
+/* Ikona z prawej (toggle password) */
+.input-icon-right {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.eye-outside {
+    font-size: 1.3rem;
+    color: #888;
+    cursor: pointer;
+    padding: 0.4rem;
+    transition: color 0.2s ease;
+}
+
+    .eye-outside:hover {
+        color: #005293;
+    }
+
+
+
+.input-icon-row {
+    display: flex;
+    align-items: center;
+}
+
+    .input-icon-row .input-with-icon {
+        flex: 1;
+        position: relative;
+    }
+
+    .input-icon-row .icon-input {
+        padding-left: 2.75rem !important;
+        border-radius: 12px 0 0 12px;
+        height: 45px;
+    }
+
+.eye-button {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-left: none;
+    height: 45px;
+    padding: 0 0.75rem;
+    border-radius: 0 12px 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+    .eye-button i {
+        font-size: 1.2rem;
+        color: #888;
+    }
+
+    .eye-button:hover i {
+        color: #005293;
+    }
+
+.no-right-radius {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+
+/*
     ------------------------------------------------------------
     glowna strona
     ------------------------------------------------------------
@@ -380,18 +634,25 @@ table.table {
 
 
 .naglowki-edycja {
-    font-size: 20px;
-    background-color: aqua;
-    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #005293; /* Czerwona dolna linia */
+    padding-bottom: 10px;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
 
 
 
 .wiersz-wykladu {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
-    gap: 10px;
+    margin-bottom: 100px;
+    gap: 1rem;
 }
 
 .komorka {
@@ -459,7 +720,7 @@ table.table {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .wiersz-informacji {
@@ -469,16 +730,19 @@ table.table {
 }
 
 .etykieta {
-    width: 200px;
+    width: 300px;
     font-weight: bold;
     background-color: #f0f0f0;
-    padding: 0.5rem;
-    border-radius: 0.25rem;
+    padding: 1rem;
+    border-radius: 1rem;
+    font-size: 1em;
+    border: 1px solid black;
 }
 
 .pole-tekstowe {
     flex: 1;
     padding: 0.5rem;
+    font-size: 1em;
 }
 
 
@@ -506,7 +770,7 @@ table.table {
     }
 
     .komorka.odniesienie {
-        flex: 1.5;
+        flex: 0.5;
     }
 
 .wpisywanie-tresci-wykladu {
@@ -516,8 +780,9 @@ table.table {
 }
 
 .naglowek-kolumn {
+    align-items:center;
     display: flex;
-    gap: 1rem;
+    gap: 2rem;
     margin-bottom: 0.5rem;
     padding-bottom: 0.5rem;
 
@@ -528,8 +793,9 @@ table.table {
     font-weight: bold;
     background-color: #dcdcdc;
     padding: 0.4rem;
-    border-radius: 4px;
+    border-radius: 5px;
     flex: 1;
+    border: 1px solid black;
 }
 
     .komorka-naglowek.lp {
@@ -538,9 +804,175 @@ table.table {
 
     .komorka-naglowek.opis {
         flex: 2;
+
     }
 
     .komorka-naglowek.odniesienie {
-        flex: 1.5;
+        flex: 0.5;
     }
 
+
+
+
+/* Upewnij się że komórki mają taką samą wysokość jak inputy */
+.komorka {
+    display: flex;
+    align-items: center;
+    height: 38px;
+}
+
+/* Nagłówki kolumn też powinny mieć taką wysokość */
+.komorka-naglowek {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.naglowek-efekty-ksztalcenia{
+    text-align:center;
+}
+
+
+
+.wiersz-kryterium {
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr 1fr 1fr auto;
+    gap: 20px; /* Większe odstępy między kolumnami */
+    align-items: start;
+    margin-bottom: 20px; /* Większe odstępy między wierszami */
+}
+
+.komorka-naglowek {
+    background-color: #d3d3d3;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.do-wpisywania {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    min-height: 60px;
+    resize: vertical;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.grid-naglowki-kryteria {
+    grid-template-columns: 500px 1fr 1fr 1fr 1fr;
+    gap: 5rem;
+    margin-bottom: 11rem; /* <-- To zwiększa odstęp pod nagłówkami */
+}
+
+
+
+.kryteria-tabela {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Odstęp między nagłówkiem a wierszami */
+    margin-bottom: 24px;
+}
+
+.wiersz-kryterium {
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr 1fr 1fr 50px;
+    gap: 20px;
+    align-items: start;
+}
+
+.naglowek-kryterium {
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.komorka-naglowek {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Styl inputów do wpisywania */
+.do-wpisywania {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 60px; /* Wymusza min 2 linijki wizualnie */
+}
+
+
+
+.buttonLiteratura{
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+
+
+.tabela-metod {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 12px 20px;
+    align-items: center;
+    margin-bottom: 24px;
+    margin-top: 12px;
+}
+
+.naglowek-komorka {
+    font-weight: bold;
+    background-color: #dcdcdc;
+    padding: 8px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid black;
+}
+
+.forma-zajec-label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    padding: 10px;
+    background-color: rgb(236, 239, 241);
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.do-wpisywania {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+
+
+.zmiany {
+    background-color: #dc3545; /* Bootstrapowa czerwień */
+    color: white;
+    font-size: 1.25rem; /* większa czcionka */
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto; /* wyśrodkowanie */
+    text-align: center;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .zmiany:hover {
+        background-color: #c82333; /* ciemniejszy przy hoverze */
+    }
