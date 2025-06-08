@@ -30,45 +30,78 @@ else
         <InputText class="do-wpisywania" @bind-Value="Model.RodzajModuluKsztalcenia" placeholder="Rodzaj modułu" />
         <InputText class="do-wpisywania" @bind-Value="Model.WymaganiaWstepne" placeholder="Wymagania wstępne" />
         <InputText class="do-wpisywania" @bind-Value="Model.RokData" placeholder="Rok akademicki" />
-        <InputText class="do-wpisywania"
-                       @bind-Value="Model.OpisZmiany"
-                       placeholder="Opis zmiany (dla historii)..."
-                       required />
-        <ValidationMessage For="@(() => Model.OpisZmiany)" />
 
         <hr />
 
         @*Treści kształcenia*@
 
         <h4 class="naglowki-edycja">Treści kształcenia – wykłady</h4>
+
+
+        <h1 class="naglowek-tresci">Wykłady</h1>
+
+        <!-- Nagłówek kolumn -->
+        <div class="wiersz-wykladu naglowek-kolumn">
+            <div class="komorka lp komorka-naglowek">Lp.</div>
+            <div class="komorka odniesienie komorka-naglowek">Odniesienie</div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div style="width: 60px;"></div>
+        </div>
+
         @for (int i = 0; i < Wyklady.Count; i++)
         {
-            var localIndex = i; // WAŻNE: na górze
+            var localIndex = i;
             var item = Wyklady[localIndex];
-            <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" />
-                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
-                <button type="button" class="btn btn-outline-danger btn-sm mt-1"
-                        @onclick="() => { Wyklady.RemoveAt(localIndex); UpdateLp(Wyklady); }">Usuń</button>
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">Lp. @item.Lp</div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" />
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                        @onclick="() => { Wyklady.RemoveAt(localIndex); UpdateLp(Wyklady); }">
+                    Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddWyklad">Dodaj wiersz wykładu</button>
+        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddWyklad">Dodaj wiersz wykładu</button>
 
-        <h4 class="naglowki-edycja">Treści kształcenia – ćwiczenia</h4>
+
+
+        <h1 class="naglowek-tresci">Ćwiczenia</h1>
+
+        <!-- Nagłówek kolumn -->
+        <div class="wiersz-wykladu naglowek-kolumn">
+            <div class="komorka lp komorka-naglowek">Lp.</div>
+            <div class="komorka odniesienie komorka-naglowek">Odniesienie</div>
+            <div class="komorka opis komorka-naglowek">Opis</div>
+            <div style="width: 60px;"></div>
+        </div>
+
+
         @for (int i = 0; i < Cwiczenia.Count; i++)
         {
             var localIndex = i;
             var item = Cwiczenia[localIndex];
-            <div class="mb-2">
-                <label>Lp. @item.Lp</label>
-                <InputText class="do-wpisywania" @bind-Value="item.Opis" />
-                <InputText class="do-wpisywania" @bind-Value="item.OdniesienieRaw" placeholder="Odniesienia (np. P_W01, P_U02)" />
-                <button type="button" class="btn btn-outline-danger btn-sm mt-1"
-                        @onclick="() => { Cwiczenia.RemoveAt(localIndex); UpdateLp(Cwiczenia); }">Usuń</button>
+            <div class="wiersz-wykladu">
+                <div class="komorka lp">Lp. @item.Lp</div>
+                <div class="komorka odniesienie">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.OdniesienieRaw" placeholder="np. P_W01, P_U02" />
+                </div>
+                <div class="komorka opis">
+                    <InputText class="wpisywanie-tresci-wykladu" @bind-Value="item.Opis" />
+                </div>
+                <button type="button" class="btn btn-outline-danger btn-sm usun-btn"
+                        @onclick="() => { Cwiczenia.RemoveAt(localIndex); UpdateLp(Cwiczenia); }">
+                    Usuń
+                </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddCwiczenie">Dodaj wiersz ćwiczenia</button>
+        <button type="button" class="btn btn-sm btn-outline-primary dodaj-btn" @onclick="AddCwiczenie">Dodaj wiersz ćwiczenia</button>
+
+
 
         @*Efekty kształcenia*@
 
@@ -287,6 +320,16 @@ else
 
         <hr />
         <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+
+
+
+        <InputText class="do-wpisywania"
+                   @bind-Value="Model.OpisZmiany"
+                   placeholder="Opis zmiany (dla historii)..."
+                   required />
+        <ValidationMessage For="@(() => Model.OpisZmiany)" />
+
+
     </EditForm>
 }
 
@@ -706,6 +749,9 @@ else
     {
         LiteraturaInne.Add(string.Empty);
     }
+
+
+
 
 
 }
