@@ -1,7 +1,9 @@
 ﻿@page "/przedmioty/{Kierunek}"
 @using Frontend.Shared
+@using System.Net.Http.Headers
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <PageTitle>Przedmioty - @Kierunek</PageTitle>
 
@@ -13,6 +15,7 @@
 }
 else
 {
+
     <div class="mb-3">
         <input class="form-control" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
     </div>
@@ -49,6 +52,43 @@ else
         </div>
     </div>
 
+    <div class="dropdown mb-3">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Nowy sylabus
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" @onclick="CreateEmptySylabus">Stwórz nowy sylabus</a></li>
+            <li><a class="dropdown-item" @onclick="ShowCopyModal">Bazuj na istniejącym sylabusie</a></li>
+        </ul>
+    </div>
+
+
+    @if (ShowModal)
+    {
+        <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Wybierz przedmiot do skopiowania</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-select" @bind="SelectedPrzedmiotId">
+                            <option value="">-- Wybierz przedmiot --</option>
+                            @foreach (var p in PrzedmiotyList)
+                            {
+                                <option value="@p.Id">@p.Nazwa</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CloseModal">Anuluj</button>
+                        <button class="btn btn-primary" @onclick="CopyLatestSylabus">Utwórz kopię</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 
 
     var filtered = PrzedmiotyList
@@ -103,6 +143,10 @@ else
     private string? SelectedOsrodek { get; set; }
     private int? SelectedSemestr { get; set; }
     private string? SelectedStopien { get; set; }
+    private bool ShowModal = false;
+    private int? SelectedPrzedmiotId;
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,5 +184,91 @@ else
         .ToList() ?? new();
 
 
+    private void ShowCopyModal()
+    {
+        ShowModal = true;
+    }
 
+    private void CloseModal()
+    {
+        ShowModal = false;
+        SelectedPrzedmiotId = null;
+    }
+
+    private void CreateEmptySylabus()
+    {
+        Navigation.NavigateTo("/sylabus/new");
+    }
+
+    private async Task CopyLatestSylabus()
+    {
+        if (SelectedPrzedmiotId is null)
+        {
+            Console.WriteLine("pusty XDDDDDDDD");
+            return;
+
+        }
+            
+
+        var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+
+        if (latest is null)
+        {
+            Console.WriteLine("nowy pusty XDDDDDDDD");
+            return;
+        }
+
+        var newYear = IncrementAcademicYear(latest.RokData!);
+
+        var newSylabus = new SylabusDto
+            {
+                PrzedmiotId = latest.PrzedmiotId,
+                Wersja = "v1",
+                RokData = newYear,
+                NazwaJednostkiOrganizacyjnej = latest.NazwaJednostkiOrganizacyjnej,
+                ProfilKsztalcenia = latest.ProfilKsztalcenia,
+                NazwaSpecjalnosci = latest.NazwaSpecjalnosci,
+                RodzajModuluKsztalcenia = latest.RodzajModuluKsztalcenia,
+                WymaganiaWstepne = latest.WymaganiaWstepne,
+                TresciKsztalcenia = latest.TresciKsztalcenia?.DeepClone(),
+                EfektyKsztalcenia = latest.EfektyKsztalcenia?.DeepClone(),
+                MetodyWeryfikacji = latest.MetodyWeryfikacji?.DeepClone(),
+                KryteriaOceny = latest.KryteriaOceny?.DeepClone(),
+                NakladPracy = latest.NakladPracy?.DeepClone(),
+                Literatura = latest.Literatura?.DeepClone(),
+                MetodyRealizacji = latest.MetodyRealizacji?.DeepClone(),
+            };
+
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (!string.IsNullOrWhiteSpace(token))
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var result = await Http.PostAsJsonAsync("/api/sylabusy", newSylabus);
+        if (result.IsSuccessStatusCode)
+        {
+            var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
+            Console.WriteLine("XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+            Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+            Console.WriteLine(created!.Id);
+            
+        }
+        else
+        {
+            var errorText = await result.Content.ReadAsStringAsync();
+            Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
+        }
+
+        ShowModal = false;
+    }
+
+    private string IncrementAcademicYear(string rokData)
+    {
+        var parts = rokData.Split('/');
+        if (parts.Length == 2 && int.TryParse(parts[0], out int start) && int.TryParse(parts[1], out int end))
+            return $"{start + 1}/{end + 1}";
+
+        return rokData; // fallback
+    }
 }
