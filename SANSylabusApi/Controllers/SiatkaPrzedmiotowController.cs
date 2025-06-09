@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SANSylabusApi.DTOs;
 using SylabusAPI.DTOs;
 using SylabusAPI.Services.Interfaces;
 
@@ -17,6 +18,16 @@ namespace SylabusAPI.Controllers
         {
             var list = await _svc.GetByPrzedmiotAsync(przedmiotId, typ);
             return Ok(list);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateSiatkaRequest req)
+        {
+            var updated = await _svc.UpdateAsync(id, req);
+            if (!updated)
+                return NotFound($"Nie znaleziono siatki z id={id}");
+
+            return NoContent();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject HttpClient Http
 
 <header class="main-header">
     <div class="header-content">
@@ -12,7 +13,7 @@
         <div class="auth-buttons">
             @if (IsLoggedIn)
             {
-                <span class="user-info">👤 @Login</span>
+                <span class="user-info">👤 @FullName</span>
                 <button class="btn btn-logout" @onclick="Logout">Wyloguj</button>
             }
             else
@@ -25,7 +26,7 @@
 </header>
 
 <nav class="main-nav">
-    <a href="/kierunki">Kierunki</a>
+    <a href="/kierunki">Sylabusy</a>
     <a href="#">Student</a>
     <a href="#">Nauka i Badania</a>
     <a href="#">Współpraca</a>
@@ -38,12 +39,25 @@
 
 @code {
     private string? Login;
+    private string? FullName;
     private bool IsLoggedIn;
 
     protected override async Task OnInitializedAsync()
     {
         Login = await JS.InvokeAsync<string>("localStorage.getItem", "authUser");
         IsLoggedIn = !string.IsNullOrWhiteSpace(Login);
+
+        if (IsLoggedIn)
+        {
+            try
+            {
+                FullName = await Http.GetStringAsync($"/api/uzytkownicy/nazwisko?login={Uri.EscapeDataString(Login)}");
+            }
+            catch
+            {
+                FullName = Login; // fallback
+            }
+        }
     }
 
     private async Task Logout()

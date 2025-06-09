@@ -2,11 +2,39 @@
 @using Frontend.Shared
 @inject HttpClient Http
 
+<h3>Informacje sylabusa</h3>
+
+@if (SzczegolySylabusa == null)
+{
+    <p>Ładowanie informacji o sylabusie...</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-header">
+            <tr>
+                <th>Pole</th>
+                <th>Wartość</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Data powstania</td>
+                <td>@SzczegolySylabusa.DataPowstania?.ToString("yyyy-MM-dd HH:mm")</td>
+            </tr>
+            <tr>
+                <td>Stworzył</td>
+                <td>@(SzczegolySylabusa.Koordynatorzy?.FirstOrDefault() ?? $"ID: {SzczegolySylabusa.KtoStworzyl}")</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
 <h3>Historia zmian sylabusa</h3>
 
 @if (Historia == null)
 {
-    <p>Ładowanie...</p>
+    <p>Ładowanie historii...</p>
 }
 else
 {
@@ -24,25 +52,25 @@ else
 
     <table class="table table-bordered table-striped">
         <thead class="table-header">
-        <tr>
-            <th>Data zmiany</th>
-            <th>Godzina</th>
-            <th>Opis zmiany</th>
-            <th>Wersja wtedy</th>
+            <tr>
+                <th>Data zmiany</th>
+                <th>Godzina</th>
+                <th>Opis zmiany</th>
+                <th>Wersja wtedy</th>
                 <th>Kto zmodyfikował</th>
-        </tr>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var h in Historia.Where(h => h.WersjaWtedy == ActiveVersion))
-        {
-            <tr>
-                <td>@h.DataZmiany</td>
-                <td>@h.CzasZmiany.ToShortTimeString()</td>
-                <td>@h.OpisZmiany</td>
-                <td>@h.WersjaWtedy</td>
-                <td>@h.ZmieniajacyImieNazwiskoTytul</td>
-            </tr>
-        }
+            @foreach (var h in Historia.Where(h => h.WersjaWtedy == ActiveVersion))
+            {
+                <tr>
+                    <td>@h.DataZmiany</td>
+                    <td>@h.CzasZmiany.ToShortTimeString()</td>
+                    <td>@h.OpisZmiany</td>
+                    <td>@h.WersjaWtedy</td>
+                    <td>@h.ZmieniajacyImieNazwiskoTytul</td>
+                </tr>
+            }
         </tbody>
     </table>
 }
@@ -50,11 +78,19 @@ else
 @code {
     [Parameter] public int SylabusId { get; set; }
     private List<SylabusHistoriaDto>? Historia;
+    private SylabusDto? SzczegolySylabusa;
     private string? ActiveVersion;
 
     protected override async Task OnInitializedAsync()
     {
-        Historia = await Http.GetFromJsonAsync<List<SylabusHistoriaDto>>($"/api/sylabusy/{SylabusId}/historia");
+        var historiaTask = Http.GetFromJsonAsync<List<SylabusHistoriaDto>>($"/api/sylabusy/{SylabusId}/historia");
+        var szczegolyTask = Http.GetFromJsonAsync<SylabusDto>($"/api/sylabusy/{SylabusId}");
+
+        await Task.WhenAll(historiaTask, szczegolyTask);
+
+        Historia = await historiaTask;
+        SzczegolySylabusa = await szczegolyTask;
+
         ActiveVersion = Historia?.FirstOrDefault()?.WersjaWtedy;
     }
 

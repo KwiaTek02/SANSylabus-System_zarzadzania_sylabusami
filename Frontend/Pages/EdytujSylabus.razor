@@ -4,6 +4,7 @@
 @using System.Net.Http.Headers
 @using System.Text
 @using System.Text.Json
+
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -56,6 +57,33 @@ else
 
 
         <hr />
+        @*SIatka przedmiotów*@
+        <hr />
+        <h4 class="naglowki-edycja">Formy zajęć dydaktycznych oraz wymiar godzin</h4>
+
+        <table class="table table-bordered table-striped w-100">
+            <thead>
+            <tr>
+                <th>Forma zajęć</th>
+                <th>Studia stacjonarne</th>
+                <th>Studia niestacjonarne</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var forma in FormyZajec)
+            {
+                <tr>
+                    <td>@forma.Nazwa</td>
+                    <td>
+                        <InputNumber class="form-control" @bind-Value="forma.GodzinyStacjonarne" />
+                    </td>
+                    <td>
+                        <InputNumber class="form-control" @bind-Value="forma.GodzinyNiestacjonarne" />
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
 
         @*Treści kształcenia*@
 
@@ -530,11 +558,10 @@ else
         <h4 class="naglowki-edycja">Metody realizacji zajęć dydaktycznych</h4>
 
         <div class="tabela-metod">
-            <!-- Nagłówki kolumn -->
+            
             <div class="naglowek-komorka">Forma zajęć</div>
             <div class="naglowek-komorka">Metody dydaktyczne</div>
 
-            <!-- Wiersze danych -->
             <div class="forma-zajec-label">Wykład</div>
             <InputText class="do-wpisywania" @bind-Value="MetodyWyklad" placeholder="Opis metody dydaktycznej" />
 
@@ -580,6 +607,8 @@ else
     private List<string> LiteraturaPodstawowa = new();
     private List<string> LiteraturaUzupelniajaca = new();
     private List<string> LiteraturaInne = new();
+    private SiatkaPrzedmiotowDto? SiatkaStacjonarne { get; set; }
+    private SiatkaPrzedmiotowDto? SiatkaNiestacjonarne { get; set; }
     private string MetodyWyklad = "";
     private string MetodyCwiczenia = "";
     private string MetodyInneOpis = "";
@@ -587,44 +616,118 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Sprawdzenie tokenu i uprawnień
-        
-        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-
-        if (string.IsNullOrWhiteSpace(token) || IsTokenExpired(token))
+        try
         {
-            await JS.InvokeVoidAsync("localStorage.clear");
-            Navigation.NavigateTo("/login", true);
-            return;
-        }
+            // Token i uprawnienia
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
-        Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (string.IsNullOrWhiteSpace(token) || IsTokenExpired(token))
+            {
+                await JS.InvokeVoidAsync("localStorage.clear");
+                Navigation.NavigateTo("/login", true);
+                return;
+            }
 
-        var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(token);
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
 
-        var role = jwt.Claims.FirstOrDefault(c =>
-            c.Type == ClaimTypes.Role || c.Type == "role" ||
-            c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
-        var userIdStr = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            var role = jwt.Claims.FirstOrDefault(c =>
+                c.Type == ClaimTypes.Role || c.Type == "role" ||
+                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
 
-        if (role != "wykladowca" || !int.TryParse(userIdStr, out var userId))
+            var userIdStr = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if (role != "wykladowca" || !int.TryParse(userIdStr, out var userId))
+            {
+                Navigation.NavigateTo("/brak-dostepu");
+                return;
+            }
+
+            // Sprawdzenie koordynatora
+            var isKoordynator = await Http.GetFromJsonAsync<bool>($"api/sylabusy/{Id}/czy-koordynator/{userId}");
+            if (!isKoordynator)
+            {
+                Navigation.NavigateTo("/brak-dostepu");
+                return;
+            }
+
+            // Pobranie danych sylabusa
+            Sylabus = await Http.GetFromJsonAsync<SylabusDto>($"api/sylabusy/{Id}");
+            var siatkiStacjonarne = await Http.GetFromJsonAsync<List<SiatkaPrzedmiotowDto>>(
+                $"api/siatka/przedmiot/{Sylabus.PrzedmiotId}/typ/stacjonarne");
+
+            var siatkiNiestacjonarne = await Http.GetFromJsonAsync<List<SiatkaPrzedmiotowDto>>(
+                $"api/siatka/przedmiot/{Sylabus.PrzedmiotId}/typ/niestacjonarne");
+            SiatkaStacjonarne = siatkiStacjonarne?.FirstOrDefault();
+            SiatkaNiestacjonarne = siatkiNiestacjonarne?.FirstOrDefault();
+            if (Sylabus == null)
+            {
+                await JS.InvokeVoidAsync("alert", "Nie udało się pobrać danych sylabusa.");
+                return;
+            }
+
+            if (SiatkaStacjonarne == null || SiatkaNiestacjonarne == null)
+            {
+                Console.WriteLine("⚠ Nie znaleziono siatki dla tego przedmiotu.");
+            }
+            
+
+            // Inicjalizacja FormyZajec
+            FormyZajec = new List<FormaZajecViewModel>
         {
-            Navigation.NavigateTo("/brak-dostepu");
-            return;
-        }
+            new() { Nazwa = "Wykład" },
+            new() { Nazwa = "Ćwiczenia" },
+            new() { Nazwa = "Konwersatorium" },
+            new() { Nazwa = "Laboratorium" },
+            new() { Nazwa = "Warsztaty" },
+            new() { Nazwa = "Projekt" },
+            new() { Nazwa = "Seminarium" },
+            new() { Nazwa = "Konsultacje" },
+            new() { Nazwa = "Egzaminy" },
+            new() { Nazwa = "SumaGodzin" }
+        };
 
-        // 2. Sprawdzenie, czy jest koordynatorem sylabusa
-        var isKoordynator = await Http.GetFromJsonAsync<bool>($"api/sylabusy/{Id}/czy-koordynator/{userId}");
-        if (!isKoordynator)
-        {
-            Navigation.NavigateTo("/brak-dostepu");
-            return;
-        }
+            // Przypisz godziny z siatki
+            if (SiatkaStacjonarne != null && SiatkaNiestacjonarne != null)
+            {
+                foreach (var forma in FormyZajec)
+                {
+                    forma.GodzinyStacjonarne = forma.Nazwa switch
+                    {
+                        "Wykład" => SiatkaStacjonarne.Wyklad,
+                        "Ćwiczenia" => SiatkaStacjonarne.Cwiczenia,
+                        "Konwersatorium" => SiatkaStacjonarne.Konwersatorium,
+                        "Laboratorium" => SiatkaStacjonarne.Laboratorium,
+                        "Warsztaty" => SiatkaStacjonarne.Warsztaty,
+                        "Projekt" => SiatkaStacjonarne.Projekt,
+                        "Seminarium" => SiatkaStacjonarne.Seminarium,
+                        "Konsultacje" => SiatkaStacjonarne.Konsultacje,
+                        "Egzaminy" => SiatkaStacjonarne.Egzaminy,
+                        "SumaGodzin" => SiatkaStacjonarne.SumaGodzin,
 
-        // 3. Pobranie danych sylabusa
-        Sylabus = await Http.GetFromJsonAsync<SylabusDto>($"api/sylabusy/{Id}");
-        if (Sylabus is null) return;
+                        _ => null
+                    };
+
+                    forma.GodzinyNiestacjonarne = forma.Nazwa switch
+                    {
+                        "Wykład" => SiatkaNiestacjonarne.Wyklad,
+                        "Ćwiczenia" => SiatkaNiestacjonarne.Cwiczenia,
+                        "Konwersatorium" => SiatkaNiestacjonarne.Konwersatorium,
+                        "Laboratorium" => SiatkaNiestacjonarne.Laboratorium,
+                        "Warsztaty" => SiatkaNiestacjonarne.Warsztaty,
+                        "Projekt" => SiatkaNiestacjonarne.Projekt,
+                        "Seminarium" => SiatkaNiestacjonarne.Seminarium,
+                        "Konsultacje" => SiatkaNiestacjonarne.Konsultacje,
+                        "Egzaminy" => SiatkaNiestacjonarne.Egzaminy,
+                        "SumaGodzin" => SiatkaNiestacjonarne.SumaGodzin,
+                        _ => null
+                    };
+                }
+            }
+
+
+
 
         Model = new UpdateSylabusRequest
             {
@@ -683,6 +786,21 @@ else
         MetodyWyklad = metodyrealizacji["wyklad_opis"]?.ToString() ?? "";
         MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
         MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.ToString() ?? "";
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Błąd: {ex.Message}\n{ex.StackTrace}");
+            await JS.InvokeVoidAsync("alert", $"Wystąpił błąd: {ex.Message}");
+        }
+        
+
+        // 4. Załaduj dane do tabeli form zajęć dydaktycznych
+        
+
+
+
+
 
     }
 
@@ -766,7 +884,33 @@ else
         Model.NakladPracy = nakladObj;
         Model.Literatura = litObj;
         Model.MetodyRealizacji = metodyObj;
-        Model.DataPowstania = DateTime.UtcNow;
+
+        // Po zapisaniu sylabusa
+        await Http.PutAsJsonAsync($"api/siatka/{SiatkaStacjonarne!.Id}", new
+        {
+            Wyklad = FormyZajec.First(f => f.Nazwa == "Wykład").GodzinyStacjonarne ?? 0,
+            Cwiczenia = FormyZajec.First(f => f.Nazwa == "Ćwiczenia").GodzinyStacjonarne ?? 0,
+            Konwersatorium = FormyZajec.First(f => f.Nazwa == "Konwersatorium").GodzinyStacjonarne ?? 0,
+            Laboratorium = FormyZajec.First(f => f.Nazwa == "Laboratorium").GodzinyStacjonarne ?? 0,
+            Warsztaty = FormyZajec.First(f => f.Nazwa == "Warsztaty").GodzinyStacjonarne ?? 0,
+            Projekt = FormyZajec.First(f => f.Nazwa == "Projekt").GodzinyStacjonarne ?? 0,
+            Seminarium = FormyZajec.First(f => f.Nazwa == "Seminarium").GodzinyStacjonarne ?? 0,
+            Konsultacje = FormyZajec.First(f => f.Nazwa == "Konsultacje").GodzinyStacjonarne ?? 0,
+            Egzaminy = FormyZajec.First(f => f.Nazwa == "Egzaminy").GodzinyStacjonarne ?? 0
+        });
+
+        await Http.PutAsJsonAsync($"api/siatka/{SiatkaNiestacjonarne!.Id}", new
+        {
+            Wyklad = FormyZajec.First(f => f.Nazwa == "Wykład").GodzinyNiestacjonarne ?? 0,
+            Cwiczenia = FormyZajec.First(f => f.Nazwa == "Ćwiczenia").GodzinyNiestacjonarne ?? 0,
+            Konwersatorium = FormyZajec.First(f => f.Nazwa == "Konwersatorium").GodzinyNiestacjonarne ?? 0,
+            Laboratorium = FormyZajec.First(f => f.Nazwa == "Laboratorium").GodzinyNiestacjonarne ?? 0,
+            Warsztaty = FormyZajec.First(f => f.Nazwa == "Warsztaty").GodzinyNiestacjonarne ?? 0,
+            Projekt = FormyZajec.First(f => f.Nazwa == "Projekt").GodzinyNiestacjonarne ?? 0,
+            Seminarium = FormyZajec.First(f => f.Nazwa == "Seminarium").GodzinyNiestacjonarne ?? 0,
+            Konsultacje = FormyZajec.First(f => f.Nazwa == "Konsultacje").GodzinyNiestacjonarne ?? 0,
+            Egzaminy = FormyZajec.First(f => f.Nazwa == "Egzaminy").GodzinyNiestacjonarne ?? 0
+        });
 
         var response = await Http.PutAsJsonAsync($"api/sylabusy/{Id}", Model);
         if (response.IsSuccessStatusCode)
@@ -1004,8 +1148,27 @@ else
         LiteraturaInne.Add(string.Empty);
     }
 
+    private List<FormaZajecViewModel> FormyZajec = new()
+    {
+        new() { Nazwa = "Wykład" },
+        new() { Nazwa = "Ćwiczenia" },
+        new() { Nazwa = "Konwersatorium" },
+        new() { Nazwa = "Laboratorium" },
+        new() { Nazwa = "Warsztaty" },
+        new() { Nazwa = "Projekt" },
+        new() { Nazwa = "Seminarium" },
+        new() { Nazwa = "Konsultacje" },
+        new() { Nazwa = "Egzaminy" },
+        new() { Nazwa = "SumaGodzin" }
 
+    };
 
+    private class FormaZajecViewModel
+    {
+        public string Nazwa { get; set; }
+        public int? GodzinyStacjonarne { get; set; }
+        public int? GodzinyNiestacjonarne { get; set; }
+    }
 
 
 }

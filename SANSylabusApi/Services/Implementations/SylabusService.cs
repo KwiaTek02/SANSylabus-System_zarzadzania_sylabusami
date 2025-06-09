@@ -23,6 +23,7 @@ namespace SylabusAPI.Services.Implementations
         private readonly SyllabusContext _db;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContext;
+        TimeZoneInfo polandZone;
 
         public SylabusService(
             SyllabusContext db,
@@ -280,14 +281,23 @@ namespace SylabusAPI.Services.Implementations
             entity.wymagania_wstepne = req.WymaganiaWstepne ?? entity.wymagania_wstepne;
             entity.rok_data = req.RokData ?? entity.rok_data;
 
-            
-            
+            try
+            {
+                polandZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time"); // Windows
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                polandZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw"); // Linux/macOS
+            }
+
+            var nowPL = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandZone);
+
 
             var history = new sylabus_historium
             {
                 sylabus_id = id,
                 data_zmiany = DateOnly.FromDateTime(DateTime.UtcNow),
-                czas_zmiany = DateTime.UtcNow,
+                czas_zmiany = nowPL,
                 zmieniony_przez = userId,
                 // opis z req
                 opis_zmiany = req.OpisZmiany,
