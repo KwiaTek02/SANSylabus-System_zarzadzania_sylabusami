@@ -17,8 +17,18 @@ else
         <input class="form-control" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
     </div>
 
-    <div class="d-flex gap-3 mb-3">
-        <div class="flex-grow-1">
+    <div class="wiersz-filtrów mb-3">
+        <div class="kolumna-filtra">
+            <select class="form-select" @bind="SelectedStopien">
+                <option value="">Wszystkie stopnie</option>
+                @foreach (var s in Stopnie)
+                {
+                    <option value="@s">@s</option>
+                }
+            </select>
+        </div>
+
+        <div class="kolumna-filtra">
             <select class="form-select" @bind="SelectedOsrodek">
                 <option value="">Wszystkie ośrodki</option>
                 @foreach (var o in Osrodki)
@@ -27,7 +37,8 @@ else
                 }
             </select>
         </div>
-        <div style="width: 200px;">
+
+        <div class="kolumna-filtra">
             <select class="form-select" @bind="SelectedSemestr">
                 <option value="">Wszystkie semestry</option>
                 @foreach (var s in Semestry)
@@ -39,13 +50,16 @@ else
     </div>
 
 
+
     var filtered = PrzedmiotyList
         ?.Where(p =>
             (string.IsNullOrWhiteSpace(SearchTerm) || p.Nazwa.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
             (string.IsNullOrWhiteSpace(SelectedOsrodek) || p.Osrodek == SelectedOsrodek) &&
-            (!SelectedSemestr.HasValue || p.Semestr == SelectedSemestr)
+            (!SelectedSemestr.HasValue || p.Semestr == SelectedSemestr) &&
+            (string.IsNullOrWhiteSpace(SelectedStopien) || p.Stopien == SelectedStopien)
         )
         .ToList();
+
 
 
     @if (!filtered.Any())
@@ -88,6 +102,7 @@ else
     private bool IsLecturer => false; // TODO: sprawdzić rolę z JWT
     private string? SelectedOsrodek { get; set; }
     private int? SelectedSemestr { get; set; }
+    private string? SelectedStopien { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,6 +129,16 @@ else
     .Distinct()
         .OrderBy(s => s)
         .ToList() ?? new();
+
+
+    private List<string> Stopnie =>
+    PrzedmiotyList?
+        .Select(p => p.Stopien)
+        .Where(s => !string.IsNullOrWhiteSpace(s))
+        .Distinct()
+        .OrderBy(s => s)
+        .ToList() ?? new();
+
 
 
 }

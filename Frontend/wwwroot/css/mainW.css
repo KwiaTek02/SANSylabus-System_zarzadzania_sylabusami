@@ -633,10 +633,17 @@ table.table {
 */
 
 
+#glownyEdycji {
+    font-size: 4rem;
+}
+
+
+
+
 .naglowki-edycja {
     font-size: 2rem;
     font-weight: bold;
-    margin-top: 40px;
+    margin-top: 7rem;
     margin-bottom: 20px;
     border-bottom: 3px solid #005293; /* Czerwona dolna linia */
     padding-bottom: 10px;
@@ -704,10 +711,11 @@ table.table {
 }
 
 .naglowek-tresci {
+    font-size: 3rem;
     margin: auto;
     text-align: center;
     padding: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 3rem;
     margin-bottom: 1rem;
 }
 
@@ -830,8 +838,14 @@ table.table {
 }
 
 
-.naglowek-efekty-ksztalcenia{
-    text-align:center;
+.naglowek-efekty-ksztalcenia {
+
+    font-size: 3rem;
+    margin: auto;
+    text-align: center;
+    padding: 0.5rem;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
 }
 
 
@@ -1090,6 +1104,7 @@ table.table {
     flex: 0 0 50px;
     background-color:white;
     border:none;
+
 }
 
 /* Inputy */
@@ -1144,3 +1159,33 @@ table.table {
     .btn-kryt-dodaj:hover {
         background-color: #0056b3;
     }
+
+
+/*
+    Lista w przedmiotach
+*/
+
+.wiersz-filtrów {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.kolumna-filtra {
+    flex: 1 1 200px;
+    min-width: 200px;
+}
+
+    .kolumna-filtra select {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+@media (max-width: 768px) {
+    .wiersz-filtrów {
+        flex-direction: column;
+    }
+}
