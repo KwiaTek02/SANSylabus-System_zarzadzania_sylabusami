@@ -323,3 +323,14 @@ table, h2, h3, .effects-title, .section-title, table-header {
     text-align: center;
     margin-bottom: 2rem;
 }
+
+.osrodek-badge {
+    background-color: #e0f0ff; /* jasnoniebieski */
+    color: #003b6f; /* ciemny niebieski tekst */
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+}
