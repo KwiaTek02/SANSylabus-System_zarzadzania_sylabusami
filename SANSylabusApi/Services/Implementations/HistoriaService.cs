@@ -20,6 +20,7 @@ namespace SylabusAPI.Services.Implementations
         public async Task<IEnumerable<SylabusHistoriaDto>> GetBySylabusAsync(int sylabusId)
         {
             var list = await _db.sylabus_historia
+                .Include(h => h.zmieniony_przezNavigation)
                 .Where(h => h.sylabus_id == sylabusId)
                 .OrderByDescending(h => h.czas_zmiany)
                 .ToListAsync();
@@ -32,7 +33,8 @@ namespace SylabusAPI.Services.Implementations
                 CzasZmiany = h.czas_zmiany,
                 ZmienionyPrzez = h.zmieniony_przez,
                 OpisZmiany = h.opis_zmiany,
-                WersjaWtedy = h.wersja_wtedy
+                WersjaWtedy = h.wersja_wtedy,
+                ZmieniajacyImieNazwiskoTytul = $"{(string.IsNullOrWhiteSpace(h.zmieniony_przezNavigation.tytul) ? "" : h.zmieniony_przezNavigation.tytul + " ")}{h.zmieniony_przezNavigation.imie_nazwisko}"
             });
         }
     }
