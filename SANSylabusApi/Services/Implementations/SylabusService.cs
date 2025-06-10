@@ -56,9 +56,9 @@ namespace SylabusAPI.Services.Implementations
             var userIdClaim = _httpContext.HttpContext?
                 .User.FindFirst(ClaimTypes.NameIdentifier)?
                 .Value;
+
             if (!int.TryParse(userIdClaim, out var userId))
-                throw new UnauthorizedAccessException(
-                    "Brak poprawnego identyfikatora użytkownika w tokenie.");
+                throw new UnauthorizedAccessException("Brak poprawnego identyfikatora użytkownika w tokenie.");
 
             var entity = new sylabusy
             {
@@ -77,7 +77,7 @@ namespace SylabusAPI.Services.Implementations
                 tresci_ksztalcenia_json = dto.TresciKsztalcenia?.ToJsonString(),
                 efekty_ksztalcenia_json = dto.EfektyKsztalcenia?.ToJsonString(),
                 metody_weryfikacji_json = dto.MetodyWeryfikacji?.ToJsonString(),
-                kryteria_oceny_json = dto.KryteriaOceny?.ToJsonString(),        //tuu 
+                kryteria_oceny_json = dto.KryteriaOceny?.ToJsonString(),
                 naklad_pracy_json = dto.NakladPracy?.ToJsonString(),
                 literatura_json = dto.Literatura?.ToJsonString(),
                 metody_realizacji_json = dto.MetodyRealizacji?.ToJsonString()
@@ -85,8 +85,46 @@ namespace SylabusAPI.Services.Implementations
 
             _db.sylabusies.Add(entity);
             await _db.SaveChangesAsync();
+
+            // 🔍 Znajdź najnowszy wcześniejszy sylabus dla tego samego przedmiotu
+            var previous = await _db.sylabusies
+                .Where(s => s.przedmiot_id == dto.PrzedmiotId && s.id != entity.id)
+                .OrderByDescending(s => s.rok_data)
+                .FirstOrDefaultAsync();
+
+            if (previous != null)
+            {
+                // 🔄 Skopiuj koordynatorów z poprzedniego sylabusu
+                var oldKoordynatorzy = await _db.koordynatorzy_sylabusus
+                    .Where(k => k.sylabus_id == previous.id)
+                    .ToListAsync();
+
+                foreach (var old in oldKoordynatorzy)
+                {
+                    var copy = new koordynatorzy_sylabusu
+                    {
+                        sylabus_id = entity.id,
+                        uzytkownik_id = old.uzytkownik_id
+                    };
+                    _db.koordynatorzy_sylabusus.Add(copy);
+                }
+            }
+            else
+            {
+                // 👤 Jeżeli brak poprzedniego sylabusu – przypisz autora
+                var fallbackKoordynator = new koordynatorzy_sylabusu
+                {
+                    sylabus_id = entity.id,
+                    uzytkownik_id = userId
+                };
+                _db.koordynatorzy_sylabusus.Add(fallbackKoordynator);
+            }
+
+            await _db.SaveChangesAsync();
             return MapToDto(entity);
         }
+
+
 
         /*public async Task UpdateAsync(int id, SylabusDto dto)
         {
@@ -356,6 +394,8 @@ namespace SylabusAPI.Services.Implementations
             // Usuń i zapisz zmiany
             _db.sylabusies.Remove(entity);
             await _db.SaveChangesAsync();
+
+            
         }
 
 

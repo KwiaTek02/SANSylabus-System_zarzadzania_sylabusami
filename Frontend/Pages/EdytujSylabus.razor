@@ -292,7 +292,7 @@ else
 
         @*Metody weyfikacji*@
 
-        <h4 class="naglowki-edycja">Metody weryfikacji – wiedza</h4>
+        <h4 class="naglowki-edycja">Metody weryfikacji</h4>
         <h1 class="naglowek-efekty-ksztalcenia">Wiedza</h1>
 
         <div class="naglowek-kolumn">
@@ -324,8 +324,6 @@ else
                 </button>
             </div>
         }
-        <button type="button" class="btn btn-sm btn-outline-primary mb-3" @onclick="AddMetodaWeryfikacjiWiedza">Dodaj metodę weryfikacji wiedzy</button>
-
 
         <button type="button"
                 class="btn-kryt-dodaj"
@@ -832,6 +830,35 @@ else
     private async Task HandleSubmit()
     {
         if (Model is null) return;
+
+        // walidacja godzin 
+        
+        int sumaStacjonarne = FormyZajec
+            .Where(f => f.Nazwa != "SumaGodzin")
+            .Sum(f => f.GodzinyStacjonarne ?? 0);
+        int sumaNiestacjonarne = FormyZajec
+            .Where(f => f.Nazwa != "SumaGodzin")
+            .Sum(f => f.GodzinyNiestacjonarne ?? 0);
+
+        int oczekiwanaStacjonarne = FormyZajec.FirstOrDefault(f => f.Nazwa == "SumaGodzin")?.GodzinyStacjonarne ?? 0;
+        int oczekiwanaNiestacjonarne = FormyZajec.FirstOrDefault(f => f.Nazwa == "SumaGodzin")?.GodzinyNiestacjonarne ?? 0;
+
+        if (FormyZajec.Any(f => f.GodzinyStacjonarne < 0 || f.GodzinyNiestacjonarne < 0))
+        {
+            ErrorMessage = "Błąd: godziny zajęć dydaktycznych nie mogą być ujemne.";
+            return;
+        }
+
+        if (sumaStacjonarne != oczekiwanaStacjonarne || sumaNiestacjonarne != oczekiwanaNiestacjonarne)
+        {
+            ErrorMessage = $"Błąd: suma godzin dla zajęć dydaktycznych nie zgadza się z wartością w polu „Suma godzin”. " +
+                           $"Stacjonarne: {sumaStacjonarne} (oczekiwano {oczekiwanaStacjonarne}), " +
+                           $"Niestacjonarne: {sumaNiestacjonarne} (oczekiwano {oczekiwanaNiestacjonarne})";
+            return;
+        }
+
+        
+
 
         var tresciObj = new JsonObject
             {

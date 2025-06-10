@@ -1,6 +1,7 @@
 ﻿@page "/przedmioty/{Kierunek}"
 @using Frontend.Shared
 @using System.Net.Http.Headers
+@using System.Text.Json.Nodes
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -57,10 +58,10 @@ else
             Nowy sylabus
         </button>
         <ul class="dropdown-menu">
-            <li><a class="dropdown-item" @onclick="CreateEmptySylabus">Stwórz nowy sylabus</a></li>
-            <li><a class="dropdown-item" @onclick="ShowCopyModal">Bazuj na istniejącym sylabusie</a></li>
+            <li><a class="dropdown-item" @onclick="ShowCopyModal">Stwórz nowy sylabus</a></li>
         </ul>
     </div>
+
 
 
     @if (ShowModal)
@@ -69,7 +70,7 @@ else
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Wybierz przedmiot do skopiowania</h5>
+                        <h5 class="modal-title">Wybierz przedmiot</h5>
                         <button type="button" class="btn-close" @onclick="CloseModal"></button>
                     </div>
                     <div class="modal-body">
@@ -83,7 +84,8 @@ else
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" @onclick="CloseModal">Anuluj</button>
-                        <button class="btn btn-primary" @onclick="CopyLatestSylabus">Utwórz kopię</button>
+                        <button class="btn btn-outline-primary" @onclick="CreateEmptySylabus">Utwórz pusty sylabus</button>
+                        <button class="btn btn-primary" @onclick="CopyLatestSylabus">Utwórz na podstawie istniejącego</button>
                     </div>
                 </div>
             </div>
@@ -195,10 +197,58 @@ else
         SelectedPrzedmiotId = null;
     }
 
-    private void CreateEmptySylabus()
+    private async void CreateEmptySylabus()
     {
-        Navigation.NavigateTo("/sylabus/new");
+        if (SelectedPrzedmiotId is null)
+        {
+            Console.WriteLine("Nie wybrano przedmiotu.");
+            return;
+        }
+
+        var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+
+        // Domyślny rok – bieżący, jeśli brak historii
+        var rokData = GetDefaultAcademicYear();
+        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+        if (latest != null && !string.IsNullOrWhiteSpace(latest.RokData))
+        {
+            rokData = IncrementAcademicYear(latest.RokData);
+        }
+
+        var newSylabus = new SylabusDto
+        {
+            PrzedmiotId = SelectedPrzedmiotId.Value,
+            Wersja = "v1",
+            RokData = rokData,
+            TresciKsztalcenia = JsonNode.Parse("""{"wyklady":[],"cwiczenia":[]}"""),
+            EfektyKsztalcenia = JsonArray.Parse("[]"),
+            MetodyWeryfikacji = JsonArray.Parse("[]"),
+            KryteriaOceny = JsonArray.Parse("[]"),
+            NakladPracy = JsonNode.Parse("{}"),
+            Literatura = JsonNode.Parse("""{"podstawowa":[],"uzupelniajaca":[],"inne":[]}"""),
+            MetodyRealizacji = JsonNode.Parse("""{"wyklad_opis": "", "cwiczenia_opis": ""}""")
+        };
+
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (!string.IsNullOrWhiteSpace(token))
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var result = await Http.PostAsJsonAsync("/api/sylabusy", newSylabus);
+        if (result.IsSuccessStatusCode)
+        {
+            var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
+            Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+        }
+        else
+        {
+            var errorText = await result.Content.ReadAsStringAsync();
+            Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
+        }
+
+        ShowModal = false;
     }
+
+
 
     private async Task CopyLatestSylabus()
     {
@@ -269,6 +319,16 @@ else
         if (parts.Length == 2 && int.TryParse(parts[0], out int start) && int.TryParse(parts[1], out int end))
             return $"{start + 1}/{end + 1}";
 
-        return rokData; // fallback
+        return GetDefaultAcademicYear(); // fallback
     }
+
+
+    private string GetDefaultAcademicYear()
+    {
+        var now = DateTime.Now;
+        return now.Month >= 9
+            ? $"{now.Year}/{now.Year + 1}"
+            : $"{now.Year - 1}/{now.Year}";
+    }
+
 }
