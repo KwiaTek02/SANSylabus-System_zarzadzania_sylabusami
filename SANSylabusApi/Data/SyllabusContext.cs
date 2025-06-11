@@ -103,8 +103,8 @@ public partial class SyllabusContext : DbContext
             entity.Property(e => e.data_powstania).HasColumnType("datetime");
             entity.Property(e => e.nazwa_jednostki_organizacyjnej).HasMaxLength(255);
             entity.Property(e => e.nazwa_specjalnosci).HasMaxLength(255);
-            entity.Property(e => e.profil_ksztalcenia).HasMaxLength(100);
-            entity.Property(e => e.rodzaj_modulu_ksztalcenia).HasMaxLength(100);
+            entity.Property(e => e.profil_ksztalcenia).HasMaxLength(255);
+            entity.Property(e => e.rodzaj_modulu_ksztalcenia).HasMaxLength(255);
             entity.Property(e => e.rok_data).HasMaxLength(20);
             entity.Property(e => e.wersja).HasMaxLength(20);
 

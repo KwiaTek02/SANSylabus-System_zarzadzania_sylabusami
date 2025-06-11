@@ -251,6 +251,49 @@
     border-bottom-right-radius: 0;
 }
 
+.register-text {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #444;
+}
+
+    .register-text a {
+        color: #005fc1;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .register-text a:hover {
+            color: #003e78;
+            text-decoration: underline;
+        }
+
+.mb-4 {
+    margin-bottom: 1.75rem !important; /* lub więcej np. 2rem */
+}
+
+.bottom-link {
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    text-align: center;
+    color: #444;
+}
+
+    .bottom-link a {
+        color: #005fc1;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .bottom-link a:hover {
+            color: #003e78;
+            text-decoration: underline;
+        }
+
+
 
 /*
     ------------------------------------------------------------
@@ -1189,3 +1232,97 @@ table.table {
         flex-direction: column;
     }
 }
+
+/*
+    Strona od tworzenia nowych sylabusów
+*/
+
+
+.syl-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+.syl-header {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #0d6efd;
+    margin-bottom: 1.5rem;
+}
+
+.syl-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.syl-select {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    font-size: 1rem;
+    width: 100%;
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+}
+
+.syl-button-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.syl-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border: none;
+}
+
+    .syl-btn:hover {
+        transform: scale(1.02);
+    }
+
+.syl-btn-outline {
+    background-color: white;
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+
+.syl-btn-primary {
+    background-color: #0d6efd;
+    color: white;
+    border: 1px solid transparent;
+}
+
+
+/*
+    Przycisk od tworzenia sylabusa w przydmiotach
+*/
+
+.syl-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.syl-btn-create {
+    background-color: #005293; /* zielony Bootstrapowy success */
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+    .syl-btn-create:hover {
+        background-color: #007293;
+        transform: scale(1.02);
+    }

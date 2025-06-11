@@ -1,0 +1,189 @@
+﻿@page "/sylabus/nowy/{Kierunek}"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@using System.Net.Http.Headers
+@using System.Text.Json.Nodes
+
+<div class="syl-container">
+    <h3 class="syl-header">Utwórz nowy sylabus – @Kierunek</h3>
+
+    @if (PrzedmiotyList is null)
+    {
+        <p><em>Ładowanie przedmiotów...</em></p>
+    }
+    else
+    {
+        <div class="mb-4">
+            <label class="syl-label">Wybierz przedmiot:</label>
+            <select class="syl-select" @bind="SelectedPrzedmiotId">
+                <option value="">-- Wybierz przedmiot --</option>
+                @foreach (var p in PrzedmiotyList)
+                {
+                    <option value="@p.Id">@p.Nazwa</option>
+                }
+            </select>
+        </div>
+
+        <div class="syl-button-row">
+            <button class="syl-btn syl-btn-outline" @onclick="CreateEmptySylabus">
+                📝 Pusty sylabus
+            </button>
+            <button class="syl-btn syl-btn-primary" @onclick="CopyLatestSylabus">
+                📄 Kopiuj istniejący
+            </button>
+        </div>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public string Kierunek { get; set; } = default!;
+    private List<PrzedmiotDto>? PrzedmiotyList;
+    private int? SelectedPrzedmiotId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+    }
+
+    // Wklej tutaj metody: CreateEmptySylabus, CopyLatestSylabus, IncrementAcademicYear, GetDefaultAcademicYear
+
+    private async void CreateEmptySylabus()
+    {
+        if (SelectedPrzedmiotId is null)
+        {
+            Console.WriteLine("Nie wybrano przedmiotu.");
+            return;
+        }
+
+        var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+
+        // Domyślny rok – bieżący, jeśli brak historii
+        var rokData = GetDefaultAcademicYear();
+        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+        if (latest != null && !string.IsNullOrWhiteSpace(latest.RokData))
+        {
+            rokData = IncrementAcademicYear(latest.RokData);
+        }
+
+        var newSylabus = new SylabusDto
+            {
+                PrzedmiotId = SelectedPrzedmiotId.Value,
+                Wersja = "v1",
+                RokData = rokData,
+                TresciKsztalcenia = JsonNode.Parse("""{"wyklady":[],"cwiczenia":[]}"""),
+                EfektyKsztalcenia = JsonArray.Parse("[]"),
+                MetodyWeryfikacji = JsonArray.Parse("[]"),
+                KryteriaOceny = JsonArray.Parse("[]"),
+                NakladPracy = JsonNode.Parse("{}"),
+                Literatura = JsonNode.Parse("""{"podstawowa":[],"uzupelniajaca":[],"inne":[]}"""),
+                MetodyRealizacji = JsonNode.Parse("""{"wyklad_opis": "", "cwiczenia_opis": ""}""")
+            };
+
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (!string.IsNullOrWhiteSpace(token))
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var result = await Http.PostAsJsonAsync("/api/sylabusy", newSylabus);
+        if (result.IsSuccessStatusCode)
+        {
+            var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
+            Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+        }
+        else
+        {
+            var errorText = await result.Content.ReadAsStringAsync();
+            Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
+        }
+    }
+
+
+
+    private async Task CopyLatestSylabus()
+    {
+        if (SelectedPrzedmiotId is null)
+        {
+            Console.WriteLine("pusty XDDDDDDDD");
+            return;
+
+        }
+
+
+        var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+
+        if (latest is null)
+        {
+            Console.WriteLine("nowy pusty XDDDDDDDD");
+            return;
+        }
+
+        var newYear = IncrementAcademicYear(latest.RokData!);
+
+        var newSylabus = new SylabusDto
+            {
+                PrzedmiotId = latest.PrzedmiotId,
+                Wersja = "v1",
+                RokData = newYear,
+                NazwaJednostkiOrganizacyjnej = latest.NazwaJednostkiOrganizacyjnej,
+                ProfilKsztalcenia = latest.ProfilKsztalcenia,
+                NazwaSpecjalnosci = latest.NazwaSpecjalnosci,
+                RodzajModuluKsztalcenia = latest.RodzajModuluKsztalcenia,
+                WymaganiaWstepne = latest.WymaganiaWstepne,
+                TresciKsztalcenia = latest.TresciKsztalcenia?.DeepClone(),
+                EfektyKsztalcenia = latest.EfektyKsztalcenia?.DeepClone(),
+                MetodyWeryfikacji = latest.MetodyWeryfikacji?.DeepClone(),
+                KryteriaOceny = latest.KryteriaOceny?.DeepClone(),
+                NakladPracy = latest.NakladPracy?.DeepClone(),
+                Literatura = latest.Literatura?.DeepClone(),
+                MetodyRealizacji = latest.MetodyRealizacji?.DeepClone(),
+            };
+
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (!string.IsNullOrWhiteSpace(token))
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var result = await Http.PostAsJsonAsync("/api/sylabusy", newSylabus);
+        if (result.IsSuccessStatusCode)
+        {
+            var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
+            Console.WriteLine("XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+            Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+            Console.WriteLine(created!.Id);
+
+        }
+        else
+        {
+            var errorText = await result.Content.ReadAsStringAsync();
+            Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
+        }
+
+    }
+
+    private string IncrementAcademicYear(string rokData)
+    {
+        var parts = rokData.Split('/');
+        if (parts.Length == 2 && int.TryParse(parts[0], out int start) && int.TryParse(parts[1], out int end))
+            return $"{start + 1}/{end + 1}";
+
+        return GetDefaultAcademicYear(); // fallback
+    }
+
+
+    private string GetDefaultAcademicYear()
+    {
+        var now = DateTime.Now;
+        return now.Month >= 9
+            ? $"{now.Year}/{now.Year + 1}"
+            : $"{now.Year - 1}/{now.Year}";
+    }
+
+
+    private void CloseModal()
+    {
+        SelectedPrzedmiotId = null;
+    }
+}
