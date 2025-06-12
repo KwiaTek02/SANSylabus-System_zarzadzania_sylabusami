@@ -3,31 +3,37 @@
 
 <PageTitle>Kierunki</PageTitle>
 
-<div class="glowny" style="position: relative;">
-    <h3 id="glowny-naglowek">Wybierz kierunek:</h3>
+<div class="syl-kierunki-container">
+    <h3 class="syl-kierunki-header">Wybierz kierunek:</h3>
 
-    <input type="text" placeholder="Szukaj kierunku..." value="@searchTerm" @oninput="OnSearchChanged" class="form-control mb-1" />
+    <input type="text"
+           placeholder="Szukaj kierunku..."
+           value="@searchTerm"
+           @oninput="OnSearchChanged"
+           class="form-control syl-kierunki-search" />
 
     @if (!string.IsNullOrWhiteSpace(searchTerm) && FilteredKierunki.Any())
     {
-        <ul class="suggestions-list">
+        <ul class="syl-kierunki-suggestions">
             @foreach (var suggestion in FilteredKierunki.Take(5))
             {
-                <li @onclick="() => SelectSuggestion(suggestion)" class="suggestion-item">
+                <li @onclick="() => SelectSuggestion(suggestion)"
+                    class="syl-kierunki-suggestion-item">
                     @suggestion
                 </li>
             }
         </ul>
     }
 
-    <ul class="lista mt-3">
+    <ul class="syl-kierunki-list">
         @foreach (var kierunek in KierunkiList)
         {
-            <li class="lista-itemow">
+            <li class="syl-kierunki-item">
                 <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>
-                    @if (!string.IsNullOrWhiteSpace(searchTerm) && kierunek.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    @if (!string.IsNullOrWhiteSpace(searchTerm) &&
+                   kierunek.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     {
-                        <strong>@kierunek</strong>  @* lub podświetl jeśli pasuje *@
+                        <strong>@kierunek</strong>
                     }
                     else
                     {
@@ -37,9 +43,7 @@
             </li>
         }
     </ul>
-
 </div>
-
 
 @code {
     private string searchTerm = "";
@@ -88,7 +92,6 @@
     {
         searchTerm = e.Value?.ToString() ?? "";
 
-        // Automatyczne przekierowanie jeśli wpis idealnie pasuje
         var match = KierunkiList.FirstOrDefault(k =>
             string.Equals(k, searchTerm, StringComparison.OrdinalIgnoreCase));
 

@@ -17,8 +17,12 @@
 else
 {
 
-    <div class="mb-3">
-        <input class="form-control" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
+    <div class="syl-top-bar">
+        <input class="syl-search" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
+
+        <button class="syl-btn-create" @onclick="NavigateToCreateSylabus">
+            ➕ Nowy sylabus
+        </button>
     </div>
 
     <div class="wiersz-filtrów mb-3">
@@ -53,11 +57,7 @@ else
         </div>
     </div>
 
-    <div class="syl-btn-wrapper">
-        <button class="syl-btn-create" @onclick="NavigateToCreateSylabus">
-            ➕ Nowy sylabus
-        </button>
-    </div>
+
 
 
 

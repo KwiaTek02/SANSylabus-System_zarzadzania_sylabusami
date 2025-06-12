@@ -41,15 +41,16 @@ else
 {
     var grupy = Historia.GroupBy(h => h.WersjaWtedy).OrderByDescending(g => g.Key);
 
-    <div class="year-tab-nav">
-        @foreach (var grupa in grupy)
-        {
-            <button class="year-tab-btn @(grupa.Key == ActiveVersion ? "active" : "")"
-                    @onclick="() => SelectVersion(grupa.Key)">
-                @grupa.Key
-            </button>
-        }
+    <div class="syl-version-select-wrapper">
+        <label for="sylVersionSelect" class="syl-version-label me-2">Wersja:</label>
+        <select id="sylVersionSelect" class="form-select syl-version-select" @bind="ActiveVersion">
+            @foreach (var grupa in grupy)
+            {
+                <option value="@grupa.Key">@grupa.Key</option>
+            }
+        </select>
     </div>
+
 
     <table class="table table-bordered table-striped">
         <thead class="table-header">
@@ -94,4 +95,12 @@ else
     }
 
     void SelectVersion(string wersja) => ActiveVersion = wersja;
+
+    private void OnVersionChanged(ChangeEventArgs e)
+    {
+        ActiveVersion = e.Value?.ToString();
+        // Możesz tu dodać inne akcje po zmianie wersji
+    }
+
+
 }
