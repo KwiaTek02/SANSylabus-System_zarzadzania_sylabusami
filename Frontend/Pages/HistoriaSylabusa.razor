@@ -24,7 +24,8 @@ else
             </tr>
             <tr>
                 <td>Stworzył</td>
-                <td>@(SzczegolySylabusa.Koordynatorzy?.FirstOrDefault() ?? $"ID: {SzczegolySylabusa.KtoStworzyl}")</td>
+                <td>@(SzczegolySylabusa.StworzylImieNazwiskoTytul ?? $"ID: {SzczegolySylabusa.KtoStworzyl}")</td>
+
             </tr>
         </tbody>
     </table>

@@ -72,7 +72,7 @@ namespace SylabusAPI.Services.Implementations
                 wymagania_wstepne = dto.WymaganiaWstepne,
                 rok_data = dto.RokData,
 
-                data_powstania = dto.DataPowstania ?? DateTime.UtcNow,
+                data_powstania = dto.DataPowstania ?? GetPolandNow(),
                 kto_stworzyl = userId,
                 tresci_ksztalcenia_json = dto.TresciKsztalcenia?.ToJsonString(),
                 efekty_ksztalcenia_json = dto.EfektyKsztalcenia?.ToJsonString(),
@@ -407,6 +407,11 @@ namespace SylabusAPI.Services.Implementations
                 .Select(k => k.uzytkownik.tytul + " " + k.uzytkownik.imie_nazwisko)
                 .ToList();
 
+            var autor = _db.uzytkownicies
+                .Where(u => u.id == s.kto_stworzyl)
+                .Select(u => (u.tytul != null ? u.tytul + " " : "") + u.imie_nazwisko)
+                .FirstOrDefault();
+
             return new SylabusDto
             {
                 Id = s.id,
@@ -424,6 +429,7 @@ namespace SylabusAPI.Services.Implementations
                 Wersja = s.wersja,
                 DataPowstania = s.data_powstania,
                 KtoStworzyl = s.kto_stworzyl,
+                StworzylImieNazwiskoTytul = autor,
                 TresciKsztalcenia = JsonNode.Parse(s.tresci_ksztalcenia_json ?? "{}"),
                 EfektyKsztalcenia = JsonNode.Parse(s.efekty_ksztalcenia_json ?? "{}"),
                 MetodyWeryfikacji = JsonNode.Parse(s.metody_weryfikacji_json ?? "{}"),
@@ -439,6 +445,20 @@ namespace SylabusAPI.Services.Implementations
         {
             return await _db.koordynatorzy_sylabusus
                 .AnyAsync(k => k.sylabus_id == sylabusId && k.uzytkownik_id == userId);
+        }
+
+        private static DateTime GetPolandNow()
+        {
+            try
+            {
+                var polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time"); // Windows
+                return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                var polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw"); // Linux/macOS
+                return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone);
+            }
         }
     }
 }

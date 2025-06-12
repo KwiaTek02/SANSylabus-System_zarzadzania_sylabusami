@@ -24,5 +24,7 @@ namespace Frontend.Shared
         public JsonNode? Literatura { get; set; }
         public JsonNode? MetodyRealizacji { get; set; }
         public List<string>? Koordynatorzy { get; set; }
+        public string? StworzylImieNazwiskoTytul { get; set; }
+
     }
 }

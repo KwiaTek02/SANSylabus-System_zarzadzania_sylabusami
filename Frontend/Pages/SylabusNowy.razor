@@ -33,6 +33,11 @@
                 📄 Kopiuj istniejący
             </button>
         </div>
+
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <div class="alert alert-danger">@ErrorMessage</div>
+        }
     }
 </div>
 
@@ -42,10 +47,26 @@
     public string Kierunek { get; set; } = default!;
     private List<PrzedmiotDto>? PrzedmiotyList;
     private int? SelectedPrzedmiotId;
+    private int? CurrentUserId;
+    private string? ErrorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+
         PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+
+            var userIdStr = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            if (int.TryParse(userIdStr, out var uid))
+                CurrentUserId = uid;
+        }
     }
 
     // Wklej tutaj metody: CreateEmptySylabus, CopyLatestSylabus, IncrementAcademicYear, GetDefaultAcademicYear
@@ -58,15 +79,36 @@
             return;
         }
 
+        if (SelectedPrzedmiotId is null)
+        {
+            Console.WriteLine("Nie wybrano przedmiotu.");
+            return;
+        }
+
         var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+
+        if (latest != null && CurrentUserId != null)
+        {
+            var isKoordynator = await Http.GetFromJsonAsync<bool>($"/api/sylabusy/{latest.Id}/czy-koordynator/{CurrentUserId}");
+
+            if (!isKoordynator)
+            {
+                ErrorMessage = "Nie jesteś koordynatorem ostatniego sylabusa tego przedmiotu.";
+                StateHasChanged(); // odśwież widok
+                return;
+            }
+        }
 
         // Domyślny rok – bieżący, jeśli brak historii
         var rokData = GetDefaultAcademicYear();
-        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
-        if (latest != null && !string.IsNullOrWhiteSpace(latest.RokData))
+        var latest2 = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+        if (latest2 != null && !string.IsNullOrWhiteSpace(latest.RokData))
         {
             rokData = IncrementAcademicYear(latest.RokData);
         }
+
+
 
         var newSylabus = new SylabusDto
             {
@@ -90,6 +132,7 @@
         if (result.IsSuccessStatusCode)
         {
             var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
+            Navigation.NavigateTo($"/przedmiot/{SelectedPrzedmiotId}");
             Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
         }
         else
@@ -111,16 +154,32 @@
         }
 
 
-        var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
-        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
-
-        if (latest is null)
+        if (SelectedPrzedmiotId is null)
         {
-            Console.WriteLine("nowy pusty XDDDDDDDD");
+            Console.WriteLine("Nie wybrano przedmiotu.");
             return;
         }
 
+        var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+        var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
+
+        if (latest != null && CurrentUserId != null)
+        {
+            var isKoordynator = await Http.GetFromJsonAsync<bool>($"/api/sylabusy/{latest.Id}/czy-koordynator/{CurrentUserId}");
+
+            if (!isKoordynator)
+            {
+                ErrorMessage = "Nie jesteś koordynatorem ostatniego sylabusa tego przedmiotu.";
+                StateHasChanged(); 
+                return;
+            }
+        }
+
         var newYear = IncrementAcademicYear(latest.RokData!);
+
+
+
+
 
         var newSylabus = new SylabusDto
             {
@@ -150,8 +209,9 @@
         if (result.IsSuccessStatusCode)
         {
             var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
-            Console.WriteLine("XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-            Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+            Console.WriteLine("Stworzono poprawnie kopie sylabusu ");
+            //Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+            Navigation.NavigateTo($"/przedmiot/{SelectedPrzedmiotId}");
             Console.WriteLine(created!.Id);
 
         }

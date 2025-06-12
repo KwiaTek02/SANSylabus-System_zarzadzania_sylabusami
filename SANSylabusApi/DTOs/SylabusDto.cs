@@ -24,5 +24,6 @@ namespace SylabusAPI.DTOs
         public JsonNode? MetodyRealizacji { get; set; }
 
         public List<string>? Koordynatorzy { get; set; }
+        public string? StworzylImieNazwiskoTytul { get; set; }
     }
 }

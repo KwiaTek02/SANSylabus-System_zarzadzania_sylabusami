@@ -30,5 +30,24 @@ namespace SylabusAPI.Controllers
             return user is not null ? Ok(user.PelneImie) : NotFound("Nie znaleziono użytkownika.");
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _db.uzytkownicies
+                .Where(u => u.id == id)
+                .Select(u => new
+                {
+                    Id = u.id,
+                    ImieNazwisko = u.imie_nazwisko,
+                    Tytul = u.tytul
+                })
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+                return NotFound();
+
+            return Ok(user);
+        }
+
     }
 }
