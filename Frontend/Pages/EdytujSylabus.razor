@@ -11,10 +11,7 @@
 
 <h3 id="glownyEdycji">Edytuj sylabus</h3>
 
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <div class="alert alert-danger">@ErrorMessage</div>
-}
+
 
 @if (Model == null)
 {
@@ -577,6 +574,7 @@ else
         </div>
 
         <hr />
+        
 
         <InputText class="do-wpisywania"
                    @bind-Value="Model.OpisZmiany"
@@ -584,12 +582,19 @@ else
                    required />
         <ValidationMessage For="@(() => Model.OpisZmiany)" />
 
+
+                        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="bledy">@ErrorMessage</div>
+        }
+
+
         
         <button type="submit" class="zmiany">Zapisz zmiany</button>
         </EditForm>
 
-   
 
+  
 }
 
 @code {
