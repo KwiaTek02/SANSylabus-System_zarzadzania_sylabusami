@@ -857,6 +857,17 @@ else
             return;
         }
 
+        var nakladZajecStac = NakladPracy.FirstOrDefault(n => n.Klucz == "zajecia")?.Stacjonarne ?? 0;
+        var nakladZajecNiestac = NakladPracy.FirstOrDefault(n => n.Klucz == "zajecia")?.Niestacjonarne ?? 0;
+
+        if (nakladZajecStac != sumaStacjonarne || nakladZajecNiestac != sumaNiestacjonarne)
+        {
+            ErrorMessage = $"Błąd: suma godzin zajęć dydaktycznych (Wykład, Ćwiczenia itd.) musi być równa wartości w nakładzie pracy studenta (Udział w zajęciach dydaktycznych – SUMA godzin). " +
+                           $"Stacjonarne: {sumaStacjonarne} ≠ {nakladZajecStac}, " +
+                           $"Niestacjonarne: {sumaNiestacjonarne} ≠ {nakladZajecNiestac}.";
+            return;
+        }
+
         
 
 

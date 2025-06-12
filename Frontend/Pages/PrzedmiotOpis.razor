@@ -56,8 +56,10 @@
     private SiatkaPrzedmiotowDto? SiatkaNiestacjonarne;
     private string ActiveSection = "tresci";
     [Inject] IJSRuntime JS { get; set; } = default!;
+    private bool IsLecturer = false;
     bool IsExporting = false;
     private bool ExportingPdf = false;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,6 +78,20 @@
         SelectedSylabus = Sylabusy?
             .OrderByDescending(s => s.DataPowstania)
             .FirstOrDefault();
+
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+            var role = jwt.Claims.FirstOrDefault(c =>
+                c.Type == "role" ||
+                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+            IsLecturer = role == "wykladowca";
+        }
+
+
     }
 
     private Task OnTabChange(SylabusDto syl)
@@ -286,16 +302,34 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var k in keys)
+            @foreach (var k in keys)
+            {
+                var s = nak.TryGetPropertyValue($"{k}_S", out var vs) ? vs : null;
+                var n = nak.TryGetPropertyValue($"{k}_N", out var vn) ? vn : null;
+
+                string FormatWithECTS(JsonNode? val)
                 {
-                    var s = nak.TryGetPropertyValue($"{k}_S", out var vs) ? vs : nak["S"];
-                    var n = nak.TryGetPropertyValue($"{k}_N", out var vn) ? vn : null;
-                    <tr>
-                        <td>@labels[k]</td>
-                        <td>@s</td>
-                        <td>@n</td>
-                    </tr>
+                    if (val is null || !double.TryParse(val.ToString(), out double hours))
+                        return val?.ToString() ?? "";
+
+                    double ects = hours / 25.0;
+                    string ectsFormatted = ects % 1 == 0
+                        ? ((int)ects).ToString()
+                        : ects.ToString("0.0").Replace(".", ",");
+
+                    return $"{hours} / {ectsFormatted}";
                 }
+
+                bool isEctsKey = new[] { "sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" }.Contains(k);
+
+                <tr>
+                    <td>@labels[k]</td>
+                    <td>@(isEctsKey ? FormatWithECTS(s) : s)</td>
+                    <td>@(isEctsKey ? FormatWithECTS(n) : n)</td>
+                </tr>
+            }
+
+
             </tbody>
         </table>
     };
@@ -512,7 +546,10 @@ else
         <RokAkademickiTabs Sylabusy="Sylabusy" Selected="SelectedSylabus" OnChange="OnTabChange" />
         <div class="d-flex justify-content-end mb-3 no-print">
             <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/{SelectedSylabus.Id}/historia"))">Zobacz wersje</button>
-            <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/edit/{SelectedSylabus.Id}"))">Edytuj</button>
+            @if (IsLecturer)
+            {
+                <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/edit/{SelectedSylabus.Id}"))">Edytuj</button>
+            }
             <button class="btn-action no-print" @onclick="DownloadPdf">Pobierz sylabus</button>
         </div>
         <div class="card mb-4">

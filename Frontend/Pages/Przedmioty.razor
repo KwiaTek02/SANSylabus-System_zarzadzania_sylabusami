@@ -20,9 +20,12 @@ else
     <div class="syl-top-bar">
         <input class="syl-search" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
 
-        <button class="syl-btn-create" @onclick="NavigateToCreateSylabus">
-            ➕ Nowy sylabus
-        </button>
+        @if (IsLecturer)
+        {
+            <button class="syl-btn-create" @onclick="NavigateToCreateSylabus">
+                ➕ Nowy sylabus
+            </button>
+        }
     </div>
 
     <div class="wiersz-filtrów mb-3">
@@ -95,10 +98,10 @@ else
                                 <span class="osrodek-badge">@p.Osrodek</span>
                             </span>
 
-                            @if (IsLecturer)
+                            @*@if (IsLecturer)
                             {
                                 <button class="btn btn-sm btn-outline-secondary ms-3" @onclick="() => EditPrzedmiot(p.Id)">Edytuj</button>
-                            }
+                            }*@
                         </div>
                     </li>
                 }
@@ -120,18 +123,31 @@ else
 
     private List<PrzedmiotDto>? PrzedmiotyList;
     private string SearchTerm { get; set; } = string.Empty;
-    private bool IsLecturer => false; // TODO: sprawdzić rolę z JWT
     private string? SelectedOsrodek { get; set; }
     private int? SelectedSemestr { get; set; }
     private string? SelectedStopien { get; set; }
     private bool ShowModal = false;
     private int? SelectedPrzedmiotId;
+    private bool IsLecturer = false;
 
 
 
     protected override async Task OnInitializedAsync()
     {
         PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+
+            var role = jwt.Claims.FirstOrDefault(c =>
+                c.Type == "role" ||
+                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+            IsLecturer = role == "wykladowca";
+        }
     }
 
     private void NavigateToPrzedmiot(int id)
