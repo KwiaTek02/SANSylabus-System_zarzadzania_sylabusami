@@ -20,6 +20,12 @@
 {
     <p>Ładowanie...</p>
 }
+
+@if (!isAuthorized)
+{
+    <p>Sprawdzanie dostępu...</p>
+    return;
+}
 else
 {
     <EditForm Model="Model" OnValidSubmit="HandleSubmit">
@@ -611,6 +617,7 @@ else
     private string MetodyCwiczenia = "";
     private string MetodyInneOpis = "";
     private string? ErrorMessage;
+    private bool isAuthorized = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -618,6 +625,8 @@ else
         {
             // Token i uprawnienia
             var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+
 
             if (string.IsNullOrWhiteSpace(token) || IsTokenExpired(token))
             {
@@ -636,19 +645,15 @@ else
 
             var userIdStr = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
 
-            if (role != "wykladowca" || !int.TryParse(userIdStr, out var userId))
+            if (role != "wykladowca" || !int.TryParse(userIdStr, out var userId) ||
+                !await Http.GetFromJsonAsync<bool>($"api/sylabusy/{Id}/czy-koordynator/{userId}"))
             {
-                Navigation.NavigateTo("/brak-dostepu");
+                await JS.InvokeVoidAsync("localStorage.setItem", "unauthorizedBack", Navigation.Uri);
+                Navigation.NavigateTo("/brak-dostepu", true);
                 return;
             }
 
-            // Sprawdzenie koordynatora
-            var isKoordynator = await Http.GetFromJsonAsync<bool>($"api/sylabusy/{Id}/czy-koordynator/{userId}");
-            if (!isKoordynator)
-            {
-                Navigation.NavigateTo("/brak-dostepu");
-                return;
-            }
+            isAuthorized = true;
 
             // Pobranie danych sylabusa
             Sylabus = await Http.GetFromJsonAsync<SylabusDto>($"api/sylabusy/{Id}");

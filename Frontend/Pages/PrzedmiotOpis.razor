@@ -100,6 +100,7 @@
         return Task.CompletedTask;
     }
 
+
     private async Task DownloadPdf()
     {
         ExportingPdf = true;
@@ -548,7 +549,16 @@ else
             <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/{SelectedSylabus.Id}/historia"))">Zobacz wersje</button>
             @if (IsLecturer)
             {
-                <button class="btn-action no-print" @onclick="@(() => Navigation.NavigateTo($"/sylabus/edit/{SelectedSylabus.Id}"))">Edytuj</button>
+                <button class="btn-action no-print" @onclick="OnEditClick">Edytuj</button>
+
+                @code {
+            private async Task OnEditClick()
+            {
+                await JS.InvokeVoidAsync("localStorage.setItem", "previousUrl", Navigation.Uri);
+                Navigation.NavigateTo($"/sylabus/edit/{SelectedSylabus.Id}");
+            }
+        }
+
             }
             <button class="btn-action no-print" @onclick="DownloadPdf">Pobierz sylabus</button>
         </div>
