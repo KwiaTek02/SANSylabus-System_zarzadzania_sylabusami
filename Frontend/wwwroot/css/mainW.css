@@ -464,6 +464,15 @@ li.list-group-item {
     ------------------------------------------------------------
 */
 
+.bledy {
+    color: #d32f2f; /* ciemnoczerwony, elegancki */
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
 
 :root {
     --primary-color: #005293;
@@ -678,6 +687,7 @@ table.table {
 
 #glownyEdycji {
     font-size: 4rem;
+    text-align: center;
 }
 
 
@@ -1377,4 +1387,8 @@ table.table {
     border-radius: 5px;
     background-color: #f8f9fa;
 }
+
+
+
+
 
