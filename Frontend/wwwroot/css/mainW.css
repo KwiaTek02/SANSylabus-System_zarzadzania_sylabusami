@@ -96,9 +96,9 @@
     border-radius: 12px;
     height: 45px;
     border: 1px solid #ccc;
-    width: 100%; /* <- TO zostaje */
-    max-width: 100%; /* <- DODAJ TO */
-    box-sizing: border-box; /* <- DODAJ TO */
+    width: 100%;
+    max-width: 100%; 
+    box-sizing: border-box; 
     transition: border 0.3s ease;
 }
 
@@ -1462,9 +1462,6 @@ table.table {
 }
 
 
-
-
-
 /*
     Brak dostępu
 */
@@ -1521,3 +1518,52 @@ table.table {
 .hidden {
     display: none !important;
 }
+
+
+/*
+    Strona z błędami
+*/
+
+.error-page {
+    height: 50vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: none;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.error-circle {
+    background-color: #1a1a1a;
+    border-radius: 50%;
+    padding: 3rem 4rem;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.error-code {
+    font-size: 5rem;
+    color: #ff5500;
+    margin: 0;
+}
+
+.error-message {
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    color: #ddd;
+}
+
+.reconnect-btn {
+    background: none;
+    border: none;
+    color: #ff5500;
+    font-size: 1rem;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+    .reconnect-btn:hover {
+        color: #ffa366;
+    }
