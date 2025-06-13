@@ -8,14 +8,8 @@
 
 <PageTitle>Przedmioty - @Kierunek</PageTitle>
 
-<h3>Przedmioty dla kierunku: @Kierunek</h3>
-
-@if (PrzedmiotyList == null)
-{
-    <p><em>Ładowanie...</em></p>
-}
-else
-{
+<div class="syl-przedmioty-container">
+    <h3 class="syl-przedmioty-header">Przedmioty dla kierunku: @Kierunek</h3>
 
     <div class="syl-top-bar">
         <input class="syl-search" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
@@ -28,7 +22,7 @@ else
         }
     </div>
 
-    <div class="wiersz-filtrów mb-3">
+    <div class="wiersz-filtrów">
         <div class="kolumna-filtra">
             <select class="form-select" @bind="SelectedStopien">
                 <option value="">Wszystkie stopnie</option>
@@ -60,64 +54,48 @@ else
         </div>
     </div>
 
-
-
-
-
-
-
-
-
-    var filtered = PrzedmiotyList
-        ?.Where(p =>
-            (string.IsNullOrWhiteSpace(SearchTerm) || p.Nazwa.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
-            (string.IsNullOrWhiteSpace(SelectedOsrodek) || p.Osrodek == SelectedOsrodek) &&
-            (!SelectedSemestr.HasValue || p.Semestr == SelectedSemestr) &&
-            (string.IsNullOrWhiteSpace(SelectedStopien) || p.Stopien == SelectedStopien)
-        )
-        .ToList();
-
-
-
-    @if (!filtered.Any())
+    @if (PrzedmiotyList == null)
     {
-        <p>Brak przedmiotów spełniających kryterium wyszukiwania.</p>
+        <p><em>Ładowanie...</em></p>
     }
     else
     {
-        @foreach (var sem in filtered.GroupBy(p => p.Semestr).OrderBy(g => g.Key))
-        {
-            <h4 id="nazwa">Semestr @sem.Key</h4>
-            <ul class="list-group mb-4">
-                @foreach (var p in sem)
-                {
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center justify-content-between w-100">
-                            <span @onclick="() => NavigateToPrzedmiot(p.Id)" style="cursor:pointer;">
-                                @p.Nazwa
-                                <span class="osrodek-badge">@p.Osrodek</span>
-                            </span>
+        var filtered = PrzedmiotyList
+        ?.Where(p =>
+        (string.IsNullOrWhiteSpace(SearchTerm) || p.Nazwa.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrWhiteSpace(SelectedOsrodek) || p.Osrodek == SelectedOsrodek) &&
+        (!SelectedSemestr.HasValue || p.Semestr == SelectedSemestr) &&
+        (string.IsNullOrWhiteSpace(SelectedStopien) || p.Stopien == SelectedStopien)
+        )
+        .ToList();
 
-                            @*@if (IsLecturer)
-                            {
-                                <button class="btn btn-sm btn-outline-secondary ms-3" @onclick="() => EditPrzedmiot(p.Id)">Edytuj</button>
-                            }*@
-                        </div>
-                    </li>
-                }
-            </ul>
+        @if (!filtered.Any())
+        {
+            <p>Brak przedmiotów spełniających kryterium wyszukiwania.</p>
         }
+        else
+        {
+            @foreach (var sem in filtered.GroupBy(p => p.Semestr).OrderBy(g => g.Key))
+            {
+                <h4 class="syl-semestr-header">Semestr @sem.Key</h4>
+                <ul class="syl-przedmioty-list">
+                    @foreach (var p in sem)
+                    {
+                        <li class="syl-przedmiot-item">
+                            <span class="syl-przedmiot-link" @onclick="() => NavigateToPrzedmiot(p.Id)">
+                                <span class="syl-przedmiot-nazwa">@p.Nazwa</span>
+                                <span class="syl-przedmiot-osrodek">@p.Osrodek</span>
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+
     }
-}
+</div>
 
 @code {
-
-
-    private void NavigateToCreateSylabus()
-    {
-        Navigation.NavigateTo($"/sylabus/nowy/{Kierunek}");
-    }
-
     [Parameter]
     public string Kierunek { get; set; } = default!;
 
@@ -126,15 +104,12 @@ else
     private string? SelectedOsrodek { get; set; }
     private int? SelectedSemestr { get; set; }
     private string? SelectedStopien { get; set; }
-    private bool ShowModal = false;
-    private int? SelectedPrzedmiotId;
     private bool IsLecturer = false;
-
-
 
     protected override async Task OnInitializedAsync()
     {
         PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
         if (!string.IsNullOrEmpty(token))
@@ -143,11 +118,15 @@ else
             var jwt = handler.ReadJwtToken(token);
 
             var role = jwt.Claims.FirstOrDefault(c =>
-                c.Type == "role" ||
-                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+                c.Type == "role" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
 
             IsLecturer = role == "wykladowca";
         }
+    }
+
+    private void NavigateToCreateSylabus()
+    {
+        Navigation.NavigateTo($"/sylabus/nowy/{Kierunek}");
     }
 
     private void NavigateToPrzedmiot(int id)
@@ -155,43 +134,22 @@ else
         Navigation.NavigateTo($"/przedmiot/{id}");
     }
 
-    private void EditPrzedmiot(int id)
-    {
-        Navigation.NavigateTo($"/przedmiot/{id}/edit");
-    }
-
     private List<string> Osrodki =>
         PrzedmiotyList?.Select(p => p.Osrodek).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToList() ?? new();
 
     private List<int> Semestry =>
-    PrzedmiotyList?
-    .Select(p => (int)(p.Semestr ?? 0))
-    .Where(s => s > 0)
-    .Distinct()
-        .OrderBy(s => s)
-        .ToList() ?? new();
-
+        PrzedmiotyList?
+            .Select(p => (int)(p.Semestr ?? 0))
+            .Where(s => s > 0)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList() ?? new();
 
     private List<string> Stopnie =>
-    PrzedmiotyList?
-        .Select(p => p.Stopien)
-        .Where(s => !string.IsNullOrWhiteSpace(s))
-        .Distinct()
-        .OrderBy(s => s)
-        .ToList() ?? new();
-
-
-    private void ShowCopyModal()
-    {
-        ShowModal = true;
-    }
-
-    private void CloseModal()
-    {
-        ShowModal = false;
-        SelectedPrzedmiotId = null;
-    }
-
-
-
+        PrzedmiotyList?
+            .Select(p => p.Stopien)
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList() ?? new();
 }
