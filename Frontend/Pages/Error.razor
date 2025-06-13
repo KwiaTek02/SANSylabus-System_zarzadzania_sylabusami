@@ -1,25 +1,27 @@
 ﻿@page "/blad/{StatusCode:int}"
 
+<div class="error-page">
+    <div class="error-circle">
+        <h1 class="error-code">@StatusCode</h1>
+        <p class="error-message">@Message</p>
+        <button class="reconnect-btn" @onclick="Powrot">Kliknij, aby wrócić</button>
+    </div>
+</div>
+
 @code {
     [Parameter] public int StatusCode { get; set; }
-    private string Message => StatusCode switch
-    {
-        400 => "Błąd 400 - Nieprawidłowe żądanie.",
-        401 => "Błąd 401 - Brak autoryzacji.",
-        403 => "Błąd 403 - Brak dostępu.",
-        404 => "Błąd 404 - Nie znaleziono zasobu.",
-        500 => "Błąd 500 - Błąd wewnętrzny serwera.",
-        _ => $"Wystąpił nieznany błąd (kod: {StatusCode})."
-    };
-}
 
-<h3 class="text-danger">Ups! Coś poszło nie tak.</h3>
-<p>@Message</p>
-
-<button class="btn btn-primary" @onclick="Powrot">Powrót do strony głównej</button>
-
-@code {
     [Inject] private NavigationManager Navigation { get; set; }
 
     private void Powrot() => Navigation.NavigateTo("/");
+
+    private string Message => StatusCode switch
+    {
+        400 => "Błąd 400 – Nieprawidłowe żądanie.",
+        401 => "Błąd 401 – Brak autoryzacji.",
+        403 => "Błąd 403 – Brak dostępu.",
+        404 => "Błąd 404 – Czy odłączyłeś kabel? :)",
+        500 => "Błąd 500 – Wewnętrzny błąd serwera.",
+        _ => $"Wystąpił nieznany błąd (kod: {StatusCode})."
+    };
 }

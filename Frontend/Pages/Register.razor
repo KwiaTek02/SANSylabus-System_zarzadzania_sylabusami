@@ -1,16 +1,42 @@
 ﻿@page "/register"
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@using System.ComponentModel.DataAnnotations
 
 <PageTitle>Rejestracja</PageTitle>
 
+<!-- ALERTY -->
+<div class="alert-container">
+    @if (ShowSuccess)
+    {
+        <div class="custom-alert success">@SuccessMessage</div>
+    }
+
+    @if (ShowError && ValidationErrors.Any())
+    {
+        <div class="custom-alert error">
+            <ul>
+                @foreach (var error in ValidationErrors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+    else if (ShowError)
+    {
+        <div class="custom-alert error">@ErrorMessage</div>
+    }
+</div>
+
+<!-- FORMULARZ -->
 <div class="auth-form-container">
     <div class="auth-card elegant-card">
         <h3 class="auth-title">Utwórz konto</h3>
 
-        <EditForm Model="@RegisterModel" OnValidSubmit="HandleRegister">
+        <EditForm Model="@RegisterModel" OnSubmit="HandleRegister">
+
             <DataAnnotationsValidator />
-            <ValidationSummary />
 
             <div class="input-with-icon mb-4">
                 <i class="bi bi-person-lines-fill"></i>
@@ -30,22 +56,16 @@
             <div class="input-icon-row mb-4">
                 <div class="input-with-icon">
                     <i class="bi bi-lock-fill"></i>
-                    <input
-                        @ref="RegisterPasswordInput"
-                        class="form-control icon-input no-right-radius"
-                        @bind="RegisterModel.Password"
-                        placeholder="Hasło"
-                        type="@RegisterPasswordInputType" />
+                    <input @ref="RegisterPasswordInput"
+                           class="form-control icon-input no-right-radius"
+                           @bind="RegisterModel.Password"
+                           placeholder="Hasło"
+                           type="@RegisterPasswordInputType" />
                 </div>
                 <button type="button" class="eye-button" @onclick="ToggleRegisterPasswordVisibility">
                     <i class="bi @(ShowRegisterPassword ? "bi-eye-slash-fill" : "bi-eye-fill")"></i>
                 </button>
             </div>
-
-            @if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                <div class="alert alert-danger">@ErrorMessage</div>
-            }
 
             <button type="submit" class="btn btn-primary login-button">Zarejestruj</button>
         </EditForm>
@@ -58,55 +78,116 @@
 
 @code {
     private RegisterRequest RegisterModel = new();
-    private string? ErrorMessage;
     private ElementReference RegisterPasswordInput;
     private bool ShowRegisterPassword;
     private string RegisterPasswordInputType => ShowRegisterPassword ? "text" : "password";
 
-    
-
+    private string? SuccessMessage;
+    private string? ErrorMessage;
+    private bool ShowSuccess;
+    private bool ShowError;
+    private List<string> ValidationErrors = new();
 
     private void ToggleRegisterPasswordVisibility()
     {
         ShowRegisterPassword = !ShowRegisterPassword;
     }
 
-
-    
     private async Task HandleRegister()
     {
         ErrorMessage = null;
-        RegisterModel.TypKonta = "gosc"; // Zawsze przypisujemy "gosc"
+        SuccessMessage = null;
+        ShowError = false;
+        ShowSuccess = false;
+        ValidationErrors.Clear();
 
+        // Walidacja DataAnnotations
+        if (!TryValidateModel(RegisterModel, out var validationErrors))
+        {
+            ValidationErrors = validationErrors;
+            ShowError = true;
+            StateHasChanged();
+            await Task.Delay(5000);
+            ShowError = false;
+            ValidationErrors.Clear();
+            StateHasChanged();
+            return;
+        }
+
+        // Niestandardowa walidacja
         if (!RegisterModel.Email.Contains("@"))
         {
-            ErrorMessage = "Adres email musi zawierać znak '@'.";
+            await ShowErrorAlert("Adres email musi zawierać znak '@'.");
             return;
         }
 
         if (!RegisterModel.Password.Any(char.IsUpper) || !RegisterModel.Password.Any(char.IsDigit))
         {
-            ErrorMessage = "Hasło musi zawierać co najmniej jedną dużą literę i jedną cyfrę.";
+            await ShowErrorAlert("Hasło musi zawierać co najmniej jedną dużą literę i jedną cyfrę.");
             return;
         }
+
+        RegisterModel.TypKonta = "gosc";
 
         try
         {
             var response = await Http.PostAsJsonAsync("/api/auth/register", RegisterModel);
             if (response.IsSuccessStatusCode)
             {
+                await ShowSuccessAlert("Operacja się powiodła. Następuje przekierowanie...");
                 Navigation.NavigateTo("/login");
             }
             else
             {
                 var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                ErrorMessage = result?["message"] ?? "Wystąpił błąd.";
+                await ShowErrorAlert(result?["message"] ?? "Wystąpił błąd.");
             }
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Błąd rejestracji: {ex.Message}";
+            await ShowErrorAlert($"Błąd rejestracji: {ex.Message}");
         }
+    }
+
+    private async Task ShowSuccessAlert(string message)
+    {
+        SuccessMessage = message;
+        ShowSuccess = true;
+        StateHasChanged();
+
+        await Task.Delay(3000);
+
+        ShowSuccess = false;
+        SuccessMessage = null;
+        StateHasChanged();
+    }
+
+    private async Task ShowErrorAlert(string message)
+    {
+        ErrorMessage = message;
+        ShowError = true;
+        StateHasChanged();
+
+        await Task.Delay(3000);
+
+        ShowError = false;
+        ErrorMessage = null;
+        StateHasChanged();
+    }
+
+    private bool TryValidateModel(object model, out List<string> validationResults)
+    {
+        var context = new ValidationContext(model);
+        var results = new List<ValidationResult>();
+        validationResults = new();
+
+        if (!Validator.TryValidateObject(model, context, results, true))
+        {
+            validationResults = results.Select(r => r.ErrorMessage ?? "Nieznany błąd").ToList();
+            return false;
+        }
+
+        return true;
     }
 
     public class RegisterRequest
@@ -124,6 +205,6 @@
         [EmailAddress(ErrorMessage = "Nieprawidłowy adres email")]
         public string Email { get; set; } = string.Empty;
 
-        public string TypKonta { get; set; } = "gosc"; // <- Domyślnie przypisany typ
+        public string TypKonta { get; set; } = "gosc";
     }
 }

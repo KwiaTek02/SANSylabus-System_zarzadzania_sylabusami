@@ -334,3 +334,59 @@ table, h2, h3, .effects-title, .section-title, table-header {
     margin-left: 0.5rem;
     white-space: nowrap;
 }
+
+/*
+    Info jak posz³o
+*/
+
+.alert-container {
+    margin-top:6rem;
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.custom-alert {
+    min-width: 300px;
+    max-width: 600px;
+    padding: 0.5rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: slide-down-fade 0.4s ease forwards, fade-out 0.5s ease 2.5s forwards;
+}
+
+    .custom-alert.success {
+        background-color: #28a745;
+    }
+
+    .custom-alert.error {
+        background-color: #dc3545;
+    }
+
+@keyframes slide-down-fade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-out {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
