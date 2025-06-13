@@ -19,17 +19,34 @@ namespace SylabusAPI.Services.Implementations
 
         public async Task<IEnumerable<PrzedmiotDto>> GetByKierunekAsync(string kierunek)
         {
-            var items = await _db.przedmioties
-                .Where(p => p.kierunek == kierunek)
-                .OrderBy(p => p.semestr)
-                .ToListAsync();
-            return _mapper.Map<IEnumerable<PrzedmiotDto>>(items);
+            try
+            {
+                var items = await _db.przedmioties
+                    .Where(p => p.kierunek == kierunek)
+                    .OrderBy(p => p.semestr)
+                    .ToListAsync();
+
+                return _mapper.Map<IEnumerable<PrzedmiotDto>>(items);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"❌ Błąd bazy danych (GetByKierunekAsync): {ex.Message}");
+                return Enumerable.Empty<PrzedmiotDto>(); // lub throw jeśli chcesz żeby kontroler zareagował wyżej
+            }
         }
 
         public async Task<PrzedmiotDto?> GetByIdAsync(int id)
         {
-            var item = await _db.przedmioties.FindAsync(id);
-            return item == null ? null : _mapper.Map<PrzedmiotDto>(item);
+            try
+            {
+                var item = await _db.przedmioties.FindAsync(id);
+                return item == null ? null : _mapper.Map<PrzedmiotDto>(item);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"❌ Błąd bazy danych (GetByIdAsync): {ex.Message}");
+                return null; // lub throw
+            }
         }
     }
 }

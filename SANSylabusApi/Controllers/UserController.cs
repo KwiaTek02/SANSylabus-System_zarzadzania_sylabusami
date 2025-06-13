@@ -17,36 +17,60 @@ namespace SylabusAPI.Controllers
         }
 
         [HttpGet("nazwisko")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetNameByLogin([FromQuery] string login)
         {
-            var user = await _db.uzytkownicies
-                .Where(u => u.login == login)
-                .Select(u => new
-                {
-                    PelneImie = (u.tytul != null ? u.tytul + " " : "") + u.imie_nazwisko
-                })
-                .FirstOrDefaultAsync();
+            try
+            {
+                var user = await _db.uzytkownicies
+                    .Where(u => u.login == login)
+                    .Select(u => new
+                    {
+                        PelneImie = (u.tytul != null ? u.tytul + " " : "") + u.imie_nazwisko
+                    })
+                    .FirstOrDefaultAsync();
 
-            return user is not null ? Ok(user.PelneImie) : NotFound("Nie znaleziono użytkownika.");
+                return user is not null
+                    ? Ok(user.PelneImie)
+                    : NotFound("Nie znaleziono użytkownika.");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"❌ Błąd w GetNameByLogin: {ex.Message}");
+                return StatusCode(500, "Wystąpił błąd podczas pobierania danych użytkownika.");
+            }
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetById(int id)
         {
-            var user = await _db.uzytkownicies
-                .Where(u => u.id == id)
-                .Select(u => new
-                {
-                    Id = u.id,
-                    ImieNazwisko = u.imie_nazwisko,
-                    Tytul = u.tytul
-                })
-                .FirstOrDefaultAsync();
+            try
+            {
+                var user = await _db.uzytkownicies
+                    .Where(u => u.id == id)
+                    .Select(u => new
+                    {
+                        Id = u.id,
+                        ImieNazwisko = u.imie_nazwisko,
+                        Tytul = u.tytul
+                    })
+                    .FirstOrDefaultAsync();
 
-            if (user == null)
-                return NotFound();
+                if (user == null)
+                    return NotFound("Nie znaleziono użytkownika o podanym ID.");
 
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"❌ Błąd w GetById: {ex.Message}");
+                return StatusCode(500, "Wystąpił błąd podczas pobierania danych użytkownika.");
+            }
         }
 
     }

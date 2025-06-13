@@ -59,38 +59,51 @@
     private bool IsLecturer = false;
     bool IsExporting = false;
     private bool ExportingPdf = false;
+    
 
 
     protected override async Task OnInitializedAsync()
     {
-        Przedmiot = await Http.GetFromJsonAsync<PrzedmiotDto>($"api/przedmioty/{Id}");
-        Sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"api/sylabusy/przedmiot/{Id}");
-        Siatki = new List<SiatkaPrzedmiotowDto>();
-
-        var stacjonarne = await Http.GetFromJsonAsync<List<SiatkaPrzedmiotowDto>>(
-            $"api/siatka/przedmiot/{Id}/typ/stacjonarne");
-
-        var niestacjonarne = await Http.GetFromJsonAsync<List<SiatkaPrzedmiotowDto>>(
-            $"api/siatka/przedmiot/{Id}/typ/niestacjonarne");
-
-        if (stacjonarne != null) Siatki.AddRange(stacjonarne);
-        if (niestacjonarne != null) Siatki.AddRange(niestacjonarne);
-        SelectedSylabus = Sylabusy?
-            .OrderByDescending(s => s.DataPowstania)
-            .FirstOrDefault();
-
-        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-        if (!string.IsNullOrEmpty(token))
+        try
         {
-            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(token);
-            var role = jwt.Claims.FirstOrDefault(c =>
-                c.Type == "role" ||
-                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+            Przedmiot = await Http.GetFromJsonAsync<PrzedmiotDto>($"api/przedmioty/{Id}");
+            Sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"api/sylabusy/przedmiot/{Id}");
+            Siatki = new List<SiatkaPrzedmiotowDto>();
 
-            IsLecturer = role == "wykladowca";
+            var stacjonarne = await Http.GetFromJsonAsync<List<SiatkaPrzedmiotowDto>>(
+                $"api/siatka/przedmiot/{Id}/typ/stacjonarne");
+
+            var niestacjonarne = await Http.GetFromJsonAsync<List<SiatkaPrzedmiotowDto>>(
+                $"api/siatka/przedmiot/{Id}/typ/niestacjonarne");
+
+            if (stacjonarne != null) Siatki.AddRange(stacjonarne);
+            if (niestacjonarne != null) Siatki.AddRange(niestacjonarne);
+            SelectedSylabus = Sylabusy?
+                .OrderByDescending(s => s.DataPowstania)
+                .FirstOrDefault();
+
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+                var role = jwt.Claims.FirstOrDefault(c =>
+                    c.Type == "role" ||
+                    c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+                IsLecturer = role == "wykladowca";
+            }
         }
-
+        catch (HttpRequestException ex)
+        {
+            Console.Error.WriteLine($"❌ Błąd HTTP: {ex.Message}");
+            Navigation.NavigateTo("/blad/500", true);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"❌ Błąd ogólny: {ex.Message}");
+            Navigation.NavigateTo("/error", true);
+        }
 
     }
 
@@ -114,7 +127,23 @@
         StateHasChanged(); // przywróć standardowy widok
     }
 
+    private bool IsSylabusUszkodzony(SylabusDto? sylabus)
+    {
+        if (sylabus == null) return true;
 
+        return HasError(sylabus.TresciKsztalcenia)
+               || HasError(sylabus.EfektyKsztalcenia)
+               || HasError(sylabus.MetodyWeryfikacji)
+               || HasError(sylabus.KryteriaOceny)
+               || HasError(sylabus.NakladPracy)
+               || HasError(sylabus.Literatura)
+               || HasError(sylabus.MetodyRealizacji);
+    }
+
+    private bool HasError(JsonNode? node)
+    {
+        return node is JsonObject obj && obj.ContainsKey("__invalid__");
+    }
 
 
     void ShowInfo() => ActiveSection = "info";
@@ -538,6 +567,13 @@
     <div class="text-center my-5">
         <div class="spinner-border text-primary" role="status"></div>
         <div>Ładowanie danych...</div>
+    </div>
+}
+else if (IsSylabusUszkodzony(SelectedSylabus))
+{
+    <div class="alert alert-danger text-center my-5">
+        <h4>Nie udało się załadować sylabusa.</h4>
+        <p>Sprawdź poprawność danych lub skontaktuj się z administratorem.</p>
     </div>
 }
 else

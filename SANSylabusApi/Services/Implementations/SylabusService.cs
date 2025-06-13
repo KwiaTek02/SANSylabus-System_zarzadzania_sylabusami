@@ -430,13 +430,13 @@ namespace SylabusAPI.Services.Implementations
                 DataPowstania = s.data_powstania,
                 KtoStworzyl = s.kto_stworzyl,
                 StworzylImieNazwiskoTytul = autor,
-                TresciKsztalcenia = JsonNode.Parse(s.tresci_ksztalcenia_json ?? "{}"),
-                EfektyKsztalcenia = JsonNode.Parse(s.efekty_ksztalcenia_json ?? "{}"),
-                MetodyWeryfikacji = JsonNode.Parse(s.metody_weryfikacji_json ?? "{}"),
-                KryteriaOceny = JsonNode.Parse(s.kryteria_oceny_json ?? "{}"),
-                NakladPracy = JsonNode.Parse(s.naklad_pracy_json ?? "{}"),
-                Literatura = JsonNode.Parse(s.literatura_json ?? "{}"),
-                MetodyRealizacji = JsonNode.Parse(s.metody_realizacji_json ?? "{}"),
+                TresciKsztalcenia = SafeParseJson(s.tresci_ksztalcenia_json),
+                EfektyKsztalcenia = SafeParseJson(s.efekty_ksztalcenia_json),
+                MetodyWeryfikacji = SafeParseJson(s.metody_weryfikacji_json),
+                KryteriaOceny = SafeParseJson(s.kryteria_oceny_json),
+                NakladPracy = SafeParseJson(s.naklad_pracy_json),
+                Literatura = SafeParseJson(s.literatura_json),
+                MetodyRealizacji = SafeParseJson(s.metody_realizacji_json),
                 Koordynatorzy = koordynatorzy
             };
         }
@@ -446,6 +446,26 @@ namespace SylabusAPI.Services.Implementations
             return await _db.koordynatorzy_sylabusus
                 .AnyAsync(k => k.sylabus_id == sylabusId && k.uzytkownik_id == userId);
         }
+
+        private static JsonNode SafeParseJson(string? json)
+        {
+            try
+            {
+                return JsonNode.Parse(string.IsNullOrWhiteSpace(json) ? "{}" : json) ?? new JsonObject();
+            }
+            catch (JsonException ex)
+            {
+                Console.Error.WriteLine($"⚠️ Błąd parsowania JSON: {ex.Message}\nZawartość: {json}");
+
+                // Zwracamy obiekt z flagą błędu
+                return new JsonObject
+                {
+                    ["__invalid__"] = true,
+                    ["__error__"] = ex.Message
+                };
+            }
+        }
+
 
         private static DateTime GetPolandNow()
         {
