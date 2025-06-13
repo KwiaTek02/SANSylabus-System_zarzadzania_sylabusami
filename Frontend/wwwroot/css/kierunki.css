@@ -3,10 +3,11 @@
     max-width: 640px;
     margin: 3rem auto;
     padding: 2rem;
-    background: linear-gradient(to right, #fdfbfb, #ebedee);
+    background-color: #005293;
     border-radius: 16px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     font-family: 'Segoe UI', sans-serif;
+    color:white;
 }
 
 /* Nagłówek */
@@ -15,7 +16,7 @@
     font-size: 1.8rem;
     font-weight: 600;
     margin-bottom: 1.5rem;
-    color: #4a4a4a;
+    color: white;
 }
 
 /* Pole wyszukiwania */
@@ -49,16 +50,19 @@
     background-color: #ffffff;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    color:black
 }
 
 .syl-kierunki-suggestion-item {
     padding: 0.75rem 1rem;
     cursor: pointer;
     transition: background 0.2s;
+
 }
 
     .syl-kierunki-suggestion-item:hover {
         background-color: #e3f2fd;
+        color:#005293;
     }
 
 /* Lista kierunków */
@@ -71,11 +75,13 @@
 .syl-kierunki-item {
     border-bottom: 1px solid #e0e0e0;
     padding: 0.75rem 0;
+    color: white;
 }
+
 
     .syl-kierunki-item a {
         text-decoration: none;
-        color: #333;
+        color: white;
         font-size: 1.05rem;
         display: inline-block;
         transition: color 0.2s ease;
@@ -87,5 +93,5 @@
 
 /* Dodatkowe */
 strong {
-    color: #1565c0;
+    color: white;
 }
