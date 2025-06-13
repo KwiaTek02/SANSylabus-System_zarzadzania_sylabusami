@@ -28,6 +28,18 @@ namespace SylabusAPI.Services.Implementations
 
         public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
         {
+            if (await _db.uzytkownicies.AnyAsync(u => u.login == request.Login))
+                throw new Exception("Ten login jest już zajęty.");
+
+            if (await _db.uzytkownicies.AnyAsync(u => u.email == request.Email))
+                throw new Exception("Ten adres email jest już zarejestrowany.");
+
+            if (!request.Email.Contains("@"))
+                throw new Exception("Adres email jest nieprawidłowy.");
+
+            if (!HasValidPassword(request.Password))
+                throw new Exception("Hasło musi zawierać co najmniej jedną dużą literę i jedną cyfrę.");
+
             // wygeneruj sól
             var saltBytes = new byte[16];
             using var rng = RandomNumberGenerator.Create();
@@ -105,6 +117,11 @@ namespace SylabusAPI.Services.Implementations
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 ExpiresAt = expires
             };
+        }
+
+        private bool HasValidPassword(string password)
+        {
+            return password.Any(char.IsUpper) && password.Any(char.IsDigit);
         }
     }
 }

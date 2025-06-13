@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SANSylabusApi", "SANSylabus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{9F478AE0-4F75-4A4F-8AB9-346C1DAD6A3B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testy", "Testy\Testy.csproj", "{37EE18E1-84A0-403C-A313-56E79306DE8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{9F478AE0-4F75-4A4F-8AB9-346C1DAD6A3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F478AE0-4F75-4A4F-8AB9-346C1DAD6A3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F478AE0-4F75-4A4F-8AB9-346C1DAD6A3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

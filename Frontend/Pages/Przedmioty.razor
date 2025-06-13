@@ -54,7 +54,11 @@
         </div>
     </div>
 
-    @if (PrzedmiotyList == null)
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert alert-danger">@ErrorMessage</div>
+    }
+    else if (PrzedmiotyList == null)
     {
         <p><em>Ładowanie...</em></p>
     }
@@ -105,23 +109,40 @@
     private int? SelectedSemestr { get; set; }
     private string? SelectedStopien { get; set; }
     private bool IsLecturer = false;
+    private string? ErrorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
-
-        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-
-        if (!string.IsNullOrEmpty(token))
+        try
         {
-            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(token);
 
-            var role = jwt.Claims.FirstOrDefault(c =>
-                c.Type == "role" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
 
-            IsLecturer = role == "wykladowca";
+            PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                var role = jwt.Claims.FirstOrDefault(c =>
+                    c.Type == "role" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+                IsLecturer = role == "wykladowca";
+            }
         }
+        catch (HttpRequestException ex)
+        {
+            Console.Error.WriteLine($"❌ Błąd HTTP: {ex.Message}");
+            Navigation.NavigateTo("/blad/500", true);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"❌ Błąd ogólny: {ex.Message}");
+            Navigation.NavigateTo("/error", true);
+        }
+
     }
 
     private void NavigateToCreateSylabus()
@@ -152,4 +173,5 @@
             .Distinct()
             .OrderBy(s => s)
             .ToList() ?? new();
+
 }

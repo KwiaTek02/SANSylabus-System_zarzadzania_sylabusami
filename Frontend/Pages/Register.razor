@@ -64,14 +64,31 @@
     private string RegisterPasswordInputType => ShowRegisterPassword ? "text" : "password";
 
     
+
+
     private void ToggleRegisterPasswordVisibility()
     {
         ShowRegisterPassword = !ShowRegisterPassword;
     }
+
+
     
     private async Task HandleRegister()
     {
+        ErrorMessage = null;
         RegisterModel.TypKonta = "gosc"; // Zawsze przypisujemy "gosc"
+
+        if (!RegisterModel.Email.Contains("@"))
+        {
+            ErrorMessage = "Adres email musi zawierać znak '@'.";
+            return;
+        }
+
+        if (!RegisterModel.Password.Any(char.IsUpper) || !RegisterModel.Password.Any(char.IsDigit))
+        {
+            ErrorMessage = "Hasło musi zawierać co najmniej jedną dużą literę i jedną cyfrę.";
+            return;
+        }
 
         try
         {
