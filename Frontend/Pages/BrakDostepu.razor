@@ -1,4 +1,23 @@
 ﻿@page "/brak-dostepu"
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <h3>Brak dostępu</h3>
 <p>Nie masz uprawnień do edycji tego sylabusa.</p>
+
+<button class="btn btn-primary" @onclick="GoBack">Powrót</button>
+
+@code {
+    private async Task GoBack()
+    {
+        var backUrl = await JS.InvokeAsync<string>("localStorage.getItem", "previousUrl");
+        if (!string.IsNullOrEmpty(backUrl))
+        {
+            Navigation.NavigateTo(backUrl, true);
+        }
+        else
+        {
+            Navigation.NavigateTo("/", true); // fallback
+        }
+    }
+}
