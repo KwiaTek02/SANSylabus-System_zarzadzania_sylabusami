@@ -2,10 +2,10 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<h3>Brak dostępu</h3>
-<p>Nie masz uprawnień do edycji tego sylabusa.</p>
+<h1 id="tytulDostepu">Brak dostępu</h1>
+<p id="infoDostep">Nie masz uprawnień do edycji tego sylabusa.</p>
 
-<button class="btn btn-primary" @onclick="GoBack">Powrót</button>
+<button class="btn-wstecz" @onclick="GoBack">🡐 Powrót</button>
 
 @code {
     private async Task GoBack()
@@ -17,7 +17,7 @@
         }
         else
         {
-            Navigation.NavigateTo("/", true); // fallback
+            Navigation.NavigateTo("/", true);
         }
     }
 }
