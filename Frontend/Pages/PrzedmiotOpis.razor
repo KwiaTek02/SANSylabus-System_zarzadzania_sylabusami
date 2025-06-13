@@ -12,7 +12,7 @@
 <PageTitle>Szczegóły przedmiotu</PageTitle>
 
 
-<nav class="nawigacja-przedmiot">
+<nav class="nawigacja-przedmiot @(IsSylabusUszkodzony(SelectedSylabus) ? "hidden" : "")">
     <a class="nav-link" @onclick="@(() => ScrollToSection("info"))">I. Ogólne informacje podstawowe o przedmiocie</a>
     <a class="nav-link" @onclick="@(() => ScrollToSection("siatka"))">II. Formy zajęć dydaktycznych oraz wymiar godzin</a>
     <a class="nav-link" @onclick="@(() => ScrollToSection("realizacja"))">III. Metody realizacji zajęć dydaktycznych</a>
@@ -571,7 +571,7 @@
 }
 else if (IsSylabusUszkodzony(SelectedSylabus))
 {
-    <div class="alert alert-danger text-center my-5">
+    <div class="alert-sylabus-error">
         <h4>Nie udało się załadować sylabusa.</h4>
         <p>Sprawdź poprawność danych lub skontaktuj się z administratorem.</p>
     </div>
