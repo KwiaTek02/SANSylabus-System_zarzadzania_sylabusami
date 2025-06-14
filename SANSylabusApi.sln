@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Fronte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testy", "Testy\Testy.csproj", "{37EE18E1-84A0-403C-A313-56E79306DE8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireMonitor", "AspireMonitor\AspireMonitor.csproj", "{BDC54F6D-D2FB-4283-A130-01AF69C5DB12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceDefaults1", "ServiceDefaults1\ServiceDefaults1.csproj", "{4BEAE761-DBED-4561-BE03-315687213E75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37EE18E1-84A0-403C-A313-56E79306DE8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDC54F6D-D2FB-4283-A130-01AF69C5DB12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDC54F6D-D2FB-4283-A130-01AF69C5DB12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDC54F6D-D2FB-4283-A130-01AF69C5DB12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDC54F6D-D2FB-4283-A130-01AF69C5DB12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BEAE761-DBED-4561-BE03-315687213E75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BEAE761-DBED-4561-BE03-315687213E75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BEAE761-DBED-4561-BE03-315687213E75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BEAE761-DBED-4561-BE03-315687213E75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

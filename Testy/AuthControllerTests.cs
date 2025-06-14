@@ -6,18 +6,21 @@ using SylabusAPI.DTOs;
 using SylabusAPI.Services.Interfaces;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SylabusAPI.Tests
 {
     public class AuthControllerTests
     {
         private readonly Mock<IAuthService> _authServiceMock;
+        private readonly Mock<ILogger<AuthController>> _loggerMock;
         private readonly AuthController _controller;
 
         public AuthControllerTests()
         {
             _authServiceMock = new Mock<IAuthService>();
-            _controller = new AuthController(_authServiceMock.Object);
+            _loggerMock = new Mock<ILogger<AuthController>>();
+            _controller = new AuthController(_authServiceMock.Object, _loggerMock.Object); // ✅ logger przekazany
         }
 
         [Fact]

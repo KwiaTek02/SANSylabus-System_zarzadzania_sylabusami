@@ -10,10 +10,47 @@ using SylabusAPI.Mapping;
 using SylabusAPI.Services.Implementations;
 using SylabusAPI.Services.Interfaces;
 using SylabusAPI.Settings;
+using Aspire.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+/*builder.Logging
+    .AddOpenTelemetry(logging =>
+    {
+        logging.IncludeFormattedMessage = true;
+        logging.IncludeScopes = true;
+    });*/
+
+builder.AddServiceDefaults();
+
+/*builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing
+            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SANSylabusApi"))
+            .AddAspNetCoreInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddOtlpExporter(); // domyœlnie eksportuje do Aspire
+    });
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddOtlpExporter();
+    });*/
 
 builder.Services.AddDbContext<SyllabusContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
