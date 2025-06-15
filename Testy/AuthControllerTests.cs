@@ -13,14 +13,12 @@ namespace SylabusAPI.Tests
     public class AuthControllerTests
     {
         private readonly Mock<IAuthService> _authServiceMock;
-        private readonly Mock<ILogger<AuthController>> _loggerMock;
         private readonly AuthController _controller;
 
         public AuthControllerTests()
         {
             _authServiceMock = new Mock<IAuthService>();
-            _loggerMock = new Mock<ILogger<AuthController>>();
-            _controller = new AuthController(_authServiceMock.Object, _loggerMock.Object); // ✅ logger przekazany
+            _controller = new AuthController(_authServiceMock.Object);
         }
 
         [Fact]
