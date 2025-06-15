@@ -3,20 +3,24 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @using Microsoft.AspNetCore.WebUtilities
+@using Frontend.Services
+@inject AuthState AuthState
+
 
 <div class="auth-form-container">
     <div class="auth-card elegant-card">
         <h3 class="auth-title">Logowanie</h3>
 
-        <EditForm Model="@LoginModel" OnSubmit="HandleLogin">
+        <EditForm Model="@LoginModel" OnValidSubmit="HandleLogin">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            
-                <div class="input-with-icon mb-4">
+
+            <div class="input-with-icon mb-4">
                 <i class="bi bi-person-fill"></i>
                 <InputText class="form-control icon-input" @bind-Value="LoginModel.Login" placeholder="Wpisz login" />
             </div>
+
 
             <div class="input-icon-row mb-4">
                 <div class="input-with-icon">
@@ -32,9 +36,14 @@
                 </button>
             </div>
 
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                <div class="alert alert-danger">@ErrorMessage</div>
+            }
+
             <button type="submit" class="btn btn-primary login-button">Zaloguj się</button>
         </EditForm>
-        
+
         <div class="text-center mt-3">
             <button type="button" class="btn btn-danger" @onclick="LoginWithGoogle">
                 <i class="bi bi-google me-2"></i> Zaloguj się przez Google
@@ -51,16 +60,11 @@
 
 @code {
     private LoginRequest LoginModel = new();
+    private string? ErrorMessage;
+    private string ReturnUrl = "/";
     private ElementReference PasswordInput;
     private bool ShowPassword;
     private string PasswordInputType => ShowPassword ? "text" : "password";
-
-    private string? SuccessMessage;
-    private string? ErrorMessage;
-    private bool ShowSuccess;
-    private bool ShowError;
-
-    private string ReturnUrl = "/";
 
     protected override void OnInitialized()
     {
@@ -76,19 +80,6 @@
 
     private async Task HandleLogin()
     {
-        ShowError = false;
-        ShowSuccess = false;
-        ErrorMessage = null;
-        SuccessMessage = null;
-
-        var validationContext = new ValidationContext(LoginModel);
-        var validationResults = new List<ValidationResult>();
-        if (!Validator.TryValidateObject(LoginModel, validationContext, validationResults, true))
-        {
-            await ShowErrorAlert("Uzupełnij wszystkie wymagane pola.");
-            return;
-        }
-
         try
         {
             var response = await Http.PostAsJsonAsync("api/auth/login", LoginModel);
@@ -98,43 +89,18 @@
                 await JS.InvokeVoidAsync("localStorage.setItem", "authToken", result!.Token);
                 await JS.InvokeVoidAsync("localStorage.setItem", "authUser", GetLoginFromToken(result.Token));
 
-                await ShowSuccessAlert("Zalogowano pomyślnie. Następuje przekierowanie...");
                 Navigation.NavigateTo(ReturnUrl, true);
             }
             else
             {
                 var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                await ShowErrorAlert(error?["message"] ?? "Nie udało się zalogować.");
+                ErrorMessage = error?["message"] ?? "Nie udało się zalogować.";
             }
         }
         catch (Exception ex)
         {
-            await ShowErrorAlert($"Błąd: {ex.Message}");
+            ErrorMessage = $"Błąd: {ex.Message}";
         }
-    }
-
-    private async Task ShowSuccessAlert(string message)
-    {
-        SuccessMessage = message;
-        ShowSuccess = true;
-        StateHasChanged();
-
-        await Task.Delay(3000);
-        ShowSuccess = false;
-        SuccessMessage = null;
-        StateHasChanged();
-    }
-
-    private async Task ShowErrorAlert(string message)
-    {
-        ErrorMessage = message;
-        ShowError = true;
-        StateHasChanged();
-
-        await Task.Delay(3000);
-        ShowError = false;
-        ErrorMessage = null;
-        StateHasChanged();
     }
 
     private string GetLoginFromToken(string token)
@@ -158,10 +124,10 @@
 
     public class LoginRequest
     {
-        [Required(ErrorMessage = "Login jest wymagany")]
+        [Required]
         public string Login { get; set; } = "";
 
-        [Required(ErrorMessage = "Hasło jest wymagane")]
+        [Required]
         public string Password { get; set; } = "";
     }
 
@@ -187,8 +153,8 @@
     {
         await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
 
-        AuthState.NotifyAuthenticationChanged(); 
-    
+        AuthState.NotifyAuthenticationChanged();
+
         Navigation.NavigateTo("/");
     }
 
