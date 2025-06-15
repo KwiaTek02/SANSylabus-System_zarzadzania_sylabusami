@@ -20,6 +20,7 @@ namespace SylabusAPI.Services.Implementations
         private readonly SyllabusContext _db;
         private readonly JwtSettings _jwt;
 
+
         public AuthService(SyllabusContext db, IOptions<JwtSettings> jwtOptions)
         {
             _db = db;
