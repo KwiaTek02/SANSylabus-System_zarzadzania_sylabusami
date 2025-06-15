@@ -1610,3 +1610,32 @@ table.table {
     box-shadow: none;
     background: none;
 }
+
+/*
+    Tabela forma zajęć
+*/
+
+.tabelka-input {
+    max-width: 90px;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    color: #333;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+    .tabelka-input:hover {
+        background-color: #f1f1f1;
+        border-color: #adb5bd;
+    }
+
+    .tabelka-input:focus {
+        background-color: #fff;
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }

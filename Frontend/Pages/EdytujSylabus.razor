@@ -73,18 +73,18 @@ else
             </tr>
             </thead>
             <tbody>
-            @foreach (var forma in FormyZajec)
-            {
-                <tr>
-                    <td>@forma.Nazwa</td>
-                    <td>
-                        <InputNumber class="form-control" @bind-Value="forma.GodzinyStacjonarne" />
-                    </td>
-                    <td>
-                        <InputNumber class="form-control" @bind-Value="forma.GodzinyNiestacjonarne" />
-                    </td>
-                </tr>
-            }
+                @foreach (var forma in FormyZajec)
+                {
+                    <tr>
+                        <td>@forma.Nazwa</td>
+                        <td>
+                            <InputNumber class="tabelka-input" @bind-Value="forma.GodzinyStacjonarne" />
+                        </td>
+                        <td>
+                            <InputNumber class="tabelka-input" @bind-Value="forma.GodzinyNiestacjonarne" />
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
 
@@ -477,10 +477,10 @@ else
                     <tr>
                         <td>@row.Label</td>
                         <td>
-                            <InputNumber class="form-control" @bind-Value="row.Stacjonarne" />
+                            <InputNumber class="tabelka-input" @bind-Value="row.Stacjonarne" />
                         </td>
                         <td>
-                            <InputNumber class="form-control" @bind-Value="row.Niestacjonarne" />
+                            <InputNumber class="tabelka-input" @bind-Value="row.Niestacjonarne" />
                         </td>
                     </tr>
                 }
