@@ -1,12 +1,25 @@
 ﻿@page "/blad/{StatusCode:int}"
 
-<div class="error-page">
-    <div class="error-circle">
-        <h1 class="error-code">@StatusCode</h1>
-        <p class="error-message">@Message</p>
-        <button class="reconnect-btn" @onclick="Powrot">Kliknij, aby wrócić</button>
+@if (StatusCode == 2137)
+{
+    <div class="error-2137">
+        <div class="error-2137-overlay">
+            <h1 class="error-code">2137</h1>
+            <p class="error-message">Coś się wydarzyło... Ale Jan Paweł II czuwa.</p>
+            <button class="reconnect-btn" @onclick="Powrot">Powrót na stronę główną</button>
+        </div>
     </div>
-</div>
+}
+else
+{
+    <div class="error-page">
+        <div class="error-circle">
+            <h1 class="error-code">@StatusCode</h1>
+            <p class="error-message">@Message</p>
+            <button class="reconnect-btn" @onclick="Powrot">Kliknij, aby wrócić</button>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter] public int StatusCode { get; set; }
