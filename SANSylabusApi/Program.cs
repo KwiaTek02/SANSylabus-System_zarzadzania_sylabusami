@@ -141,7 +141,17 @@ builder.Services.AddAuthentication(options =>
     });
 
 
-
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "Cookies";
+        options.DefaultChallengeScheme = "Google";
+    })
+    .AddCookie("Cookies")
+    .AddGoogle("Google", options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+    });
 
 
 

@@ -1,7 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using Frontend.Services
+@inherits LayoutComponentBase
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject HttpClient Http
+@inject AuthState AuthState
 
 <header class="main-header">
     <div class="header-content">
@@ -44,19 +46,41 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Login = await JS.InvokeAsync<string>("localStorage.getItem", "authUser");
-        IsLoggedIn = !string.IsNullOrWhiteSpace(Login);
-
-        if (IsLoggedIn)
+        AuthState.OnChange += async () =>
         {
-            try
+            await LoadUserInfo();
+            StateHasChanged();
+        };
+
+        await LoadUserInfo();
+    }
+
+    private async Task LoadUserInfo()
+    {
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            Login = ExtractLoginFromToken(token);
+            IsLoggedIn = !string.IsNullOrWhiteSpace(Login);
+
+            if (IsLoggedIn)
             {
-                FullName = await Http.GetStringAsync($"/api/uzytkownicy/nazwisko?login={Uri.EscapeDataString(Login)}");
+                try
+                {
+                    FullName = await Http.GetStringAsync($"/api/uzytkownicy/nazwisko?login={Uri.EscapeDataString(Login)}");
+                }
+                catch
+                {
+                    FullName = Login;
+                }
             }
-            catch
-            {
-                FullName = Login; // fallback
-            }
+        }
+        else
+        {
+            IsLoggedIn = false;
+            Login = null;
+            FullName = null;
         }
     }
 
@@ -65,5 +89,31 @@
         await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
         await JS.InvokeVoidAsync("localStorage.removeItem", "authUser");
         Navigation.NavigateTo("/login", true);
+    }
+
+    private string? ExtractLoginFromToken(string token)
+    {
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length != 3)
+                return null;
+
+            var payload = System.Text.Json.JsonDocument.Parse(
+                System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(AddPadding(parts[1]))));
+
+            return payload.RootElement.TryGetProperty("login", out var loginProp)
+                ? loginProp.GetString()
+                : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string AddPadding(string base64)
+    {
+        return base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
     }
 }

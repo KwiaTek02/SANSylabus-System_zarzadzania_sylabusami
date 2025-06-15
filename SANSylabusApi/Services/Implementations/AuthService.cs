@@ -77,6 +77,9 @@ namespace SylabusAPI.Services.Implementations
             if (user is null)
                 throw new UnauthorizedAccessException("Nieprawidłowy login lub hasło.");
 
+            if (user.sol == "google")
+                throw new UnauthorizedAccessException("To konto używa logowania przez Google.");
+
             var saltBytes = Convert.FromBase64String(user.sol!);
             var hashAttempt = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: request.Password,
@@ -123,5 +126,30 @@ namespace SylabusAPI.Services.Implementations
         {
             return password.Any(char.IsUpper) && password.Any(char.IsDigit);
         }
+
+        public async Task<AuthResponse> GoogleLoginAsync(string email, string name)
+        {
+            var user = await _db.uzytkownicies.FirstOrDefaultAsync(u => u.email == email);
+
+            if (user == null)
+            {
+                user = new uzytkownicy
+                {
+                    imie_nazwisko = name,
+                    login = email,
+                    email = email,
+                    tytul = null,
+                    haslo = "google-external", // placeholder
+                    sol = "google",
+                    typ_konta = "gosc" // lub 'gosc'
+                };
+
+                _db.uzytkownicies.Add(user);
+                await _db.SaveChangesAsync();
+            }
+
+            return GenerateToken(user.id, user.login, user.typ_konta);
+        }
+
     }
 }

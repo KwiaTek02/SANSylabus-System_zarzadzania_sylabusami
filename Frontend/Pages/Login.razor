@@ -3,6 +3,9 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @using Microsoft.AspNetCore.WebUtilities
+@using Frontend.Services
+@inject AuthState AuthState
+
 
 <div class="auth-form-container">
     <div class="auth-card elegant-card">
@@ -13,7 +16,7 @@
             <ValidationSummary />
 
             
-                <div class="input-with-icon mb-4">
+            <div class="input-with-icon mb-4">
                 <i class="bi bi-person-fill"></i>
                 <InputText class="form-control icon-input" @bind-Value="LoginModel.Login" placeholder="Wpisz login"/>
             </div>
@@ -41,6 +44,13 @@
 
             <button type="submit" class="btn btn-primary login-button">Zaloguj się</button>
         </EditForm>
+        
+        <div class="text-center mt-3">
+            <button type="button" class="btn btn-danger" @onclick="LoginWithGoogle">
+                <i class="bi bi-google me-2"></i> Zaloguj się przez Google
+            </button>
+        </div>
+
 
         <div class="register-text">
             Nie masz konta?
@@ -127,4 +137,26 @@
         public string Token { get; set; } = "";
         public DateTime ExpiresAt { get; set; }
     }
+
+    private async Task LoginWithGoogle()
+    {
+        var googleLoginUrl = "https://localhost:7177/auth/ExternalAuth/signin-google?returnUrl=" + Uri.EscapeDataString(Navigation.BaseUri);
+
+        // Otwórz popup
+        var popup = await JS.InvokeAsync<IJSObjectReference>("window.open", googleLoginUrl, "_blank", "width=500,height=600");
+
+        // Nasłuchuj na wiadomość z popupu (będziemy ją wysyłać z przekierowania)
+        await JS.InvokeVoidAsync("googleAuthInterop.listenForToken", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task OnGoogleLoginSuccess(string token)
+    {
+        await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+
+        AuthState.NotifyAuthenticationChanged(); 
+    
+        Navigation.NavigateTo("/");
+    }
+
 }
