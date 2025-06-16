@@ -5,7 +5,7 @@ namespace Frontend.Shared
 {
     public class UpdateSylabusRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Nie zostawiaj tego pustego ćwoku")]
         public string OpisZmiany { get; set; } = default!;        // tekst podany przez wykładowcę
         public DateTime? DataPowstania { get; set; }
         public JsonNode? TresciKsztalcenia { get; set; }

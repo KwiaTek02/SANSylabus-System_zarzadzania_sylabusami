@@ -1,7 +1,9 @@
 ﻿@page "/register"
 @inject HttpClient Http
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 @using System.ComponentModel.DataAnnotations
+
 
 <PageTitle>Rejestracja</PageTitle>
 
@@ -88,6 +90,18 @@
     private bool ShowError;
     private List<string> ValidationErrors = new();
 
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            Navigation.NavigateTo("/", true);
+            return;
+        }
+    }
+    
+    
     private void ToggleRegisterPasswordVisibility()
     {
         ShowRegisterPassword = !ShowRegisterPassword;

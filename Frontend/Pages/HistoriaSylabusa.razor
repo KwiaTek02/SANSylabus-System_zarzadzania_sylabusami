@@ -39,7 +39,9 @@ else
 }
 else
 {
-    var grupy = Historia.GroupBy(h => h.WersjaWtedy).OrderByDescending(g => g.Key);
+    var grupy = Historia
+        .GroupBy(h => h.WersjaWtedy)
+        .OrderByDescending(g => ParseVersionNumber(g.Key));
 
     <div class="syl-version-select-wrapper">
         <label for="sylVersionSelect" class="syl-version-label me-2">Wersja:</label>
@@ -100,6 +102,14 @@ else
     {
         ActiveVersion = e.Value?.ToString();
         // Możesz tu dodać inne akcje po zmianie wersji
+    }
+
+    int ParseVersionNumber(string? wersja)
+    {
+        if (string.IsNullOrWhiteSpace(wersja)) return 0;
+        if (wersja.StartsWith("v") && int.TryParse(wersja[1..], out var num))
+            return num;
+        return 0;
     }
 
 

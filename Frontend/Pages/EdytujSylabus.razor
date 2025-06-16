@@ -861,9 +861,21 @@ else
 
         if (sumaStacjonarne != oczekiwanaStacjonarne || sumaNiestacjonarne != oczekiwanaNiestacjonarne)
         {
-            ErrorMessage = $"Błąd: suma godzin dla zajęć dydaktycznych nie zgadza się z wartością w polu „Suma godzin”. " +
-                           $"Stacjonarne: {sumaStacjonarne} (oczekiwano {oczekiwanaStacjonarne}), " +
-                           $"Niestacjonarne: {sumaNiestacjonarne} (oczekiwano {oczekiwanaNiestacjonarne})";
+            var msg = "Błąd: suma godzin dla zajęć dydaktycznych nie zgadza się z wartością w polu „Suma godzin”. ";
+
+            if (sumaStacjonarne != oczekiwanaStacjonarne)
+                msg += $"Stacjonarne: {sumaStacjonarne} (oczekiwano {oczekiwanaStacjonarne}). ";
+
+            if (sumaNiestacjonarne != oczekiwanaNiestacjonarne)
+                msg += $"Niestacjonarne: {sumaNiestacjonarne} (oczekiwano {oczekiwanaNiestacjonarne}).";
+
+            ErrorMessage = msg.Trim();
+            return;
+        }
+
+        if (NakladPracy.Any(n => (n.Stacjonarne ?? 0) < 0 || (n.Niestacjonarne ?? 0) < 0))
+        {
+            ErrorMessage = "Błąd: nakład pracy studenta nie może zawierać ujemnych godzin.";
             return;
         }
 

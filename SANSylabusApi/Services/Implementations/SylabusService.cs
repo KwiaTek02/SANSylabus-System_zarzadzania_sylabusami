@@ -274,7 +274,7 @@ namespace SylabusAPI.Services.Implementations
             var oldVer = entity.wersja; // np. "v1"
             int oldNum = 1;
             if (oldVer?.StartsWith("v") == true && int.TryParse(oldVer[1..], out var n))
-                oldNum = n;
+                oldNum = n; 
 
             // 2) Ustaw nową wersję = oldNum+1
             var newVer = $"v{oldNum + 1}";
