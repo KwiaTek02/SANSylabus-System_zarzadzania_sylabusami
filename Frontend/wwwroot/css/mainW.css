@@ -646,8 +646,7 @@ select.form-select {
     font-size: 1.1rem;
     border-bottom: 1px solid #ccc;
     text-align: center;
-    width: 97%;
-    max-width: 97%;
+
 }
 
 .table-header {
@@ -1639,3 +1638,12 @@ table.table {
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     }
+
+    /*
+        Drukowanie sylabusa
+    */
+
+.break-before-page {
+    page-break-before: always;
+    break-before: page;
+}

@@ -62,12 +62,15 @@ window.exportPdfFromDiv = function (elementId, filename) {
     const element = document.getElementById(elementId);
 
     const opt = {
-        margin: [0.5, 0.5, 0.5, 0.5],  // top, left, bottom, right in inches
+        margin: [1, 0, 1, 0],  // top, left, bottom, right in inches
         filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, scrollY: 0, logging: false },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        pagebreak: {
+            mode: ['css', 'legacy'],
+            avoid: ['img', 'table', 'h1', 'h2', 'h3', '.card', '.section', '.no-break']
+        }
     };
 
     // Ukryj przyciski i zakładki
