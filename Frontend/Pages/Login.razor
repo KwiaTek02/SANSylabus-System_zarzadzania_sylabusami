@@ -1,17 +1,17 @@
-﻿@page "/login"
-@inject HttpClient Http
-@inject NavigationManager Navigation
-@inject IJSRuntime JS
+﻿@page "/login" 
+@inject HttpClient Http 
+@inject NavigationManager Navigation 
+@inject IJSRuntime JS 
 @using Microsoft.AspNetCore.WebUtilities
 @using System.ComponentModel.DataAnnotations
 @using Frontend.Services
-@inject AuthState AuthState
+@inject AuthState AuthState 
 
-<PageTitle>Logowanie</PageTitle>
+<PageTitle>Logowanie</PageTitle> // Tytuł strony przeglądarki
 
 <!-- ALERTY -->
 <div class="alert-container">
-    @if (ShowError && ValidationErrors.Any())
+    @if (ShowError && ValidationErrors.Any()) // Błędy walidacyjne
     {
         <div class="custom-alert error">
             <ul>
@@ -22,30 +22,32 @@
             </ul>
         </div>
     }
-    else if (ShowError)
+    else if (ShowError) // Pojedynczy komunikat błędu
     {
         <div class="custom-alert error">@ErrorMessage</div>
     }
 
-    @if (ShowSuccess)
+    @if (ShowSuccess) // Komunikat sukcesu
     {
         <div class="custom-alert success">@SuccessMessage</div>
     }
 </div>
 
-<!-- FORMULARZ -->
+<!-- FORMULARZ LOGOWANIA -->
 <div class="auth-form-container">
     <div class="auth-card elegant-card">
         <h3 class="auth-title">Logowanie</h3>
 
+        <!-- Formularz z walidacją -->
         <EditForm EditContext="_editContext" OnValidSubmit="HandleLogin">
-            <DataAnnotationsValidator />
-
+            <DataAnnotationsValidator /> <!-- Walidacja na podstawie atrybutów -->
+            
             <div class="input-with-icon mb-4">
                 <i class="bi bi-person-fill"></i>
                 <InputText class="form-control icon-input" @bind-Value="LoginModel.Login" placeholder="Wpisz login" />
             </div>
 
+            <!-- Pole hasła z możliwością pokazania/ukrycia -->
             <div class="input-icon-row mb-4">
                 <div class="input-with-icon">
                     <i class="bi bi-lock-fill"></i>
@@ -63,7 +65,7 @@
             <button type="submit" class="btn btn-primary login-button">Zaloguj się</button>
         </EditForm>
 
-        <!-- PRZYCISK GOOGLE -->
+        <!-- PRZYCISK LOGOWANIA GOOGLE -->
         <div class="google-login-container">
             <button type="button" class="google-login-button" @onclick="LoginWithGoogle">
                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon" />
@@ -71,7 +73,7 @@
             </button>
         </div>
 
-
+        <!-- Link do rejestracji -->
         <div class="register-text">
             Nie masz konta?
             <a href="/register">Zarejestruj się</a>
@@ -80,38 +82,39 @@
 </div>
 
 @code {
+    // Model logowania z loginem i hasłem
     private LoginRequest LoginModel = new();
-    private EditContext? _editContext;
-    private string? ErrorMessage;
-    private string? SuccessMessage;
-    private string ReturnUrl = "/";
-    private ElementReference PasswordInput;
-    private bool ShowPassword;
-    private bool ShowError;
-    private bool ShowSuccess;
-    private string PasswordInputType => ShowPassword ? "text" : "password";
-    private List<string> ValidationErrors = new();
 
-    
+    private EditContext? _editContext; // Kontekst do walidacji formularza
+    private string? ErrorMessage; 
+    private string? SuccessMessage; 
+    private string ReturnUrl = "/"; 
+    private ElementReference PasswordInput; 
+    private bool ShowPassword; 
+    private bool ShowError; 
+    private bool ShowSuccess; 
+    private string PasswordInputType => ShowPassword ? "text" : "password"; // Typ pola hasła
+    private List<string> ValidationErrors = new(); // Lista błędów walidacyjnych
+
+    // Sprawdzenie czy użytkownik już zalogowany (token w localStorage)
     protected override async Task OnInitializedAsync()
     {
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
         if (!string.IsNullOrWhiteSpace(token))
         {
-            Navigation.NavigateTo("/", true);
+            Navigation.NavigateTo("/", true); // Przekierowanie na stronę główną
             return;
         }
 
-        OnInitialized(); // zachowaj istniejącą logikę
+        OnInitialized(); // Inicjalizacja formularza i ustawień
     }
-    
-    
+
+    // Inicjalizacja formularza i odczytanie returnUrl z query string
     protected override void OnInitialized()
     {
-        
-        
         _editContext = new EditContext(LoginModel);
 
+        // Obsługa walidacji ręcznej
         _editContext.OnValidationRequested += (sender, e) =>
         {
             ValidationErrors.Clear();
@@ -125,47 +128,54 @@
             }
         };
 
+        // Odczytanie returnUrl z adresu
         var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
         var query = QueryHelpers.ParseQuery(uri.Query);
         ReturnUrl = query.TryGetValue("returnUrl", out var value) ? value : "/";
     }
 
+    // Przełączanie widoczności hasła
     private void TogglePasswordVisibility()
     {
         ShowPassword = !ShowPassword;
     }
 
+    // Obsługa logowania po kliknięciu "Zaloguj się"
     private async Task HandleLogin()
     {
         ClearAlerts();
 
-        if (!_editContext!.Validate())
+        if (!_editContext!.Validate()) // Walidacja danych wejściowych
         {
             StateHasChanged();
-            await Task.Delay(5000);
+            await Task.Delay(5000); // Pokazanie błędów przez 5s
             ClearAlerts();
             return;
         }
 
         try
         {
+            // Wysłanie danych logowania do API
             var response = await Http.PostAsJsonAsync("api/auth/login", LoginModel);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+
+                // Zapis tokena i użytkownika do localStorage
                 await JS.InvokeVoidAsync("localStorage.setItem", "authToken", result!.Token);
                 await JS.InvokeVoidAsync("localStorage.setItem", "authUser", GetLoginFromToken(result.Token));
 
-                AuthState.NotifyAuthenticationChanged();
+                AuthState.NotifyAuthenticationChanged(); // Odświeżenie stanu auth
                 SuccessMessage = "Zalogowano pomyślnie. Przekierowanie...";
                 ShowSuccess = true;
                 StateHasChanged();
-                await Task.Delay(1500);
+                await Task.Delay(1500); // Czekaj 1.5s
 
-                Navigation.NavigateTo(ReturnUrl, true);
+                Navigation.NavigateTo(ReturnUrl, true); // Przekierowanie
             }
             else
             {
+                // Obsługa błędu logowania z API
                 var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
                 await ShowErrorAlert(error?["message"] ?? "Nie udało się zalogować.");
             }
@@ -176,16 +186,18 @@
         }
     }
 
+    // Pokazanie błędu na ekranie
     private async Task ShowErrorAlert(string message)
     {
         ErrorMessage = message;
         ShowError = true;
         StateHasChanged();
 
-        await Task.Delay(3000);
+        await Task.Delay(3000); // Pokaż przez 3 sekundy
         ClearAlerts();
     }
 
+    // Czyszczenie alertów
     private void ClearAlerts()
     {
         ErrorMessage = null;
@@ -195,6 +207,7 @@
         ValidationErrors.Clear();
     }
 
+    // Odczytanie loginu z tokena JWT
     private string GetLoginFromToken(string token)
     {
         var parts = token.Split('.');
@@ -209,30 +222,34 @@
             : "Nieznany";
     }
 
+    // Dodaje padding do base64 (wymagane do dekodowania)
     private static string AddPadding(string base64)
     {
         return base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
     }
 
+    // Obsługa kliknięcia "Zaloguj się przez Google"
     private async Task LoginWithGoogle()
     {
         var googleLoginUrl = "https://localhost:7177/auth/ExternalAuth/signin-google?returnUrl=" + Uri.EscapeDataString(Navigation.BaseUri);
 
+        // Otwiera popup z logowaniem Google
         var popup = await JS.InvokeAsync<IJSObjectReference>("window.open", googleLoginUrl, "_blank", "width=500,height=600");
 
+        // Nasłuchuje na token z Google
         await JS.InvokeVoidAsync("googleAuthInterop.listenForToken", DotNetObjectReference.Create(this));
     }
 
+    // Wywoływane z JavaScript po udanym logowaniu Google
     [JSInvokable]
     public async Task OnGoogleLoginSuccess(string token)
     {
         await JS.InvokeVoidAsync("localStorage.setItem", "authToken", token);
-
         AuthState.NotifyAuthenticationChanged();
-
         Navigation.NavigateTo("/");
     }
 
+    // Model danych logowania
     public class LoginRequest
     {
         [Required(ErrorMessage = "Login jest wymagany")]
@@ -242,6 +259,7 @@
         public string Password { get; set; } = "";
     }
 
+    // Odpowiedź z API przy logowaniu
     public class AuthResponse
     {
         public string Token { get; set; } = "";

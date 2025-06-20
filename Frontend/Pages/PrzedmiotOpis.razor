@@ -7,8 +7,6 @@
 
 
 
-
-
 <PageTitle>Szczegóły przedmiotu</PageTitle>
 
 
@@ -22,11 +20,10 @@
     <a class="nav-link" @onclick="@(() => ScrollToSection("kryteria"))">VII. Kryteria oceny osiągniętych efektów kształcenia</a>
     <a class="nav-link" @onclick="@(() => ScrollToSection("naklad"))">VIII.Nakład pracy studenta - wymiar godzin i bilans punktów ECTS</a>
     <a class="nav-link" @onclick="@(() => ScrollToSection("literatura"))">IX. Literatura przedmotu oraz inne materiały dydaktyczne</a>
-
 </nav>
 
 @code {
-
+    // Wywoływane po pierwszym renderze — inicjalizuje skrypt do scrollowania nawigacji
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -35,18 +32,21 @@
         }
     }
 
+    // Scrollowanie do konkretnej sekcji strony (JS)
     private async Task ScrollToSection(string sectionId)
     {
         await JS.InvokeVoidAsync("scrollToElement", sectionId);
     }
 
+    // Scrollowanie do góry strony
     private async Task ScrollToTop()
     {
         await JS.InvokeVoidAsync("window.scrollTo", new { top = 0, behavior = "smooth" });
     }
 
+    [Parameter] public int Id { get; set; } // Identyfikator przedmiotu z parametru URL
 
-    [Parameter] public int Id { get; set; }
+    // Pola przechowujące dane pobrane z API
     private PrzedmiotDto? Przedmiot;
     private List<SylabusDto>? Sylabusy;
     private SylabusDto? SelectedSylabus;
@@ -54,14 +54,14 @@
     private List<SiatkaPrzedmiotowDto>? Siatki;
     private SiatkaPrzedmiotowDto? SiatkaStacjonarne;
     private SiatkaPrzedmiotowDto? SiatkaNiestacjonarne;
-    private string ActiveSection = "tresci";
+
+    private string ActiveSection = "tresci"; // Aktywna zakładka
     [Inject] IJSRuntime JS { get; set; } = default!;
-    private bool IsLecturer = false;
+    private bool IsLecturer = false; // Czy użytkownik to wykładowca
     bool IsExporting = false;
     private bool ExportingPdf = false;
-    
 
-
+    // Metoda inicjalizująca komponent — pobiera dane z API, dekoduje token JWT
     protected override async Task OnInitializedAsync()
     {
         try
@@ -78,6 +78,7 @@
 
             if (stacjonarne != null) Siatki.AddRange(stacjonarne);
             if (niestacjonarne != null) Siatki.AddRange(niestacjonarne);
+
             SelectedSylabus = Sylabusy?
                 .OrderByDescending(s => s.DataPowstania)
                 .FirstOrDefault();
@@ -104,29 +105,30 @@
             Console.Error.WriteLine($"❌ Błąd ogólny: {ex.Message}");
             Navigation.NavigateTo("/error", true);
         }
-
     }
 
+    // Zmiana zakładki sylabusa
     private Task OnTabChange(SylabusDto syl)
     {
         SelectedSylabus = syl;
         return Task.CompletedTask;
     }
 
-
+    // Eksport sylabusa do PDF
     private async Task DownloadPdf()
     {
         ExportingPdf = true;
-        StateHasChanged(); // wymuś render z wszystkimi sekcjami
+        StateHasChanged(); // wymuś render
 
-        await Task.Delay(800); // pozwól na pełny render
+        await Task.Delay(800); // poczekaj na pełny render sekcji
 
         await JS.InvokeVoidAsync("exportPdfFromDiv", "pdf-content", $"sylabus_{SelectedSylabus?.RokData}.pdf");
 
         ExportingPdf = false;
-        StateHasChanged(); // przywróć standardowy widok
+        StateHasChanged(); // przywróć poprzedni widok
     }
 
+    // Sprawdza, czy sylabus zawiera błędne dane (np. niepoprawny JSON)
     private bool IsSylabusUszkodzony(SylabusDto? sylabus)
     {
         if (sylabus == null) return true;
@@ -140,12 +142,13 @@
                || HasError(sylabus.MetodyRealizacji);
     }
 
+    // Sprawdza, czy dany węzeł JSON zawiera znacznik "__invalid__"
     private bool HasError(JsonNode? node)
     {
         return node is JsonObject obj && obj.ContainsKey("__invalid__");
     }
 
-
+    // Metody pomocnicze do przełączania aktywnej sekcji
     void ShowInfo() => ActiveSection = "info";
     void ShowNaklad() => ActiveSection = "naklad";
     void ShowMetody() => ActiveSection = "metody";
@@ -156,6 +159,7 @@
     void ShowLiteratura() => ActiveSection = "literatura";
     void EditPlaceholder() { /* TODO: implement edit */ }
 
+    // Renderuje wszystkie sekcje sylabusa (np. do PDF)
     RenderFragment RenderAllSections() => __builder =>
     {
         void AddSection(RenderFragment section)
@@ -176,6 +180,7 @@
         AddSection(RenderLiteratura());
     };
 
+    // Renderuje sekcję "Treści kształcenia"
     RenderFragment RenderTresci() => __builder =>
     {
         var tresci = SelectedSylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
@@ -218,6 +223,7 @@
         </table>
     };
 
+    // Renderuje sekcję "Efekty kształcenia"
     RenderFragment RenderEfekty() => __builder =>
     {
         var grouped = SelectedSylabus.EfektyKsztalcenia
@@ -266,16 +272,18 @@
             </table>
         </div>
     };
+
+
     RenderFragment RenderMetody() => __builder =>
     {
         var metody = SelectedSylabus.MetodyWeryfikacji.AsArray();
         var groupedMetody = metody.GroupBy(m => m["rodzaj"]?.ToString()).ToDictionary(g => g.Key, g => g.ToList());
         var rodzajLabels2 = new Dictionary<string, string>
-            {
+                {
             { "wiedza", "Wiedza:" },
             { "umiejetnosci", "Umiejętności:" },
             { "kompetencje_spoleczne", "Kompetencje społeczne:" }
-            };
+                };
         <div id="metody" class="effects-title">VI. Metody weryfikacji efektów kształcenia</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
@@ -310,7 +318,7 @@
         var nak = SelectedSylabus.NakladPracy as JsonObject ?? new JsonObject();
         var keys = new[] { "zajecia", "konsultacje", "projekt", "sam_przygotowanie", "zaliczenia", "sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" };
         var labels = new Dictionary<string, string>
-            {
+                {
             { "zajecia", "Udział w zajęciach dydaktycznych (wykłady, ćwiczenia, konwersatoria, projekt, laboratoria, warsztaty, seminaria) – SUMA godzin – z punktu II" },
             { "konsultacje", "Udział w konsultacjach" },
             { "projekt", "Projekt / esej" },
@@ -321,7 +329,7 @@
             { "praktyczne", "Obciążenie studenta w ramach zajęć o charakterze praktycznym" },
             { "zawodowe", "Obciążenie studenta w ramach zajęć związanych z praktycznym przygotowaniem zawodowym" },
             { "badania", "Obciążenie studenta w ramach zajęć związanych z przygotowaniem do prowadzenia badań" }
-            };
+                };
         <div id="naklad" class="effects-title">VIII.Nakład pracy studenta - wymiar godzin i bilans punktów ECTS</div>
         <table class="table table-bordered table-striped mb-4">
             <thead class="table-header">
@@ -332,32 +340,32 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var k in keys)
-            {
-                var s = nak.TryGetPropertyValue($"{k}_S", out var vs) ? vs : null;
-                var n = nak.TryGetPropertyValue($"{k}_N", out var vn) ? vn : null;
-
-                string FormatWithECTS(JsonNode? val)
+                @foreach (var k in keys)
                 {
-                    if (val is null || !double.TryParse(val.ToString(), out double hours))
-                        return val?.ToString() ?? "";
+                    var s = nak.TryGetPropertyValue($"{k}_S", out var vs) ? vs : null;
+                    var n = nak.TryGetPropertyValue($"{k}_N", out var vn) ? vn : null;
 
-                    double ects = hours / 25.0;
-                    string ectsFormatted = ects % 1 == 0
+                    string FormatWithECTS(JsonNode? val)
+                    {
+                        if (val is null || !double.TryParse(val.ToString(), out double hours))
+                            return val?.ToString() ?? "";
+
+                        double ects = hours / 25.0;
+                        string ectsFormatted = ects % 1 == 0
                         ? ((int)ects).ToString()
                         : ects.ToString("0.0").Replace(".", ",");
 
-                    return $"{hours} / {ectsFormatted}";
+                        return $"{hours} / {ectsFormatted}";
+                    }
+
+                    bool isEctsKey = new[] { "sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" }.Contains(k);
+
+                    <tr>
+                        <td>@labels[k]</td>
+                        <td>@(isEctsKey ? FormatWithECTS(s) : s)</td>
+                        <td>@(isEctsKey ? FormatWithECTS(n) : n)</td>
+                    </tr>
                 }
-
-                bool isEctsKey = new[] { "sumaryczne", "kontakt", "praktyczne", "zawodowe", "badania" }.Contains(k);
-
-                <tr>
-                    <td>@labels[k]</td>
-                    <td>@(isEctsKey ? FormatWithECTS(s) : s)</td>
-                    <td>@(isEctsKey ? FormatWithECTS(n) : n)</td>
-                </tr>
-            }
 
 
             </tbody>
@@ -471,76 +479,76 @@
     };
     RenderFragment RenderSiatka() => __builder =>
     {
-    if (Siatki == null)
-        return;
+        if (Siatki == null)
+            return;
 
-    var stacjonarne = Siatki.FirstOrDefault(s => s.Typ == "stacjonarne");
-    var niestacjonarne = Siatki.FirstOrDefault(s => s.Typ == "niestacjonarne");
+        var stacjonarne = Siatki.FirstOrDefault(s => s.Typ == "stacjonarne");
+        var niestacjonarne = Siatki.FirstOrDefault(s => s.Typ == "niestacjonarne");
 
         <div class="effects-title" id="siatka">II. Formy zajęć dydaktycznych oraz wymiar godzin</div>
-    <table class="table table-bordered table-striped mb-4">
-        <thead class="table-header">
-            <tr>
-                <th>Forma zajęć</th>
-                <th>Studia stacjonarne</th>
-                <th>Studia niestacjonarne</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Wykład</td>
-                <td>@(stacjonarne?.Wyklad ?? 0)</td>
-                <td>@(niestacjonarne?.Wyklad ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Ćwiczenia</td>
-                <td>@(stacjonarne?.Cwiczenia ?? 0)</td>
-                <td>@(niestacjonarne?.Cwiczenia ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Konwersatorium</td>
-                <td>@(stacjonarne?.Konwersatorium ?? 0)</td>
-                <td>@(niestacjonarne?.Konwersatorium ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Laboratorium</td>
-                <td>@(stacjonarne?.Laboratorium ?? 0)</td>
-                <td>@(niestacjonarne?.Laboratorium ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Warsztaty</td>
-                <td>@(stacjonarne?.Warsztaty ?? 0)</td>
-                <td>@(niestacjonarne?.Warsztaty ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Projekt</td>
-                <td>@(stacjonarne?.Projekt ?? 0)</td>
-                <td>@(niestacjonarne?.Projekt ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Seminarium</td>
-                <td>@(stacjonarne?.Seminarium ?? 0)</td>
-                <td>@(niestacjonarne?.Seminarium ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Konsultacje</td>
-                <td>@(stacjonarne?.Konsultacje ?? 0)</td>
-                <td>@(niestacjonarne?.Konsultacje ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Egzaminy</td>
-                <td>@(stacjonarne?.Egzaminy ?? 0)</td>
-                <td>@(niestacjonarne?.Egzaminy ?? 0)</td>
-            </tr>
-            <tr>
-                <td>Suma godzin</td>
-                <td><strong>@(stacjonarne?.SumaGodzin ?? 0)</strong></td>
-                <td><strong>@(niestacjonarne?.SumaGodzin ?? 0)</strong></td>
-            </tr>
-        </tbody>
-    </table>
-    ;
-};
+        <table class="table table-bordered table-striped mb-4">
+            <thead class="table-header">
+                <tr>
+                    <th>Forma zajęć</th>
+                    <th>Studia stacjonarne</th>
+                    <th>Studia niestacjonarne</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Wykład</td>
+                    <td>@(stacjonarne?.Wyklad ?? 0)</td>
+                    <td>@(niestacjonarne?.Wyklad ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Ćwiczenia</td>
+                    <td>@(stacjonarne?.Cwiczenia ?? 0)</td>
+                    <td>@(niestacjonarne?.Cwiczenia ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Konwersatorium</td>
+                    <td>@(stacjonarne?.Konwersatorium ?? 0)</td>
+                    <td>@(niestacjonarne?.Konwersatorium ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Laboratorium</td>
+                    <td>@(stacjonarne?.Laboratorium ?? 0)</td>
+                    <td>@(niestacjonarne?.Laboratorium ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Warsztaty</td>
+                    <td>@(stacjonarne?.Warsztaty ?? 0)</td>
+                    <td>@(niestacjonarne?.Warsztaty ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Projekt</td>
+                    <td>@(stacjonarne?.Projekt ?? 0)</td>
+                    <td>@(niestacjonarne?.Projekt ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Seminarium</td>
+                    <td>@(stacjonarne?.Seminarium ?? 0)</td>
+                    <td>@(niestacjonarne?.Seminarium ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Konsultacje</td>
+                    <td>@(stacjonarne?.Konsultacje ?? 0)</td>
+                    <td>@(niestacjonarne?.Konsultacje ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Egzaminy</td>
+                    <td>@(stacjonarne?.Egzaminy ?? 0)</td>
+                    <td>@(niestacjonarne?.Egzaminy ?? 0)</td>
+                </tr>
+                <tr>
+                    <td>Suma godzin</td>
+                    <td><strong>@(stacjonarne?.SumaGodzin ?? 0)</strong></td>
+                    <td><strong>@(niestacjonarne?.SumaGodzin ?? 0)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        ;
+    };
 
 
 
@@ -672,7 +680,7 @@ else
                                 @RenderAllSections()
 
 
-                            
+
 
                             </div>
                         </div>

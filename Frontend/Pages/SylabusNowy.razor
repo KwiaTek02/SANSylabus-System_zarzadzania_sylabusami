@@ -8,7 +8,7 @@
 <div class="syl-container">
     <h3 class="syl-header">Utwórz nowy sylabus – @Kierunek</h3>
 
-    @if (PrzedmiotyList is null)
+    @if (PrzedmiotyList is null)       @* Jeśli lista przedmiotów jeszcze się nie załadowała *@
     {
         <p><em>Ładowanie przedmiotów...</em></p>
     }
@@ -18,6 +18,7 @@
             <label class="syl-label">Wybierz przedmiot:</label>
             <select class="syl-select" @bind="SelectedPrzedmiotId">
                 <option value="">-- Wybierz przedmiot --</option>
+                @* Renderujemy opcje z listy przedmiotów *@
                 @foreach (var p in PrzedmiotyList)
                 {
                     <option value="@p.Id">@p.Nazwa</option>
@@ -34,6 +35,7 @@
             </button>
         </div>
 
+        @* Wyświetlanie błędu, jeśli wystąpił *@
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
             <p style="color:darkred">Błąd: @ErrorMessage</p>
@@ -44,50 +46,50 @@
 
 @code {
     [Parameter]
-    public string Kierunek { get; set; } = default!;
-    private List<PrzedmiotDto>? PrzedmiotyList;
-    private int? SelectedPrzedmiotId;
-    private int? CurrentUserId;
-    private string? ErrorMessage;
+    public string Kierunek { get; set; } = default!;   
+    private List<PrzedmiotDto>? PrzedmiotyList;       
+    private int? SelectedPrzedmiotId;                  
+    private int? CurrentUserId;                         
+    private string? ErrorMessage;                       
 
     protected override async Task OnInitializedAsync()
     {
-
+        // Pobranie listy przedmiotów z API dla podanego kierunku (escape stringa dla bezpieczeństwa)
         PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
+
+        // Pobranie tokena JWT z localStorage przez JS interop
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
         if (!string.IsNullOrWhiteSpace(token))
         {
+            // Ustawienie tokena w nagłówku autoryzacji dla HttpClient
             Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-    
+
+            // Parsowanie tokena JWT, aby wyciągnąć ID użytkownika (claim "sub")
             var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
             var jwt = handler.ReadJwtToken(token);
 
             var userIdStr = jwt.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
             if (int.TryParse(userIdStr, out var uid))
-                CurrentUserId = uid;
+                CurrentUserId = uid;   // Zapamiętanie ID aktualnego użytkownika
         }
     }
 
-    // Wklej tutaj metody: CreateEmptySylabus, CopyLatestSylabus, IncrementAcademicYear, GetDefaultAcademicYear
-
+    // Metoda tworząca pusty sylabus
     private async void CreateEmptySylabus()
     {
+        // Sprawdzenie czy wybrano przedmiot
         if (SelectedPrzedmiotId is null)
         {
             Console.WriteLine("Nie wybrano przedmiotu.");
             return;
         }
 
-        if (SelectedPrzedmiotId is null)
-        {
-            Console.WriteLine("Nie wybrano przedmiotu.");
-            return;
-        }
-
+        // Pobranie istniejących sylabusów dla wybranego przedmiotu
         var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
         var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
 
+        // Sprawdzenie czy użytkownik jest koordynatorem najnowszego sylabusa
         if (latest != null && CurrentUserId != null)
         {
             var isKoordynator = await Http.GetFromJsonAsync<bool>($"/api/sylabusy/{latest.Id}/czy-koordynator/{CurrentUserId}");
@@ -95,12 +97,12 @@
             if (!isKoordynator)
             {
                 ErrorMessage = "Nie jesteś koordynatorem ostatniego sylabusa tego przedmiotu.";
-                StateHasChanged(); // odśwież widok
+                StateHasChanged(); // wymuszenie odświeżenia UI
                 return;
             }
         }
 
-        // Domyślny rok – bieżący, jeśli brak historii
+        // Ustalenie domyślnego roku akademickiego (jeśli brak historii) lub inkrementacja na podstawie ostatniego
         var rokData = GetDefaultAcademicYear();
         var latest2 = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
         if (latest2 != null && !string.IsNullOrWhiteSpace(latest.RokData))
@@ -108,8 +110,7 @@
             rokData = IncrementAcademicYear(latest.RokData);
         }
 
-
-
+        // Utworzenie nowego pustego sylabusa z podstawowymi danymi i strukturami JSON
         var newSylabus = new SylabusDto
             {
                 PrzedmiotId = SelectedPrzedmiotId.Value,
@@ -124,14 +125,17 @@
                 MetodyRealizacji = JsonNode.Parse("""{"wyklad_opis": "", "cwiczenia_opis": ""}""")
             };
 
+        // Pobranie tokena ponownie i ustawienie nagłówka (na wypadek wywołania później)
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
         if (!string.IsNullOrWhiteSpace(token))
             Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
+        // Wysłanie nowego sylabusa do API
         var result = await Http.PostAsJsonAsync("/api/sylabusy", newSylabus);
         if (result.IsSuccessStatusCode)
         {
             var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
+            // Po utworzeniu przejście do edycji nowego sylabusa
             Navigation.NavigateTo($"/przedmiot/{SelectedPrzedmiotId}");
             Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
         }
@@ -142,18 +146,9 @@
         }
     }
 
-
-
+    // Metoda kopiująca najnowszy sylabus i tworząca nową wersję z inkrementowanym rokiem
     private async Task CopyLatestSylabus()
     {
-        if (SelectedPrzedmiotId is null)
-        {
-            Console.WriteLine("pusty XDDDDDDDD");
-            return;
-
-        }
-
-
         if (SelectedPrzedmiotId is null)
         {
             Console.WriteLine("Nie wybrano przedmiotu.");
@@ -163,6 +158,7 @@
         var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
         var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
 
+        // Sprawdzenie czy użytkownik jest koordynatorem najnowszego sylabusa
         if (latest != null && CurrentUserId != null)
         {
             var isKoordynator = await Http.GetFromJsonAsync<bool>($"/api/sylabusy/{latest.Id}/czy-koordynator/{CurrentUserId}");
@@ -170,17 +166,15 @@
             if (!isKoordynator)
             {
                 ErrorMessage = "Nie jesteś koordynatorem ostatniego sylabusa tego przedmiotu.";
-                StateHasChanged(); 
+                StateHasChanged();
                 return;
             }
         }
 
+        // Obliczenie nowego roku akademickiego, inkrementując rok z najnowszego sylabusa
         var newYear = IncrementAcademicYear(latest.RokData!);
 
-
-
-
-
+        // Utworzenie nowego sylabusa kopiując właściwości najnowszego i przypisując nowy rok
         var newSylabus = new SylabusDto
             {
                 PrzedmiotId = latest.PrzedmiotId,
@@ -200,48 +194,48 @@
                 MetodyRealizacji = latest.MetodyRealizacji?.DeepClone(),
             };
 
+        // Ponowne pobranie tokena i ustawienie nagłówka autoryzacji
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-
         if (!string.IsNullOrWhiteSpace(token))
             Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
+        // Wysłanie nowego sylabusa do API
         var result = await Http.PostAsJsonAsync("/api/sylabusy", newSylabus);
         if (result.IsSuccessStatusCode)
         {
             var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
-            Console.WriteLine("Stworzono poprawnie kopie sylabusu ");
-            //Navigation.NavigateTo($"/sylabus/edit/{created!.Id}");
+            Console.WriteLine("Stworzono poprawnie kopię sylabusa");
             Navigation.NavigateTo($"/przedmiot/{SelectedPrzedmiotId}");
-            Console.WriteLine(created!.Id);
-
         }
         else
         {
             var errorText = await result.Content.ReadAsStringAsync();
             Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
         }
-
     }
 
+    // Metoda inkrementująca rok akademicki w formacie "YYYY/YYYY"
     private string IncrementAcademicYear(string rokData)
     {
         var parts = rokData.Split('/');
         if (parts.Length == 2 && int.TryParse(parts[0], out int start) && int.TryParse(parts[1], out int end))
             return $"{start + 1}/{end + 1}";
 
-        return GetDefaultAcademicYear(); // fallback
+        return GetDefaultAcademicYear(); // fallback jeśli format nie jest poprawny
     }
 
-
+    // Metoda zwracająca domyślny rok akademicki na podstawie aktualnej daty
     private string GetDefaultAcademicYear()
     {
         var now = DateTime.Now;
+        // jeśli miesiąc >= wrzesień, to rok bieżący / rok bieżący + 1
+        // w przeciwnym razie rok poprzedni / rok bieżący
         return now.Month >= 9
             ? $"{now.Year}/{now.Year + 1}"
             : $"{now.Year - 1}/{now.Year}";
     }
 
-
+    // Metoda czyszcząca wybór przedmiotu
     private void CloseModal()
     {
         SelectedPrzedmiotId = null;

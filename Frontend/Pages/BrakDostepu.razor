@@ -8,15 +8,20 @@
 <button class="btn-wstecz" @onclick="GoBack">🡐 Powrót</button>
 
 @code {
+    // Metoda wywoływana po kliknięciu przycisku "Powrót"
     private async Task GoBack()
     {
+        // Próba pobrania poprzedniego adresu URL z localStorage
         var backUrl = await JS.InvokeAsync<string>("localStorage.getItem", "previousUrl");
+
         if (!string.IsNullOrEmpty(backUrl))
         {
+            // Jeśli adres istnieje – przekieruj do niego (pełne przeładowanie)
             Navigation.NavigateTo(backUrl, true);
         }
         else
         {
+            // Jeśli nie ma poprzedniego adresu – przekieruj do strony głównej
             Navigation.NavigateTo("/", true);
         }
     }

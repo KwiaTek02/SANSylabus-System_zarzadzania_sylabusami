@@ -6,12 +6,14 @@
 <div class="syl-kierunki-container">
     <h3 class="syl-kierunki-header">Wybierz kierunek:</h3>
 
+    <!-- Pole do wyszukiwania kierunków -->
     <input type="text"
            placeholder="Szukaj kierunku..."
            value="@searchTerm"
            @oninput="OnSearchChanged"
            class="form-control syl-kierunki-search" />
 
+    <!-- Lista podpowiedzi pasujących do wpisanego tekstu -->
     @if (!string.IsNullOrWhiteSpace(searchTerm) && FilteredKierunki.Any())
     {
         <ul class="syl-kierunki-suggestions">
@@ -25,15 +27,18 @@
         </ul>
     }
 
+    <!-- Główna lista kierunków -->
     <ul class="syl-kierunki-list">
         @foreach (var kierunek in KierunkiList)
         {
             <li class="syl-kierunki-item">
-                <a href="#" @onclick="() => NavigateToPrzedmioty(kierunek)" @onclick:preventDefault>
+                <a href="#"
+                   @onclick="() => NavigateToPrzedmioty(kierunek)"
+                @onclick:preventDefault>
                     @if (!string.IsNullOrWhiteSpace(searchTerm) &&
                    kierunek.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                     {
-                        <strong>@kierunek</strong>
+                        <strong>@kierunek</strong> <!-- Wyróżnienie jeśli pasuje -->
                     }
                     else
                     {
@@ -45,49 +50,42 @@
     </ul>
 </div>
 
-@code {
-    private string searchTerm = "";
 
-    public readonly List<string> KierunkiList = new()
-    {
-        "Informatyka",
-        "Administracja",
-        "Bezpieczeństwo narodowe",
-        "Dziennikarstwo i komunikacja społeczna",
-        "Filologia",
-        "Finanse i rachunkowość",
-        "Grafika",
-        "Kosmetologia",
-        "Logistyka",
-        "Organizacja produkcji filmowej i telewizyjnej",
-        "Pedagogika",
-        "Stosunki międzynarodowe",
-        "Turystyka i rekreacja",
-        "Zarządzanie",
-        "Rachunkowość i zarządzanie finansami",
-        "Fizjoterapia",
-        "Kierunek lekarski",
-        "Pedagogika przedszkolna i wczesnoszkolna ",
-        "Prawo",
-        "Psychologia"
+@code {
+    private string searchTerm = ""; // Bieżące zapytanie wyszukiwania
+
+    public readonly List<string> KierunkiList = new() {
+        // Lista dostępnych kierunków (na sztywno)
+        "Informatyka", "Administracja", "Bezpieczeństwo narodowe",
+        "Dziennikarstwo i komunikacja społeczna", "Filologia", "Finanse i rachunkowość",
+        "Grafika", "Kosmetologia", "Logistyka",
+        "Organizacja produkcji filmowej i telewizyjnej", "Pedagogika", "Stosunki międzynarodowe",
+        "Turystyka i rekreacja", "Zarządzanie", "Rachunkowość i zarządzanie finansami",
+        "Fizjoterapia", "Kierunek lekarski", "Pedagogika przedszkolna i wczesnoszkolna ",
+        "Prawo", "Psychologia"
     };
 
+    // Filtrowanie kierunków na podstawie wpisanego tekstu
     private IEnumerable<string> FilteredKierunki =>
         string.IsNullOrWhiteSpace(searchTerm)
             ? KierunkiList
-            : KierunkiList.Where(k => k.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            : KierunkiList.Where(k =>
+                k.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
 
+    // Nawigacja do listy przedmiotów danego kierunku
     private void NavigateToPrzedmioty(string kierunek)
     {
         Navigation.NavigateTo($"/przedmioty/{Uri.EscapeDataString(kierunek)}");
     }
 
+    // Po kliknięciu na sugestię
     private void SelectSuggestion(string suggestion)
     {
         searchTerm = suggestion;
         NavigateToPrzedmioty(suggestion);
     }
 
+    // Obsługa zmiany tekstu w polu wyszukiwania
     private void OnSearchChanged(ChangeEventArgs e)
     {
         searchTerm = e.Value?.ToString() ?? "";
@@ -95,6 +93,7 @@
         var match = KierunkiList.FirstOrDefault(k =>
             string.Equals(k, searchTerm, StringComparison.OrdinalIgnoreCase));
 
+        // Jeśli wpisany kierunek jest dokładnym dopasowaniem — przejdź od razu
         if (match is not null)
         {
             NavigateToPrzedmioty(match);

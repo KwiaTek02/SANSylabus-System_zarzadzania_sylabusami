@@ -4,10 +4,9 @@
 @inject IJSRuntime JS
 @using System.ComponentModel.DataAnnotations
 
-
 <PageTitle>Rejestracja</PageTitle>
 
-<!-- ALERTY -->
+<!-- ALERTY: wyświetlają komunikaty o błędach lub sukcesie -->
 <div class="alert-container">
     @if (ShowSuccess)
     {
@@ -31,30 +30,34 @@
     }
 </div>
 
-<!-- FORMULARZ -->
+<!-- FORMULARZ REJESTRACJI -->
 <div class="auth-form-container">
     <div class="auth-card elegant-card">
         <h3 class="auth-title">Utwórz konto</h3>
 
+        <!-- Formularz z walidacją przy użyciu atrybutów -->
         <EditForm Model="@RegisterModel" OnSubmit="HandleRegister">
-
             <DataAnnotationsValidator />
 
+            <!-- Imię i nazwisko -->
             <div class="input-with-icon mb-4">
                 <i class="bi bi-person-lines-fill"></i>
                 <InputText class="form-control icon-input" @bind-Value="RegisterModel.ImieNazwisko" placeholder="Imię i nazwisko" />
             </div>
 
+            <!-- Login -->
             <div class="input-with-icon mb-4">
                 <i class="bi bi-person-fill"></i>
                 <InputText class="form-control icon-input" @bind-Value="RegisterModel.Login" placeholder="Login" />
             </div>
 
+            <!-- Email -->
             <div class="input-with-icon mb-4">
                 <i class="bi bi-envelope-fill"></i>
                 <InputText class="form-control icon-input" @bind-Value="RegisterModel.Email" type="email" placeholder="Adres email" />
             </div>
 
+            <!-- Hasło z możliwością pokazania/ukrycia -->
             <div class="input-icon-row mb-4">
                 <div class="input-with-icon">
                     <i class="bi bi-lock-fill"></i>
@@ -69,9 +72,11 @@
                 </button>
             </div>
 
+            <!-- Przycisk rejestracji -->
             <button type="submit" class="btn btn-primary login-button">Zarejestruj</button>
         </EditForm>
 
+        <!-- Link do logowania -->
         <div class="bottom-link">
             Masz już konto? <a href="/login">Zaloguj się</a>
         </div>
@@ -79,43 +84,55 @@
 </div>
 
 @code {
+    // Model danych formularza rejestracji
     private RegisterRequest RegisterModel = new();
+
+    // Referencja do pola hasła (do zmiany widoczności)
     private ElementReference RegisterPasswordInput;
+
+    // Flaga pokazująca/ukrywająca hasło
     private bool ShowRegisterPassword;
+
+    // Zależnie od flagi zmienia typ inputa hasła
     private string RegisterPasswordInputType => ShowRegisterPassword ? "text" : "password";
 
+    // Wiadomości i flagi dla alertów
     private string? SuccessMessage;
     private string? ErrorMessage;
     private bool ShowSuccess;
     private bool ShowError;
+
+    // Lista błędów walidacji
     private List<string> ValidationErrors = new();
 
-
+    // Podczas inicjalizacji sprawdzamy czy użytkownik już jest zalogowany
     protected override async Task OnInitializedAsync()
     {
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
         if (!string.IsNullOrWhiteSpace(token))
         {
-            Navigation.NavigateTo("/", true);
+            Navigation.NavigateTo("/", true); // przekierowanie do strony głównej
             return;
         }
     }
-    
-    
+
+    // Przełącznik widoczności hasła
     private void ToggleRegisterPasswordVisibility()
     {
         ShowRegisterPassword = !ShowRegisterPassword;
     }
 
+    // Obsługa przesłania formularza rejestracji
     private async Task HandleRegister()
     {
+        // Reset alertów i błędów
         ErrorMessage = null;
         SuccessMessage = null;
         ShowError = false;
         ShowSuccess = false;
         ValidationErrors.Clear();
 
-        // Walidacja DataAnnotations
+        // Walidacja modelu przy użyciu atrybutów DataAnnotations
         if (!TryValidateModel(RegisterModel, out var validationErrors))
         {
             ValidationErrors = validationErrors;
@@ -128,67 +145,77 @@
             return;
         }
 
-        // Niestandardowa walidacja
+        // Dodatkowa ręczna walidacja: poprawność emaila
         if (!RegisterModel.Email.Contains("@"))
         {
             await ShowErrorAlert("Adres email musi zawierać znak '@'.");
             return;
         }
 
+        // Walidacja hasła: musi zawierać cyfrę i wielką literę
         if (!RegisterModel.Password.Any(char.IsUpper) || !RegisterModel.Password.Any(char.IsDigit))
         {
             await ShowErrorAlert("Hasło musi zawierać co najmniej jedną dużą literę i jedną cyfrę.");
             return;
         }
 
+        // Ustawienie domyślnego typu konta
         RegisterModel.TypKonta = "gosc";
 
         try
         {
+            // Wysłanie danych rejestracyjnych do API
             var response = await Http.PostAsJsonAsync("/api/auth/register", RegisterModel);
+
             if (response.IsSuccessStatusCode)
             {
+                // Sukces rejestracji, pokazanie alertu i przekierowanie
                 await ShowSuccessAlert("Operacja się powiodła. Następuje przekierowanie...");
                 Navigation.NavigateTo("/login");
             }
             else
             {
+                // Odczyt błędu z odpowiedzi i jego prezentacja
                 var result = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
                 await ShowErrorAlert(result?["message"] ?? "Wystąpił błąd.");
             }
         }
         catch (Exception ex)
         {
+            // Obsługa błędów po stronie klienta
             await ShowErrorAlert($"Błąd rejestracji: {ex.Message}");
         }
     }
 
+    // Pokazuje alert sukcesu
     private async Task ShowSuccessAlert(string message)
     {
         SuccessMessage = message;
         ShowSuccess = true;
         StateHasChanged();
 
-        await Task.Delay(3000);
+        await Task.Delay(3000); // pokazuje alert przez 3 sekundy
 
         ShowSuccess = false;
         SuccessMessage = null;
         StateHasChanged();
     }
 
+    // Pokazuje alert błędu
     private async Task ShowErrorAlert(string message)
     {
         ErrorMessage = message;
         ShowError = true;
         StateHasChanged();
 
-        await Task.Delay(3000);
+        await Task.Delay(3000); // pokazuje alert przez 3 sekundy
 
         ShowError = false;
         ErrorMessage = null;
         StateHasChanged();
     }
 
+    // Próba walidacji modelu, zwraca listę błędów
     private bool TryValidateModel(object model, out List<string> validationResults)
     {
         var context = new ValidationContext(model);
@@ -204,6 +231,7 @@
         return true;
     }
 
+    // Klasa reprezentująca dane formularza rejestracji
     public class RegisterRequest
     {
         [Required(ErrorMessage = "Imię i nazwisko jest wymagane")]
@@ -219,6 +247,7 @@
         [EmailAddress(ErrorMessage = "Nieprawidłowy adres email")]
         public string Email { get; set; } = string.Empty;
 
+        // Domyślny typ konta
         public string TypKonta { get; set; } = "gosc";
     }
 }

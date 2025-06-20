@@ -12,8 +12,10 @@
     <h3 class="syl-przedmioty-header">Przedmioty dla kierunku: @Kierunek</h3>
 
     <div class="syl-top-bar">
+        @* Pole wyszukiwania *@
         <input class="syl-search" placeholder="Wyszukaj przedmiot..." @bind="SearchTerm" />
 
+        @* Przycisk do utworzenia nowego sylabusa, widoczny tylko dla wykładowców *@
         @if (IsLecturer)
         {
             <button class="syl-btn-create" @onclick="NavigateToCreateSylabus">
@@ -22,6 +24,7 @@
         }
     </div>
 
+    @* Pasek z filtrami (stopień, ośrodek, semestr) *@
     <div class="wiersz-filtrów">
         <div class="kolumna-filtra">
             <select class="form-select" @bind="SelectedStopien">
@@ -54,6 +57,7 @@
         </div>
     </div>
 
+    @* Obsługa błędów i ładowania danych *@
     @if (!string.IsNullOrEmpty(ErrorMessage))
     {
         <div class="alert alert-danger">@ErrorMessage</div>
@@ -64,6 +68,7 @@
     }
     else
     {
+        @* Filtrowanie listy przedmiotów na podstawie wyszukiwania i wybranych opcji *@
         var filtered = PrzedmiotyList
         ?.Where(p =>
         (string.IsNullOrWhiteSpace(SearchTerm) || p.Nazwa.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) &&
@@ -73,12 +78,14 @@
         )
         .ToList();
 
+        @* Komunikat, jeśli nie znaleziono żadnych przedmiotów *@
         @if (!filtered.Any())
         {
             <p>Brak przedmiotów spełniających kryterium wyszukiwania.</p>
         }
         else
         {
+            @* Grupowanie przedmiotów wg semestrów *@
             @foreach (var sem in filtered.GroupBy(p => p.Semestr).OrderBy(g => g.Key))
             {
                 <h4 class="syl-semestr-header">Semestr @sem.Key</h4>
@@ -86,6 +93,7 @@
                     @foreach (var p in sem)
                     {
                         <li class="syl-przedmiot-item">
+                            @* Element z nazwą i ośrodkiem przedmiotu. Kliknięcie prowadzi do szczegółów *@
                             <span class="syl-przedmiot-link" @onclick="() => NavigateToPrzedmiot(p.Id)">
                                 <span class="syl-przedmiot-nazwa">@p.Nazwa</span>
                                 <span class="syl-przedmiot-osrodek">@p.Osrodek</span>
@@ -95,32 +103,40 @@
                 </ul>
             }
         }
-
     }
 </div>
 
 @code {
     [Parameter]
-    public string Kierunek { get; set; } = default!;
+    public string Kierunek { get; set; } = default!; // Parametr z URL
 
+    // Lista przedmiotów pobrana z API
     private List<PrzedmiotDto>? PrzedmiotyList;
+
+    // Parametry do filtrowania
     private string SearchTerm { get; set; } = string.Empty;
     private string? SelectedOsrodek { get; set; }
     private int? SelectedSemestr { get; set; }
     private string? SelectedStopien { get; set; }
+
+    // Czy użytkownik jest wykładowcą?
     private bool IsLecturer = false;
+
+    // Komunikat o błędzie
     private string? ErrorMessage;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            // Pobranie przedmiotów dla danego kierunku z API
+            PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>(
+                $"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
 
-
-            PrzedmiotyList = await Http.GetFromJsonAsync<List<PrzedmiotDto>>($"/api/przedmioty/kierunek/{Uri.EscapeDataString(Kierunek)}");
-
+            // Pobranie tokenu z localStorage (przeglądarka)
             var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
+            // Odczytanie roli użytkownika z tokenu
             if (!string.IsNullOrEmpty(token))
             {
                 var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
@@ -129,49 +145,57 @@
                 var role = jwt.Claims.FirstOrDefault(c =>
                     c.Type == "role" || c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
 
+                // Ustawienie flagi, jeśli użytkownik to wykładowca
                 IsLecturer = role == "wykladowca";
             }
         }
         catch (HttpRequestException ex)
         {
+            // Obsługa błędów HTTP
             Console.Error.WriteLine($"❌ Błąd HTTP: {ex.Message}");
             Navigation.NavigateTo("/blad/500", true);
         }
         catch (Exception ex)
         {
+            // Obsługa błędów ogólnych
             Console.Error.WriteLine($"❌ Błąd ogólny: {ex.Message}");
             Navigation.NavigateTo("/error", true);
         }
-
     }
 
+    // Nawigacja do strony tworzenia nowego sylabusa
     private void NavigateToCreateSylabus()
     {
         Navigation.NavigateTo($"/sylabus/nowy/{Kierunek}");
     }
 
+    // Nawigacja do szczegółów wybranego przedmiotu
     private void NavigateToPrzedmiot(int id)
     {
         Navigation.NavigateTo($"/przedmiot/{id}");
     }
 
+    // Lista unikalnych ośrodków z danych
     private List<string> Osrodki =>
-        PrzedmiotyList?.Select(p => p.Osrodek).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToList() ?? new();
+        PrzedmiotyList?.Select(p => p.Osrodek)
+                      .Where(x => !string.IsNullOrWhiteSpace(x))
+                      .Distinct()
+                      .OrderBy(x => x)
+                      .ToList() ?? new();
 
+    // Lista unikalnych semestrów
     private List<int> Semestry =>
-        PrzedmiotyList?
-            .Select(p => (int)(p.Semestr ?? 0))
-            .Where(s => s > 0)
-            .Distinct()
-            .OrderBy(s => s)
-            .ToList() ?? new();
+        PrzedmiotyList?.Select(p => (int)(p.Semestr ?? 0))
+                      .Where(s => s > 0)
+                      .Distinct()
+                      .OrderBy(s => s)
+                      .ToList() ?? new();
 
+    // Lista unikalnych stopni studiów
     private List<string> Stopnie =>
-        PrzedmiotyList?
-            .Select(p => p.Stopien)
-            .Where(s => !string.IsNullOrWhiteSpace(s))
-            .Distinct()
-            .OrderBy(s => s)
-            .ToList() ?? new();
-
+        PrzedmiotyList?.Select(p => p.Stopien)
+                      .Where(s => !string.IsNullOrWhiteSpace(s))
+                      .Distinct()
+                      .OrderBy(s => s)
+                      .ToList() ?? new();
 }

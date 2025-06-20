@@ -1,53 +1,74 @@
 ﻿@inject NavigationManager Navigation
 @inject IJSRuntime JS
 
+<!-- Renderuje zawartość trasy tylko jeśli użytkownik jest uprawniony -->
 @if (_shouldRenderContent)
 {
+    <!-- Komponent RouteView wyświetla komponent przypisany do aktualnej trasy -->
     <RouteView RouteData="@RouteData" DefaultLayout="@DefaultLayout" />
 }
 
 @code {
+    // Parametr przekazujący dane aktualnej trasy (np. "/konto")
     [Parameter] public RouteData RouteData { get; set; } = default!;
+
+    // Parametr definiujący domyślny layout, np. MainLayout
     [Parameter] public Type DefaultLayout { get; set; } = typeof(MainLayout);
 
+    // Flaga informująca, czy zawartość strony powinna być wyrenderowana
     private bool _shouldRenderContent = false;
 
+    // Metoda wykonywana przy inicjalizacji komponentu
     protected override async Task OnInitializedAsync()
     {
-        var publicRoutes = new[] { "","/", "/#", "login", "register" };
+        // Lista tras publicznych (niewymagających logowania)
+        var publicRoutes = new[] { "", "/", "/#", "login", "register" };
+
+        // Pobiera aktualną ścieżkę względną (bez domeny) i konwertuje ją na małe litery
         var current = Navigation.ToBaseRelativePath(Navigation.Uri).ToLower();
 
+        // Jeśli trasa jest publiczna – nie trzeba weryfikować tokenu
         if (publicRoutes.Any(p => current.StartsWith(p)))
         {
-            _shouldRenderContent = true;
+            _shouldRenderContent = true; // pozwól na wyświetlenie zawartości
             return;
         }
 
+        // Próba pobrania tokena JWT z localStorage (np. zapisanego po logowaniu)
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        // Jeśli token nie istnieje – przekieruj do logowania
         if (string.IsNullOrEmpty(token))
         {
-            Navigation.NavigateTo("/login", forceLoad: true);
+            Navigation.NavigateTo("/login", forceLoad: true); // wymuszone przeładowanie
             return;
         }
 
         try
         {
+            // Dekodowanie tokena JWT (nie wymaga walidacji podpisu)
             var jwtHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
             var jwt = jwtHandler.ReadJwtToken(token);
-            var exp = jwt.ValidTo;
+            var exp = jwt.ValidTo; // Data wygaśnięcia tokena (UTC)
 
+            // Sprawdzenie, czy token już wygasł
             if (exp < DateTime.UtcNow)
             {
+                // Usunięcie danych z pamięci przeglądarki
                 await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
                 await JS.InvokeVoidAsync("localStorage.removeItem", "authUser");
+
+                // Przekierowanie do logowania
                 Navigation.NavigateTo("/login", forceLoad: true);
                 return;
             }
 
+            // Token jest poprawny i aktualny – pozwól na wyświetlenie strony
             _shouldRenderContent = true;
         }
         catch
         {
+            // W przypadku błędów dekodowania – przekierowanie do logowania
             Navigation.NavigateTo("/login", forceLoad: true);
         }
     }

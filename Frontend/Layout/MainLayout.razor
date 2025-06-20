@@ -5,28 +5,34 @@
 @inject HttpClient Http
 @inject AuthState AuthState
 
+
 <header class="main-header">
     <div class="header-content">
+
         <div class="brand">
             <img src="images/san-logo.png" alt="SAN Logo" class="logo" />
             <span class="brand-name">Społeczna Akademia Nauk</span>
         </div>
 
         <div class="auth-buttons">
-            @if (IsLoggedIn)
+            @if (IsLoggedIn)  // Jeżeli użytkownik jest zalogowany
             {
+                <!-- Pokazuje nazwę użytkownika i przycisk wyloguj -->
                 <span class="user-info">👤 @FullName</span>
                 <button class="btn btn-logout" @onclick="Logout">Wyloguj</button>
             }
-            else
+            else  // Jeżeli użytkownik nie jest zalogowany
             {
+                <!-- Przycisk do logowania (z przekierowaniem powrotnym) -->
                 <a href="@($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}")" class="btn btn-outline-light me-2">Zaloguj się</a>
+                <!-- Przycisk do rejestracji -->
                 <a href="/register" class="btn btn-register">Rejestracja</a>
             }
         </div>
     </div>
 </header>
 
+<!-- Nawigacja główna -->
 <nav class="main-nav">
     <a href="/kierunki">Sylabusy</a>
     <a href="#">Student</a>
@@ -44,23 +50,28 @@
     private string? FullName;
     private bool IsLoggedIn;
 
+    // Metoda wywoływana przy inicjalizacji komponentu
     protected override async Task OnInitializedAsync()
     {
+        // Subskrybuje zdarzenie zmiany stanu autoryzacji (np. po zalogowaniu)
         AuthState.OnChange += async () =>
         {
-            await LoadUserInfo();
-            StateHasChanged();
+            await LoadUserInfo();     // Przeładowuje informacje o użytkowniku
+            StateHasChanged();       // Wymusza odświeżenie komponentu
         };
 
-        await LoadUserInfo();
+        await LoadUserInfo();        // Ładuje dane użytkownika przy starcie
     }
 
+    // Pobiera dane użytkownika z tokena w localStorage
     private async Task LoadUserInfo()
     {
+        // Pobiera token z pamięci przeglądarki
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
         if (!string.IsNullOrWhiteSpace(token))
         {
+            // Wyciąga login z tokena
             Login = ExtractLoginFromToken(token);
             IsLoggedIn = !string.IsNullOrWhiteSpace(Login);
 
@@ -68,22 +79,26 @@
             {
                 try
                 {
+                    // Pobiera pełne imię i nazwisko z backendu
                     FullName = await Http.GetStringAsync($"/api/uzytkownicy/nazwisko?login={Uri.EscapeDataString(Login)}");
                 }
                 catch
                 {
+                    // Jeśli zapytanie się nie powiedzie, używa loginu jako zapasowego opisu
                     FullName = Login;
                 }
             }
         }
         else
         {
+            // Jeśli nie ma tokena, użytkownik jest niezalogowany
             IsLoggedIn = false;
             Login = null;
             FullName = null;
         }
     }
 
+    // Obsługa wylogowania – usuwa dane z localStorage i przekierowuje do logowania
     private async Task Logout()
     {
         await JS.InvokeVoidAsync("localStorage.removeItem", "authToken");
@@ -91,6 +106,7 @@
         Navigation.NavigateTo("/login", true);
     }
 
+    // Wyciąga login z zakodowanego JWT (część payload)
     private string? ExtractLoginFromToken(string token)
     {
         try
@@ -99,19 +115,23 @@
             if (parts.Length != 3)
                 return null;
 
+            // Dekoduje część payload (środkowa część JWT)
             var payload = System.Text.Json.JsonDocument.Parse(
                 System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(AddPadding(parts[1]))));
 
+            // Odczytuje pole "login" z dekodowanego JSON-a
             return payload.RootElement.TryGetProperty("login", out var loginProp)
                 ? loginProp.GetString()
                 : null;
         }
         catch
         {
+            // W przypadku błędu (np. niepoprawnego formatu) zwraca null
             return null;
         }
     }
 
+    // Dodaje odpowiedni padding do ciągu base64 (jeśli jest go za mało)
     private string AddPadding(string base64)
     {
         return base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');

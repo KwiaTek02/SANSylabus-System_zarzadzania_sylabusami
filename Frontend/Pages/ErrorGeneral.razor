@@ -1,12 +1,18 @@
 ﻿@page "/error"
 
+<!-- Nagłówek informujący o błędzie -->
 <h3 class="text-danger">Ups! Coś poszło nie tak.</h3>
+
+<!-- Komunikat dla użytkownika -->
 <p>Wystąpił nieoczekiwany błąd aplikacji. Spróbuj ponownie później lub skontaktuj się z administratorem systemu.</p>
 
+<!-- Przycisk umożliwiający powrót do strony głównej -->
 <button class="btn btn-primary" @onclick="Powrot">Powrót do strony głównej</button>
 
 @code {
+    // Wstrzyknięcie serwisu do nawigacji
     [Inject] private NavigationManager Navigation { get; set; }
 
+    // Metoda wykonująca przekierowanie na stronę główną
     private void Powrot() => Navigation.NavigateTo("/");
 }

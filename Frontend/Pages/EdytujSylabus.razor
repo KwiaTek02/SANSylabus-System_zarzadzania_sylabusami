@@ -66,11 +66,11 @@ else
 
         <table class="table table-bordered table-striped w-100">
             <thead>
-            <tr>
-                <th>Forma zajęć</th>
-                <th>Studia stacjonarne</th>
-                <th>Studia niestacjonarne</th>
-            </tr>
+                <tr>
+                    <th>Forma zajęć</th>
+                    <th>Studia stacjonarne</th>
+                    <th>Studia niestacjonarne</th>
+                </tr>
             </thead>
             <tbody>
                 @foreach (var forma in FormyZajec)
@@ -122,11 +122,11 @@ else
             </div>
         }
 
-                <button type="button"
-                        class="btn-kryt-dodaj"
-                        @onclick="AddWyklad">
-                    Dodaj wiersz wykładu
-                </button>
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddWyklad">
+            Dodaj wiersz wykładu
+        </button>
 
 
 
@@ -159,12 +159,12 @@ else
                 </button>
             </div>
         }
-        
-            <button type="button"
-                    class="btn-kryt-dodaj"
-                    @onclick="AddCwiczenie">
-                Dodaj wiersz ćwiczenia
-            </button>
+
+        <button type="button"
+                class="btn-kryt-dodaj"
+                @onclick="AddCwiczenie">
+            Dodaj wiersz ćwiczenia
+        </button>
 
 
 
@@ -530,7 +530,8 @@ else
         }
         <button type="button"
                 class="btn-kryt-dodaj"
-                @onclick="AddLiteraturaUzupelniajaca">Dodaj pozycję
+                @onclick="AddLiteraturaUzupelniajaca">
+            Dodaj pozycję
         </button>
 
 
@@ -559,7 +560,7 @@ else
         <h4 class="naglowki-edycja">Metody realizacji zajęć dydaktycznych</h4>
 
         <div class="tabela-metod">
-            
+
             <div class="naglowek-komorka">Forma zajęć</div>
             <div class="naglowek-komorka">Metody dydaktyczne</div>
 
@@ -574,7 +575,7 @@ else
         </div>
 
         <hr />
-        
+
 
         <InputText class="do-wpisywania"
                    @bind-Value="Model.OpisZmiany"
@@ -583,18 +584,18 @@ else
         <ValidationMessage For="@(() => Model.OpisZmiany)" />
 
 
-                        @if (!string.IsNullOrEmpty(ErrorMessage))
+        @if (!string.IsNullOrEmpty(ErrorMessage))
         {
             <div class="bledy">@ErrorMessage</div>
         }
 
 
-        
+
         <button type="submit" class="zmiany">Zapisz zmiany</button>
-        </EditForm>
+    </EditForm>
 
 
-  
+
 }
 
 @code {
@@ -679,7 +680,7 @@ else
             {
                 Console.WriteLine("⚠ Nie znaleziono siatki dla tego przedmiotu.");
             }
-            
+
 
             // Inicjalizacja FormyZajec
             FormyZajec = new List<FormaZajecViewModel>
@@ -734,66 +735,63 @@ else
                 }
             }
 
+            Model = new UpdateSylabusRequest
+                {
+                    RokData = Sylabus.RokData,
+                    WymaganiaWstepne = Sylabus.WymaganiaWstepne,
+                    ProfilKsztalcenia = Sylabus.ProfilKsztalcenia,
+                    NazwaJednostkiOrganizacyjnej = Sylabus.NazwaJednostkiOrganizacyjnej,
+                    NazwaSpecjalnosci = Sylabus.NazwaSpecjalnosci,
+                    RodzajModuluKsztalcenia = Sylabus.RodzajModuluKsztalcenia,
+                };
 
+            var tresci = Sylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
+            Wyklady = tresci["wyklady"]?.AsArray().Select(ParseTresc).ToList() ?? new();
+            Cwiczenia = tresci["cwiczenia"]?.AsArray().Select(ParseTresc).ToList() ?? new();
 
+            var efekty = Sylabus.EfektyKsztalcenia?.AsArray() ?? new JsonArray();
+            EfektyWiedza = efekty
+                .Where(e => e?["rodzaj"]?.ToString() == "wiedza")
+                .Select(ParseEfekt).ToList();
+            EfektyUmiejetnosci = efekty
+                .Where(e => e?["rodzaj"]?.ToString() == "umiejetnosci")
+                .Select(ParseEfekt).ToList();
+            EfektyKompetencje = efekty
+                .Where(e => e?["rodzaj"]?.ToString() == "kompetencje spoleczne")
+                .Select(ParseEfekt).ToList();
 
-        Model = new UpdateSylabusRequest
-            {
-                RokData = Sylabus.RokData,
-                WymaganiaWstepne = Sylabus.WymaganiaWstepne,
-                ProfilKsztalcenia = Sylabus.ProfilKsztalcenia,
-                NazwaJednostkiOrganizacyjnej = Sylabus.NazwaJednostkiOrganizacyjnej,
-                NazwaSpecjalnosci = Sylabus.NazwaSpecjalnosci,
-                RodzajModuluKsztalcenia = Sylabus.RodzajModuluKsztalcenia,
-            };
+            var metody = Sylabus.MetodyWeryfikacji?.AsArray() ?? new JsonArray();
+            MetodyWeryfikacjiWiedza = metody
+                .Where(m => m?["rodzaj"]?.ToString() == "wiedza")
+                .Select(ParseMetoda).ToList();
+            MetodyWeryfikacjiUmiejetnosci = metody
+                .Where(m => m?["rodzaj"]?.ToString() == "umiejetnosci")
+                .Select(ParseMetoda).ToList();
+            MetodyWeryfikacjiKompetencje = metody
+                .Where(m => m?["rodzaj"]?.ToString() == "kompetencje_spoleczne")
+                .Select(ParseMetoda).ToList();
 
-        var tresci = Sylabus.TresciKsztalcenia as JsonObject ?? new JsonObject();
-        Wyklady = tresci["wyklady"]?.AsArray().Select(ParseTresc).ToList() ?? new();
-        Cwiczenia = tresci["cwiczenia"]?.AsArray().Select(ParseTresc).ToList() ?? new();
+            var kryteria = Sylabus.KryteriaOceny?.AsArray() ?? new JsonArray();
+            KryteriaOceny = kryteria.Select(ParseKryterium).ToList();
 
-        var efekty = Sylabus.EfektyKsztalcenia?.AsArray() ?? new JsonArray();
-        EfektyWiedza = efekty
-            .Where(e => e?["rodzaj"]?.ToString() == "wiedza")
-            .Select(ParseEfekt).ToList();
-        EfektyUmiejetnosci = efekty
-            .Where(e => e?["rodzaj"]?.ToString() == "umiejetnosci")
-            .Select(ParseEfekt).ToList();
-        EfektyKompetencje = efekty
-            .Where(e => e?["rodzaj"]?.ToString() == "kompetencje spoleczne")
-            .Select(ParseEfekt).ToList();
+            var naklad = Sylabus.NakladPracy as JsonObject ?? new JsonObject();
+            NakladPracy = NakladKeys.Select(k => new NakladPracyViewModel
+                {
+                    Klucz = k.Klucz,
+                    Label = k.Label,
+                    Stacjonarne = naklad.TryGetPropertyValue($"{k.Klucz}_S", out var s) ? (int?)s : null,
+                    Niestacjonarne = naklad.TryGetPropertyValue($"{k.Klucz}_N", out var n) ? (int?)n : null
+                }).ToList();
 
-        var metody = Sylabus.MetodyWeryfikacji?.AsArray() ?? new JsonArray();
-        MetodyWeryfikacjiWiedza = metody
-            .Where(m => m?["rodzaj"]?.ToString() == "wiedza")
-            .Select(ParseMetoda).ToList();
-        MetodyWeryfikacjiUmiejetnosci = metody
-            .Where(m => m?["rodzaj"]?.ToString() == "umiejetnosci")
-            .Select(ParseMetoda).ToList();
-        MetodyWeryfikacjiKompetencje = metody
-            .Where(m => m?["rodzaj"]?.ToString() == "kompetencje_spoleczne")
-            .Select(ParseMetoda).ToList();
+            var lit = Sylabus.Literatura as JsonObject ?? new JsonObject();
+            LiteraturaPodstawowa = lit["podstawowa"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
+            LiteraturaUzupelniajaca = lit["uzupelniajaca"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
+            LiteraturaInne = lit["inne"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
 
-        var kryteria = Sylabus.KryteriaOceny?.AsArray() ?? new JsonArray();
-        KryteriaOceny = kryteria.Select(ParseKryterium).ToList();
-
-        var naklad = Sylabus.NakladPracy as JsonObject ?? new JsonObject();
-        NakladPracy = NakladKeys.Select(k => new NakladPracyViewModel
-            {
-                Klucz = k.Klucz,
-                Label = k.Label,
-                Stacjonarne = naklad.TryGetPropertyValue($"{k.Klucz}_S", out var s) ? (int?)s : null,
-                Niestacjonarne = naklad.TryGetPropertyValue($"{k.Klucz}_N", out var n) ? (int?)n : null
-            }).ToList();
-
-        var lit = Sylabus.Literatura as JsonObject ?? new JsonObject();
-        LiteraturaPodstawowa = lit["podstawowa"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
-        LiteraturaUzupelniajaca = lit["uzupelniajaca"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
-        LiteraturaInne = lit["inne"]?.AsArray().Select(x => x.ToString()).ToList() ?? new();
-
-        var metodyrealizacji = Sylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
-        MetodyWyklad = metodyrealizacji["wyklad_opis"]?.ToString() ?? "";
-        MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
-        MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.ToString() ?? "";
+            var metodyrealizacji = Sylabus.MetodyRealizacji as JsonObject ?? new JsonObject();
+            MetodyWyklad = metodyrealizacji["wyklad_opis"]?.ToString() ?? "";
+            MetodyCwiczenia = metodyrealizacji["cwiczenia_opis"]?.ToString() ?? "";
+            MetodyInneOpis = metodyrealizacji["inne_materialy_dydaktyczne"]?.ToString() ?? "";
 
         }
         catch (Exception ex)
@@ -801,14 +799,8 @@ else
             Console.Error.WriteLine($"❌ Błąd krytyczny: {ex.Message}\n{ex.StackTrace}");
             Navigation.NavigateTo("/error", forceLoad: true);
         }
-        
 
         // 4. Załaduj dane do tabeli form zajęć dydaktycznych
-        
-
-
-
-
 
     }
 
@@ -841,8 +833,8 @@ else
     {
         if (Model is null) return;
 
-        // walidacja godzin 
-        
+        // walidacja godzin
+
         int sumaStacjonarne = FormyZajec
             .Where(f => f.Nazwa != "SumaGodzin")
             .Sum(f => f.GodzinyStacjonarne ?? 0);
@@ -890,7 +882,7 @@ else
             return;
         }
 
-        
+
 
 
         var tresciObj = new JsonObject
@@ -977,7 +969,7 @@ else
         {
             Navigation.NavigateTo($"/przedmiot/{Sylabus!.PrzedmiotId}");
         }
-        else 
+        else
         {
             var error = await response.Content.ReadAsStringAsync();
             Console.Error.WriteLine($"❌ Błąd zapisu sylabusu: {error}");
@@ -991,7 +983,7 @@ else
                 ErrorMessage = $"Błąd serwera: {error}";
             }
         }
-        
+
     }
 
     private static TrescViewModel ParseTresc(JsonNode node) => new()
@@ -1012,8 +1004,8 @@ else
                 ["lp"] = Lp,
                 ["opis"] = Opis,
                 ["odniesienie"] = new JsonArray(OdniesienieRaw
-                        .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Select(x => (JsonNode)x).ToArray())
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                            .Select(x => (JsonNode)x).ToArray())
             };
     }
 
@@ -1031,9 +1023,9 @@ else
                 ["opis"] = Opis,
                 ["rodzaj"] = Rodzaj,
                 ["odniesienie"] = new JsonArray(
-                    OdniesienieRaw
-                        .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                        .Select(x => (JsonNode)x).ToArray())
+                        OdniesienieRaw
+                            .Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                            .Select(x => (JsonNode)x).ToArray())
             };
     }
 
@@ -1159,46 +1151,46 @@ else
     private void AddMetodaWeryfikacjiWiedza()
     {
         MetodyWeryfikacjiWiedza.Add(new MetodaViewModel
-        {
-            Lp = $"M_W{MetodyWeryfikacjiWiedza.Count + 1:00}",
-            Opis = "",
-            FormaZajec = "",
-            Rodzaj = "wiedza"
-        });
+            {
+                Lp = $"M_W{MetodyWeryfikacjiWiedza.Count + 1:00}",
+                Opis = "",
+                FormaZajec = "",
+                Rodzaj = "wiedza"
+            });
     }
 
     private void AddMetodaWeryfikacjiUmiejetnosc()
     {
         MetodyWeryfikacjiUmiejetnosci.Add(new MetodaViewModel
-        {
-            Lp = $"M_U{MetodyWeryfikacjiUmiejetnosci.Count + 1:00}",
-            Opis = "",
-            FormaZajec = "",
-            Rodzaj = "umiejetnosci"
-        });
+            {
+                Lp = $"M_U{MetodyWeryfikacjiUmiejetnosci.Count + 1:00}",
+                Opis = "",
+                FormaZajec = "",
+                Rodzaj = "umiejetnosci"
+            });
     }
 
     private void AddMetodaWeryfikacjiKompetencja()
     {
         MetodyWeryfikacjiKompetencje.Add(new MetodaViewModel
-        {
-            Lp = $"M_K{MetodyWeryfikacjiKompetencje.Count + 1:00}",
-            Opis = "",
-            FormaZajec = "",
-            Rodzaj = "kompetencje_spoleczne"
-        });
+            {
+                Lp = $"M_K{MetodyWeryfikacjiKompetencje.Count + 1:00}",
+                Opis = "",
+                FormaZajec = "",
+                Rodzaj = "kompetencje_spoleczne"
+            });
     }
 
     private void AddKryteriumOceny()
     {
         KryteriaOceny.Add(new KryteriumOcenyViewModel
-        {
-            Lp = "",
-            Ocena2 = "",
-            Ocena3 = "",
-            Ocena4 = "",
-            Ocena5 = ""
-        });
+            {
+                Lp = "",
+                Ocena2 = "",
+                Ocena3 = "",
+                Ocena4 = "",
+                Ocena5 = ""
+            });
     }
 
     private void AddLiteraturaPodstawowa()

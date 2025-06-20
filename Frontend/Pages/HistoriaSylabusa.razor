@@ -2,14 +2,17 @@
 @using Frontend.Shared
 @inject HttpClient Http
 
+
 <h3>Informacje sylabusa</h3>
 
+@* Sprawdzenie, czy dane zostały załadowane – jeśli nie, wyświetla komunikat *@
 @if (SzczegolySylabusa == null)
 {
     <p>Ładowanie informacji o sylabusie...</p>
 }
 else
 {
+    @* Tabela z podstawowymi informacjami o sylabusie *@
     <table class="table table-bordered table-striped">
         <thead class="table-header">
             <tr>
@@ -24,25 +27,30 @@ else
             </tr>
             <tr>
                 <td>Stworzył</td>
-                <td>@(SzczegolySylabusa.StworzylImieNazwiskoTytul ?? $"ID: {SzczegolySylabusa.KtoStworzyl}")</td>
-
+                <td>
+                    @(SzczegolySylabusa.StworzylImieNazwiskoTytul ?? $"ID: {SzczegolySylabusa.KtoStworzyl}")
+                </td>
             </tr>
         </tbody>
     </table>
 }
 
+@* Tytuł sekcji z historią zmian *@
 <h3>Historia zmian sylabusa</h3>
 
+@* Sprawdzenie, czy historia została załadowana *@
 @if (Historia == null)
 {
     <p>Ładowanie historii...</p>
 }
 else
 {
+    @* Grupowanie historii po wersji i sortowanie malejąco po numerze wersji *@
     var grupy = Historia
         .GroupBy(h => h.WersjaWtedy)
         .OrderByDescending(g => ParseVersionNumber(g.Key));
 
+    @* Selektor wyboru wersji sylabusa – filtruje wpisy w tabeli poniżej *@
     <div class="syl-version-select-wrapper">
         <label for="sylVersionSelect" class="syl-version-label me-2">Wersja:</label>
         <select id="sylVersionSelect" class="form-select syl-version-select" @bind="ActiveVersion">
@@ -53,7 +61,7 @@ else
         </select>
     </div>
 
-
+    @* Tabela z historią zmian dla wybranej wersji sylabusa *@
     <table class="table table-bordered table-striped">
         <thead class="table-header">
             <tr>
@@ -82,7 +90,6 @@ else
     private List<SylabusHistoriaDto>? Historia;
     private SylabusDto? SzczegolySylabusa;
     private string? ActiveVersion;
-
     protected override async Task OnInitializedAsync()
     {
         var historiaTask = Http.GetFromJsonAsync<List<SylabusHistoriaDto>>($"/api/sylabusy/{SylabusId}/historia");
@@ -93,6 +100,7 @@ else
         Historia = await historiaTask;
         SzczegolySylabusa = await szczegolyTask;
 
+        @* Domyślnie ustawiamy aktywną wersję na pierwszą z historii *@
         ActiveVersion = Historia?.FirstOrDefault()?.WersjaWtedy;
     }
 
@@ -101,9 +109,9 @@ else
     private void OnVersionChanged(ChangeEventArgs e)
     {
         ActiveVersion = e.Value?.ToString();
-        // Możesz tu dodać inne akcje po zmianie wersji
     }
 
+    @* Metoda do konwersji tekstu wersji (np. "v1") na liczbę do sortowania *@
     int ParseVersionNumber(string? wersja)
     {
         if (string.IsNullOrWhiteSpace(wersja)) return 0;
@@ -111,6 +119,4 @@ else
             return num;
         return 0;
     }
-
-
 }

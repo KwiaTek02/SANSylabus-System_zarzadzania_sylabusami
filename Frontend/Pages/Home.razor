@@ -1,13 +1,25 @@
 ﻿@page "/"
 
+@* Ustawienie tytułu strony widocznego w karcie przeglądarki *@
 <PageTitle>Sylabus SAN </PageTitle>
 
+@* Sekcja z instrukcją obsługi aplikacji dla użytkowników *@
 <div class="opis">
-    <div><h3>Instrukcja obsługi aplikacji:</h3><ul><li>wybierając zakładkę kierunki możemy wybrać interesujący nas kierunek studiów</li><li>wybieramy przedmiot który nas interesuje</li><li>dostajemy wszystkie informacje o danym przedmiocie</li><li>jeżeli jesteś wykładowcą to po zalogowaniu się na swój profil, możesz edytować swoje sylabusy jak i tworzyć nowe </li></ul></div>
+    <div>
+        <h3>Instrukcja obsługi aplikacji:</h3>
+        <ul>
+            <li>wybierając zakładkę kierunki możemy wybrać interesujący nas kierunek studiów</li>
+            <li>wybieramy przedmiot który nas interesuje</li>
+            <li>dostajemy wszystkie informacje o danym przedmiocie</li>
+            <li>jeżeli jesteś wykładowcą to po zalogowaniu się na swój profil, możesz edytować swoje sylabusy jak i tworzyć nowe </li>
+        </ul>
+    </div>
 </div>
 
+@* Nagłówek sekcji z aktualnościami *@
 <h3>Aktualności</h3>
 
+@* Siatka kart z aktualnościami – każda zawiera obrazek, tytuł, datę i opis *@
 <div class="news-grid">
     <div class="news-card">
         <img src="/images/news1.jpg" alt="Prof. Fijałkowska" />
@@ -29,20 +41,72 @@
     </div>
 </div>
 
+@* Sekcja prezentująca wartości i atuty uczelni w formie siatki *@
 <section class="values">
     <h3>Rozwój, Pasja, Przyszłość, Relacje</h3>
     <div class="values-grid">
-        <div><strong>Ciągłe doskonalenie</strong><ul><li>Pozytywne oceny PKA</li><li>Akredytacja CEEMAN</li><li>Doktorzy i habilitacje</li></ul></div>
-        <div><strong>Realizuj jak lubisz</strong><ul><li>Elastyczne formy zajęć</li><li>Tryby studiowania</li><li>Dofinansowania</li></ul></div>
-        <div><strong>Niekończące się możliwości</strong><ul><li>Studia I i II stopnia</li><li>Studia podyplomowe</li></ul></div>
-        <div><strong>Ludzie z misją</strong><ul><li>Eksperci, praktycy</li><li>Znawcy dydaktyki</li></ul></div>
-        <div><strong>Fantastyczne warunki</strong><ul><li>Koła naukowe</li><li>Zajęcia praktyczne</li></ul></div>
-        <div><strong>Niekończące się możliwości</strong><ul><li>nowoczesne kierunki i specjalizacje</li><li> studia I i II stopni</li><li>studia jednolite magisterskie</li></ul></div>
-        <div><strong>Szerokie perspektywy</strong><ul><li>Erasmus+</li><li>Innowacje</li></ul></div>
-        <div><strong>Trwałe związki</strong><ul><li>Historia i partnerzy</li></ul></div>
+        <div>
+            <strong>Ciągłe doskonalenie</strong>
+            <ul>
+                <li>Pozytywne oceny PKA</li>
+                <li>Akredytacja CEEMAN</li>
+                <li>Doktorzy i habilitacje</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Realizuj jak lubisz</strong>
+            <ul>
+                <li>Elastyczne formy zajęć</li>
+                <li>Tryby studiowania</li>
+                <li>Dofinansowania</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Niekończące się możliwości</strong>
+            <ul>
+                <li>Studia I i II stopnia</li>
+                <li>Studia podyplomowe</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Ludzie z misją</strong>
+            <ul>
+                <li>Eksperci, praktycy</li>
+                <li>Znawcy dydaktyki</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Fantastyczne warunki</strong>
+            <ul>
+                <li>Koła naukowe</li>
+                <li>Zajęcia praktyczne</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Niekończące się możliwości</strong>
+            <ul>
+                <li>nowoczesne kierunki i specjalizacje</li>
+                <li>studia I i II stopni</li>
+                <li>studia jednolite magisterskie</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Szerokie perspektywy</strong>
+            <ul>
+                <li>Erasmus+</li>
+                <li>Innowacje</li>
+            </ul>
+        </div>
+        <div>
+            <strong>Trwałe związki</strong>
+            <ul>
+                <li>Historia i partnerzy</li>
+            </ul>
+        </div>
     </div>
 </section>
 
+@* Stopka zawierająca dane statystyczne uczelni *@
 <footer class="footer">
     <div class="stats">
         <div><strong>8</strong><br />ośrodków</div>

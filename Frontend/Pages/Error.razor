@@ -2,32 +2,45 @@
 
 @if (StatusCode == 2137)
 {
+    <!-- Najważniejszy błąd w tym kodzie -->
     <div class="error-2137">
         <div class="error-2137-overlay">
             <h1 class="error-code">2137</h1>
             <p class="error-message">Coś się wydarzyło... Ale Jan Paweł II czuwa.</p>
+
+            <!-- Przycisk powrotu na stronę główną -->
             <button class="reconnect-btn" @onclick="Powrot">Powrót na stronę główną</button>
         </div>
     </div>
 }
 else
 {
+    <!-- Standardowy widok błędu  -->
     <div class="error-page">
         <div class="error-circle">
+            <!-- Wyświetlenie kodu błędu -->
             <h1 class="error-code">@StatusCode</h1>
+
+            <!-- Wiadomość odpowiadająca danemu kodowi -->
             <p class="error-message">@Message</p>
+
+            <!-- Przycisk do powrotu -->
             <button class="reconnect-btn" @onclick="Powrot">Kliknij, aby wrócić</button>
         </div>
     </div>
 }
 
 @code {
+    // Parametr przyjmujący kod błędu
     [Parameter] public int StatusCode { get; set; }
 
+    // Wstrzyknięcie serwisu nawigacyjnego Blazora do przekierowania użytkownika
     [Inject] private NavigationManager Navigation { get; set; }
 
+    // Metoda przekierowująca użytkownika na stronę główną
     private void Powrot() => Navigation.NavigateTo("/");
 
+    // Generowanie wiadomości w zależności od kodu błędu
     private string Message => StatusCode switch
     {
         400 => "Błąd 400 – Nieprawidłowe żądanie.",
