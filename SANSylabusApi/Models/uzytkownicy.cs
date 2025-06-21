@@ -21,9 +21,12 @@ public partial class uzytkownicy
 
     public string typ_konta { get; set; } = null!;
 
+    // Lista powiązań: użytkownik jako koordynator w sylabusach
     public virtual ICollection<koordynatorzy_sylabusu> koordynatorzy_sylabusus { get; set; } = new List<koordynatorzy_sylabusu>();
 
+    // Lista zmian sylabusów dokonanych przez użytkownika (historia edycji)
     public virtual ICollection<sylabus_historium> sylabus_historia { get; set; } = new List<sylabus_historium>();
 
+    // Lista sylabusów utworzonych przez użytkownika
     public virtual ICollection<sylabusy> sylabusies { get; set; } = new List<sylabusy>();
 }

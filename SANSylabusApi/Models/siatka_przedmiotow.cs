@@ -29,7 +29,9 @@ public partial class siatka_przedmiotow
 
     public int? egzaminy { get; set; }
 
+    // Suma wszystkich godzin (może być obliczana lub wprowadzana ręcznie)
     public int? sumagodzin { get; set; }
 
+    // Nawigacja – przedmiot, którego dotyczy ta siatka
     public virtual przedmioty przedmiot { get; set; } = null!;
 }

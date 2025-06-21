@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using SylabusAPI.Models;    // przestrzeń nazw wygenerowanych modeli EF
-using SylabusAPI.DTOs;      // przestrzeń nazw Twoich DTO
+using SylabusAPI.Models;    
+using SylabusAPI.DTOs;      
 using SylabusAPI.Data;
 
 namespace SylabusAPI.Mapping

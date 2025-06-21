@@ -33,18 +33,22 @@ public partial class sylabusy
 
     public string? metody_weryfikacji_json { get; set; }
 
-    public string? kryteria_oceny_json { get; set; }      // tu
+    public string? kryteria_oceny_json { get; set; }     
     public string? naklad_pracy_json { get; set; }
 
     public string? literatura_json { get; set; }
 
     public string? metody_realizacji_json { get; set; }
 
+    // Nawigacja – lista koordynatorów przypisanych do sylabusu
     public virtual ICollection<koordynatorzy_sylabusu> koordynatorzy_sylabusus { get; set; } = new List<koordynatorzy_sylabusu>();
 
+    // Nawigacja – użytkownik, który stworzył sylabus
     public virtual uzytkownicy kto_stworzylNavigation { get; set; } = null!;
 
+    // Nawigacja – przedmiot, którego dotyczy sylabus
     public virtual przedmioty przedmiot { get; set; } = null!;
 
+    // Nawigacja – historia zmian sylabusu (archiwalne wersje)
     public virtual ICollection<sylabus_historium> sylabus_historia { get; set; } = new List<sylabus_historium>();
 }

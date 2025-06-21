@@ -18,7 +18,7 @@ namespace SylabusAPI.DTOs
         public JsonNode? TresciKsztalcenia { get; set; }
         public JsonNode? EfektyKsztalcenia { get; set; }
         public JsonNode? MetodyWeryfikacji { get; set; }
-        public JsonNode? KryteriaOceny{ get; set; } // tooo
+        public JsonNode? KryteriaOceny{ get; set; }
         public JsonNode? NakladPracy { get; set; }
         public JsonNode? Literatura { get; set; }
         public JsonNode? MetodyRealizacji { get; set; }
