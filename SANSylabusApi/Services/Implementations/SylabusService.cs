@@ -16,25 +16,26 @@ using SylabusAPI.DTOs;
 using SylabusAPI.Models;
 using SylabusAPI.Services.Interfaces;
 
+
 namespace SylabusAPI.Services.Implementations
 {
+    // Implementacja serwisu odpowiedzialnego za operacje na sylabusach
     public class SylabusService : ISylabusService
     {
-        private readonly SyllabusContext _db;
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContext;
-        TimeZoneInfo polandZone;
+        private readonly SyllabusContext _db; // Kontekst bazy danych
+        private readonly IMapper _mapper; // Mapper DTO dla model
+        private readonly IHttpContextAccessor _httpContext; // Dostęp do kontekstu HTTP
+        TimeZoneInfo polandZone; // Strefa czasowa Polski
 
-        public SylabusService(
-            SyllabusContext db,
-            IMapper mapper,
-            IHttpContextAccessor httpContext)
+        // Konstruktor z wstrzykiwaniem zależności
+        public SylabusService(SyllabusContext db, IMapper mapper, IHttpContextAccessor httpContext)
         {
             _db = db;
             _mapper = mapper;
             _httpContext = httpContext;
         }
 
+        // Pobierz listę sylabusów przypisanych do danego przedmiotu
         public async Task<IEnumerable<SylabusDto>> GetByPrzedmiotAsync(int przedmiotId)
         {
             var list = await _db.sylabusies
@@ -42,17 +43,20 @@ namespace SylabusAPI.Services.Implementations
                 .OrderBy(s => s.data_powstania)
                 .ToListAsync();
 
-            return list.Select(MapToDto);
+            return list.Select(MapToDto); // Mapowanie do DTO
         }
 
+        // Pobierz sylabus po ID
         public async Task<SylabusDto?> GetByIdAsync(int id)
         {
             var entity = await _db.sylabusies.FindAsync(id);
             return entity == null ? null : MapToDto(entity);
         }
 
+        // Utwórz nowy sylabus
         public async Task<SylabusDto> CreateAsync(SylabusDto dto)
         {
+            // Pobierz ID użytkownika z tokenu
             var userIdClaim = _httpContext.HttpContext?
                 .User.FindFirst(ClaimTypes.NameIdentifier)?
                 .Value;
@@ -60,18 +64,17 @@ namespace SylabusAPI.Services.Implementations
             if (!int.TryParse(userIdClaim, out var userId))
                 throw new UnauthorizedAccessException("Brak poprawnego identyfikatora użytkownika w tokenie.");
 
+            // Utwórz nowy obiekt sylabusu z danymi z DTO
             var entity = new sylabusy
             {
                 przedmiot_id = dto.PrzedmiotId,
                 wersja = dto.Wersja,
-
                 nazwa_jednostki_organizacyjnej = dto.NazwaJednostkiOrganizacyjnej,
                 profil_ksztalcenia = dto.ProfilKsztalcenia,
                 nazwa_specjalnosci = dto.NazwaSpecjalnosci,
                 rodzaj_modulu_ksztalcenia = dto.RodzajModuluKsztalcenia,
                 wymagania_wstepne = dto.WymaganiaWstepne,
                 rok_data = dto.RokData,
-
                 data_powstania = dto.DataPowstania ?? GetPolandNow(),
                 kto_stworzyl = userId,
                 tresci_ksztalcenia_json = dto.TresciKsztalcenia?.ToJsonString(),
@@ -86,7 +89,7 @@ namespace SylabusAPI.Services.Implementations
             _db.sylabusies.Add(entity);
             await _db.SaveChangesAsync();
 
-            // 🔍 Znajdź najnowszy wcześniejszy sylabus dla tego samego przedmiotu
+            // Szukamy poprzedniego sylabusu, aby odziedziczyć koordynatorów
             var previous = await _db.sylabusies
                 .Where(s => s.przedmiot_id == dto.PrzedmiotId && s.id != entity.id)
                 .OrderByDescending(s => s.rok_data)
@@ -94,7 +97,7 @@ namespace SylabusAPI.Services.Implementations
 
             if (previous != null)
             {
-                // 🔄 Skopiuj koordynatorów z poprzedniego sylabusu
+                // Kopiuj koordynatorów z poprzedniego sylabusu
                 var oldKoordynatorzy = await _db.koordynatorzy_sylabusus
                     .Where(k => k.sylabus_id == previous.id)
                     .ToListAsync();
@@ -111,7 +114,7 @@ namespace SylabusAPI.Services.Implementations
             }
             else
             {
-                // 👤 Jeżeli brak poprzedniego sylabusu – przypisz autora
+                // Jeśli nie ma wcześniejszego sylabusu – autor zostaje koordynatorem
                 var fallbackKoordynator = new koordynatorzy_sylabusu
                 {
                     sylabus_id = entity.id,
@@ -124,193 +127,47 @@ namespace SylabusAPI.Services.Implementations
             return MapToDto(entity);
         }
 
-
-
-        /*public async Task UpdateAsync(int id, SylabusDto dto)
-        {
-            var entity = await _db.sylabusies.FindAsync(id)
-                         ?? throw new KeyNotFoundException("Sylabus nie został znaleziony.");
-
-            // Sprawdź, czy cokolwiek się zmieniło:
-            bool hasChanges = false;
-
-            if (entity.wersja != dto.Wersja)
-            {
-                entity.wersja = dto.Wersja;
-                hasChanges = true;
-            }
-            if (entity.nazwa_jednostki_organizacyjnej != dto.NazwaJednostkiOrganizacyjnej)
-            {
-                entity.nazwa_jednostki_organizacyjnej = dto.NazwaJednostkiOrganizacyjnej;
-                hasChanges = true;
-            }
-            if (entity.profil_ksztalcenia != dto.ProfilKsztalcenia)
-            {
-                entity.profil_ksztalcenia = dto.ProfilKsztalcenia;
-                hasChanges = true;
-            }
-            if (entity.nazwa_specjalnosci != dto.NazwaSpecjalnosci)
-            {
-                entity.nazwa_specjalnosci = dto.NazwaSpecjalnosci;
-                hasChanges = true;
-            }
-            if (entity.rodzaj_modulu_ksztalcenia != dto.RodzajModuluKsztalcenia)
-            {
-                entity.rodzaj_modulu_ksztalcenia = dto.RodzajModuluKsztalcenia;
-                hasChanges = true;
-            }
-            if (entity.wymagania_wstepne != dto.WymaganiaWstepne)
-            {
-                entity.wymagania_wstepne = dto.WymaganiaWstepne;
-                hasChanges = true;
-            }
-            if (entity.rok_data != dto.RokData)
-            {
-                entity.rok_data = dto.RokData;
-                hasChanges = true;
-            }
-
-            // JSON fields
-            string toJson(JsonNode? node) => node?.ToJsonString() ?? "{}";
-
-            if (entity.tresci_ksztalcenia_json != toJson(dto.TresciKsztalcenia))
-            {
-                entity.tresci_ksztalcenia_json = toJson(dto.TresciKsztalcenia);
-                hasChanges = true;
-            }
-            if (entity.efekty_ksztalcenia_json != toJson(dto.EfektyKsztalcenia))
-            {
-                entity.efekty_ksztalcenia_json = toJson(dto.EfektyKsztalcenia);
-                hasChanges = true;
-            }
-            if (entity.metody_weryfikacji_json != toJson(dto.MetodyWeryfikacji))
-            {
-                entity.metody_weryfikacji_json = toJson(dto.MetodyWeryfikacji);
-                hasChanges = true;
-            }
-            if (entity.naklad_pracy_json != toJson(dto.NakladPracy))
-            {
-                entity.naklad_pracy_json = toJson(dto.NakladPracy);
-                hasChanges = true;
-            }
-            if (entity.literatura_json != toJson(dto.Literatura))
-            {
-                entity.literatura_json = toJson(dto.Literatura);
-                hasChanges = true;
-            }
-            if (entity.metody_realizacji_json != toJson(dto.MetodyRealizacji))
-            {
-                entity.metody_realizacji_json = toJson(dto.MetodyRealizacji);
-                hasChanges = true;
-            }
-
-            if (!hasChanges)
-                return; // nic nowego do zapisania
-
-            // Zapisz zmiany sylabusu
-            _db.sylabusies.Update(entity);
-
-            // Dodaj wpis do historii
-            var userIdClaim = _httpContext.HttpContext?
-                .User.FindFirst(ClaimTypes.NameIdentifier)?
-                .Value;
-            int userId = int.TryParse(userIdClaim, out var uid) ? uid : entity.kto_stworzyl;
-
-            var history = new sylabus_historium
-            {
-                sylabus_id = id,
-                data_zmiany = DateOnly.FromDateTime(DateTime.UtcNow),
-                czas_zmiany = DateTime.UtcNow,
-                zmieniony_przez = userId,
-                opis_zmiany = $"Zaktualizowano sylabus do wersji {dto.Wersja}",
-                wersja_wtedy = dto.Wersja
-            };
-            _db.sylabus_historia.Add(history);
-
-            await _db.SaveChangesAsync();
-        }*/
-
+        // Aktualizacja sylabusu z wersjonowaniem i historią zmian
         public async Task UpdateAsync(int id, UpdateSylabusRequest req)
         {
-            
-
-            // 1) Załaduj sylabus
             var entity = await _db.sylabusies.FindAsync(id)
                          ?? throw new KeyNotFoundException("Sylabus nie został znaleziony.");
 
-            // 2) Pobierz ID użytkownika z tokena
-            //var userIdClaim = _httpContext.HttpContext!
-            //.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
-
+            // Pobierz ID użytkownika
             var userIdClaim = _httpContext.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (userIdClaim == null)
                 throw new UnauthorizedAccessException("Brak identyfikatora użytkownika w tokenie.");
+
             var userId = int.Parse(userIdClaim);
 
-            Console.WriteLine($"User ID from token: {userId}");
-
-            // 3) Sprawdź uprawnienia: albo admin, albo koordynator
+            // Sprawdzenie uprawnień użytkownika (admin lub koordynator)
             var isAdmin = _httpContext.HttpContext.User.IsInRole("admin");
             if (!isAdmin)
             {
                 var isCoordinator = await _db.koordynatorzy_sylabusus
                     .AnyAsync(k => k.sylabus_id == id && k.uzytkownik_id == userId);
                 if (!isCoordinator)
-                {
-                    Console.WriteLine($"Brak uprawnień – userId: {userId}, sylabusId: {id}");
                     throw new UnauthorizedAccessException("Nie jesteś koordynatorem tego sylabusu.");
-                }
-                    
-                
             }
 
-
-
-
-
-
-            // 1) Wyciągnij poprzednią wersję, np. "v1" → 1
-            var oldVer = entity.wersja; // np. "v1"
+            // Zwiększenie wersji sylabusu (np. z v1 na v2)
+            var oldVer = entity.wersja;
             int oldNum = 1;
             if (oldVer?.StartsWith("v") == true && int.TryParse(oldVer[1..], out var n))
-                oldNum = n; 
-
-            // 2) Ustaw nową wersję = oldNum+1
+                oldNum = n;
             var newVer = $"v{oldNum + 1}";
             entity.wersja = newVer;
 
-            // 3) Nadpisz resztę pól z req
+            // Nadpisywanie pól nowymi wartościami (jeśli są)
             entity.data_powstania = req.DataPowstania ?? entity.data_powstania;
-            entity.tresci_ksztalcenia_json = req.TresciKsztalcenia?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.tresci_ksztalcenia_json;
-            entity.efekty_ksztalcenia_json = req.EfektyKsztalcenia?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.efekty_ksztalcenia_json;
-            entity.metody_weryfikacji_json = req.MetodyWeryfikacji?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.metody_weryfikacji_json;
-            entity.kryteria_oceny_json = req.KryteriaOceny?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.kryteria_oceny_json;
-            entity.naklad_pracy_json = req.NakladPracy?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.naklad_pracy_json;
-            entity.literatura_json = req.Literatura?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.literatura_json;
-            entity.metody_realizacji_json = req.MetodyRealizacji?.ToJsonString(new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }) ?? entity.metody_realizacji_json;
-
+            entity.tresci_ksztalcenia_json = req.TresciKsztalcenia?.ToJsonString(JsonOptions()) ?? entity.tresci_ksztalcenia_json;
+            entity.efekty_ksztalcenia_json = req.EfektyKsztalcenia?.ToJsonString(JsonOptions()) ?? entity.efekty_ksztalcenia_json;
+            entity.metody_weryfikacji_json = req.MetodyWeryfikacji?.ToJsonString(JsonOptions()) ?? entity.metody_weryfikacji_json;
+            entity.kryteria_oceny_json = req.KryteriaOceny?.ToJsonString(JsonOptions()) ?? entity.kryteria_oceny_json;
+            entity.naklad_pracy_json = req.NakladPracy?.ToJsonString(JsonOptions()) ?? entity.naklad_pracy_json;
+            entity.literatura_json = req.Literatura?.ToJsonString(JsonOptions()) ?? entity.literatura_json;
+            entity.metody_realizacji_json = req.MetodyRealizacji?.ToJsonString(JsonOptions()) ?? entity.metody_realizacji_json;
 
             entity.nazwa_jednostki_organizacyjnej = req.NazwaJednostkiOrganizacyjnej ?? entity.nazwa_jednostki_organizacyjnej;
             entity.profil_ksztalcenia = req.ProfilKsztalcenia ?? entity.profil_ksztalcenia;
@@ -319,45 +176,36 @@ namespace SylabusAPI.Services.Implementations
             entity.wymagania_wstepne = req.WymaganiaWstepne ?? entity.wymagania_wstepne;
             entity.rok_data = req.RokData ?? entity.rok_data;
 
-            try
-            {
-                polandZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time"); // Windows
-            }
-            catch (TimeZoneNotFoundException)
-            {
-                polandZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw"); // Linux/macOS
-            }
+            // Ustal aktualny czas w strefie Polski
+            try { polandZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time"); }
+            catch { polandZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw"); }
 
             var nowPL = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandZone);
 
-
+            // Zapisz historię zmian
             var history = new sylabus_historium
             {
                 sylabus_id = id,
                 data_zmiany = DateOnly.FromDateTime(DateTime.UtcNow),
                 czas_zmiany = nowPL,
                 zmieniony_przez = userId,
-                // opis z req
                 opis_zmiany = req.OpisZmiany,
-                // a tu poprzednia wersja
                 wersja_wtedy = oldVer
             };
 
             _db.sylabusies.Update(entity);
             _db.sylabus_historia.Add(history);
-
             await _db.SaveChangesAsync();
         }
 
-
+        // Pobierz koordynatora przypisanego do sylabusu
         public async Task<KoordynatorDto?> GetKoordynatorBySylabusIdAsync(int sylabusId)
         {
             var rekord = await _db.koordynatorzy_sylabusus
                 .Include(k => k.uzytkownik)
                 .FirstOrDefaultAsync(k => k.sylabus_id == sylabusId);
 
-            if (rekord == null)
-                return null;
+            if (rekord == null) return null;
 
             return new KoordynatorDto
             {
@@ -367,38 +215,30 @@ namespace SylabusAPI.Services.Implementations
             };
         }
 
-
+        // Usuń sylabus (z kontrolą uprawnień)
         public async Task DeleteAsync(int id)
         {
             var entity = await _db.sylabusies.FindAsync(id)
                          ?? throw new KeyNotFoundException("Sylabus nie został znaleziony.");
 
-            // Pobranie zalogowanego userId
             var userIdClaim = _httpContext.HttpContext!
                 .User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
             var userId = int.Parse(userIdClaim);
 
-            // Sprawdzenie uprawnień: admin lub koordynator
             var isAdmin = _httpContext.HttpContext.User.IsInRole("admin");
             if (!isAdmin)
             {
                 var isCoordinator = await _db.koordynatorzy_sylabusus
                     .AnyAsync(k => k.sylabus_id == id && k.uzytkownik_id == userId);
                 if (!isCoordinator)
-                {
                     throw new UnauthorizedAccessException("Nie masz uprawnień do usunięcia tego sylabusu.");
-                }
-                    
             }
 
-            // Usuń i zapisz zmiany
             _db.sylabusies.Remove(entity);
             await _db.SaveChangesAsync();
-
-            
         }
 
-
+        // Mapowanie modelu sylabusu na DTO
         private SylabusDto MapToDto(sylabusy s)
         {
             var koordynatorzy = _db.koordynatorzy_sylabusus
@@ -416,16 +256,12 @@ namespace SylabusAPI.Services.Implementations
             {
                 Id = s.id,
                 PrzedmiotId = s.przedmiot_id,
-
-                // Te pola wcześniej były null – teraz je dodajemy:
                 NazwaJednostkiOrganizacyjnej = s.nazwa_jednostki_organizacyjnej,
                 ProfilKsztalcenia = s.profil_ksztalcenia,
                 NazwaSpecjalnosci = s.nazwa_specjalnosci,
                 RodzajModuluKsztalcenia = s.rodzaj_modulu_ksztalcenia,
                 WymaganiaWstepne = s.wymagania_wstepne,
                 RokData = s.rok_data,
-
-                // Istniejące pola:
                 Wersja = s.wersja,
                 DataPowstania = s.data_powstania,
                 KtoStworzyl = s.kto_stworzyl,
@@ -441,12 +277,14 @@ namespace SylabusAPI.Services.Implementations
             };
         }
 
+        // Sprawdź czy dany użytkownik jest koordynatorem sylabusu
         public async Task<bool> IsKoordynatorAsync(int sylabusId, int userId)
         {
             return await _db.koordynatorzy_sylabusus
                 .AnyAsync(k => k.sylabus_id == sylabusId && k.uzytkownik_id == userId);
         }
 
+        // Bezpieczne parsowanie JSON
         private static JsonNode SafeParseJson(string? json)
         {
             try
@@ -457,7 +295,6 @@ namespace SylabusAPI.Services.Implementations
             {
                 Console.Error.WriteLine($"⚠️ Błąd parsowania JSON: {ex.Message}\nZawartość: {json}");
 
-                // Zwracamy obiekt z flagą błędu
                 return new JsonObject
                 {
                     ["__invalid__"] = true,
@@ -466,7 +303,7 @@ namespace SylabusAPI.Services.Implementations
             }
         }
 
-
+        // Pobranie aktualnego czasu w strefie czasu Polski
         private static DateTime GetPolandNow()
         {
             try
@@ -480,5 +317,11 @@ namespace SylabusAPI.Services.Implementations
                 return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone);
             }
         }
+
+        // Ustawienia do serializacji JSON z mniej restrykcyjnym escapowaniem
+        private static JsonSerializerOptions JsonOptions() => new JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
     }
 }
