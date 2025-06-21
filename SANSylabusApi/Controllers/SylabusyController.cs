@@ -6,16 +6,19 @@ using SylabusAPI.Services.Interfaces;
 namespace SylabusAPI.Controllers
 {
     [ApiController]
+    // Bazowy route: api/sylabusy
     [Route("api/sylabusy")]
     public class SylabusyController : ControllerBase
     {
+        // Serwis obsługujący operacje na sylabusach
         private readonly ISylabusService _svc;
 
-        //xd
-
+        // Konstruktor z wstrzyknięciem serwisu ISylabusService
         public SylabusyController(ISylabusService svc)
             => _svc = svc;
 
+        // Pobiera wszystkie sylabusy powiązane z danym przedmiotem
+        // Dostęp anonimowy
         [HttpGet("przedmiot/{przedmiotId}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetByPrzedmiot(int przedmiotId)
@@ -24,6 +27,8 @@ namespace SylabusAPI.Controllers
             return Ok(list);
         }
 
+        // Pobiera konkretny sylabus po ID
+        // Dostęp anonimowy
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<IActionResult> Get(int id)
@@ -32,7 +37,8 @@ namespace SylabusAPI.Controllers
             return item is null ? NotFound() : Ok(item);
         }
 
-        // Tworzenie nowego sylabusu (tylko wykładowca lub admin)
+        // Tworzenie nowego sylabusa
+        // Tylko dla użytkowników z rolą "wykladowca" lub "admin"
         [Authorize(Roles = "wykladowca,admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] SylabusDto dto)
@@ -41,10 +47,13 @@ namespace SylabusAPI.Controllers
                 return BadRequest(ModelState);
 
             var created = await _svc.CreateAsync(dto);
+
+            // Zwraca HTTP 201 Created z lokalizacją nowego zasobu
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
-        // Aktualizacja istniejącego sylabusu
+        // Aktualizacja istniejącego sylabusa
+        // Dostęp tylko dla wykładowcy lub admina
         [Authorize(Roles = "wykladowca,admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSylabusRequest req)
@@ -59,39 +68,40 @@ namespace SylabusAPI.Controllers
             try
             {
                 await _svc.UpdateAsync(id, req);
-                return NoContent();
+                return NoContent(); // Zwraca 204 po udanej aktualizacji
             }
             catch (UnauthorizedAccessException)
             {
-                Console.WriteLine("Tutaj błąd autoryzacji XD");
+                // Użytkownik nie ma uprawnień do edycji tego sylabusa
                 return Forbid();
             }
         }
 
-        // Usunięcie sylabusu
+        // Usunięcie sylabusa
+        // Tylko dla wykładowcy lub admina
         [Authorize(Roles = "wykladowca,admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            // 1) Sprawdź, czy w ogóle istnieje
+            // Sprawdzenie czy sylabus istnieje
             var existing = await _svc.GetByIdAsync(id);
             if (existing is null)
                 return NotFound();
 
             try
             {
-                // 2) Spróbuj usunąć
+                // Próba usunięcia sylabusa
                 await _svc.DeleteAsync(id);
-                return NoContent();
+                return NoContent(); // Zwraca 204 jeśli sukces
             }
-
             catch (UnauthorizedAccessException)
             {
-                // 3) Jeżeli serwis rzuci, że nie jestes koordynatorem, zwróć 403
+                // Brak odpowiednich uprawnień (np. nie jesteś koordynatorem)
                 return Forbid();
             }
         }
 
+        // Pobiera dane koordynatora przypisanego do danego sylabusa
         [HttpGet("{sylabusId}/koordynator")]
         [AllowAnonymous]
         public async Task<IActionResult> GetKoordynator(int sylabusId)
@@ -103,14 +113,13 @@ namespace SylabusAPI.Controllers
             return Ok(koordynator);
         }
 
+        // Sprawdza, czy dany użytkownik jest koordynatorem sylabusa
         [HttpGet("{sylabusId}/czy-koordynator/{userId}")]
-        [AllowAnonymous] // lub [Authorize] jeśli chcesz wymusić token
+        [AllowAnonymous] // Można dodać [Authorize] jeśli wymagamy tokenu
         public async Task<IActionResult> CzyKoordynator(int sylabusId, int userId)
         {
             var isKoordynator = await _svc.IsKoordynatorAsync(sylabusId, userId);
             return Ok(isKoordynator);
         }
-
-
     }
 }
