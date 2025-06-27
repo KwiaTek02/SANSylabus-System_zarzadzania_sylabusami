@@ -7,7 +7,7 @@
 @using Frontend.Services
 @inject AuthState AuthState 
 
-<PageTitle>Logowanie</PageTitle> // Tytuł strony przeglądarki
+<PageTitle>Logowanie</PageTitle> 
 
 <!-- ALERTY -->
 <div class="alert-container">
@@ -231,7 +231,7 @@
     // Obsługa kliknięcia "Zaloguj się przez Google"
     private async Task LoginWithGoogle()
     {
-        var googleLoginUrl = "https://localhost:7177/auth/ExternalAuth/signin-google?returnUrl=" + Uri.EscapeDataString(Navigation.BaseUri);
+        var googleLoginUrl = "https://localhost:5001/auth/ExternalAuth/signin-google?returnUrl=" + Uri.EscapeDataString(Navigation.BaseUri);
 
         // Otwiera popup z logowaniem Google
         var popup = await JS.InvokeAsync<IJSObjectReference>("window.open", googleLoginUrl, "_blank", "width=500,height=600");

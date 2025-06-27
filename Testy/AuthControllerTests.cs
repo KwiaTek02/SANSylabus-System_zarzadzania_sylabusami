@@ -6,7 +6,11 @@ using SylabusAPI.DTOs;
 using SylabusAPI.Services.Interfaces;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.Logging;
+using LoginRequest = SylabusAPI.DTOs.LoginRequest;
+using RegisterRequest = SylabusAPI.DTOs.RegisterRequest;
+
 
 namespace SylabusAPI.Tests
 {

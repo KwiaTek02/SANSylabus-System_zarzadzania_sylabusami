@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: SANSylabusApi/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - ConnectionStrings__DefaultConnection=Server=tcp:den1.mssql8.gear.host,1433;Database=kwiatek02db;User Id=kwiatek02db;Password=Bw55?dk6Dte~;TrustServerCertificate=True;
+      - Authentication__Google__ClientId=
+      - Authentication__Google__ClientSecret=
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://aspire-dashboard:18889
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=SANSylabusApi
+    ports:
+      - "5001:443"
+    networks:
+      - appnet
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://aspire-dashboard:18889
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=SANSylabusFrontend
+    ports:
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:9.3
+    container_name: aspire-dashboard
+    ports:
+      - "18888:18888" # Dashboard UI
+      - "18889:18889" # OTLP gRPC telemetry input
+      - "18890:18890" # OTLP HTTP telemetry input
+    environment:
+      ASPNETCORE_URLS: http://+:18888
+      DOTNET_DASHBOARD_OTLP_ENDPOINT_URL: http://+:18889
+      DOTNET_DASHBOARD_OTLP_HTTP_ENDPOINT_URL: http://+:18890
+      Dashboard__Frontend__AuthMode: Unsecured
+      Dashboard__Otlp__AuthMode: Unsecured
+      Dashboard__ResourceServiceClient__AuthMode: Unsecured
+    networks:
+      - appnet  
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    ports:
+      - "5341:80"
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=TwojeSilneHaslo123!
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge

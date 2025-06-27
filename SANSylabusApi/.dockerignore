@@ -1,0 +1,9 @@
+bin/
+obj/
+Testy/
+.vscode/
+*.user
+*.suo
+*.db
+*.mdf
+*.ldf

@@ -69,7 +69,7 @@ namespace SylabusAPI.Controllers
                 <html>
                   <body>
                     <script>
-                      window.opener.postMessage({{ token: '{tokenResponse.Token}' }}, 'https://localhost:7033');
+                      window.opener.postMessage({{ token: '{tokenResponse.Token}' }}, 'https://localhost');
                       window.close();
                     </script>
                     <p>Logowanie zakończone. Możesz zamknąć to okno.</p>

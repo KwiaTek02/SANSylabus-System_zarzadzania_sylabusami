@@ -1,23 +1,28 @@
-using System.Text;
+using Aspire.Hosting;
+using HealthChecks.SqlServer;
+using Aspire.Hosting.ApplicationModel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using SylabusAPI.Data;
 using SylabusAPI.Mapping;
 using SylabusAPI.Services.Implementations;
 using SylabusAPI.Services.Interfaces;
 using SylabusAPI.Settings;
-using Aspire.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 
@@ -167,7 +172,7 @@ builder.Services.AddControllers()
     });
 
 
-builder.Services.AddCors(options =>
+/*builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorApp",
         builder =>
@@ -176,7 +181,7 @@ builder.Services.AddCors(options =>
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
-});
+});*/
 
 /*builder.Services.AddCors(options =>
 {
@@ -186,6 +191,49 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });*/
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorApp", policy =>
+    {
+        policy.WithOrigins("https://localhost:7033")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+
+    options.AddPolicy("AllowGeneralLocalhost", policy =>
+    {
+        policy.WithOrigins("https://localhost")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+
+    // Opcjonalnie: zdefiniuj domy?ln? polityk?
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("https://localhost:7033", "https://localhost")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"])
+    .AddSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")!,
+        name: "sql",
+        tags: new[] { "ready" }
+    )
+    .AddUrlGroup(new Uri("https://www.google.com"), name: "google")
+    .AddUrlGroup(
+        new Uri("https://frontend/health"),
+        name: "frontend",
+        tags: new[] { "ready" },
+        configurePrimaryHttpMessageHandler: _ => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -215,11 +263,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCors("AllowBlazorApp");
+//app.UseCors("AllowBlazorApp");
+app.UseCors();
 
 app.UseAuthentication(); // -- 6. Authentication
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapDefaultEndpoints();
 
 app.Run();
