@@ -5,7 +5,6 @@ using SylabusAPI.Services.Interfaces;
 namespace SylabusAPI.Controllers
 {
     [ApiController]
-    // Ścieżka URL dla tego kontrolera
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {

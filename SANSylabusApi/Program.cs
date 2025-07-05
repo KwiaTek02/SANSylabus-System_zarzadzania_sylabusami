@@ -25,7 +25,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-// Add services to the container.
 
 /*builder.Logging
     .AddOpenTelemetry(logging =>
@@ -35,28 +34,6 @@ builder.Configuration.AddEnvironmentVariables();
     });*/
 
 builder.AddServiceDefaults();
-
-/*builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-
-builder.Services.AddOpenTelemetry()
-    .WithTracing(tracing =>
-    {
-        tracing
-            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SANSylabusApi"))
-            .AddAspNetCoreInstrumentation()
-            .AddEntityFrameworkCoreInstrumentation()
-            .AddOtlpExporter(); // domyślnie eksportuje do Aspire
-    });
-
-builder.Services.AddOpenTelemetry()
-    .WithMetrics(metrics =>
-    {
-        metrics
-            .AddAspNetCoreInstrumentation()
-            .AddRuntimeInstrumentation()
-            .AddOtlpExporter();
-    });*/
 
 builder.Services.AddDbContext<SyllabusContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -151,7 +128,7 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
     })
-    .AddCookie("Cookies"); // Musi być, jeśli chcesz robić SignInAsync()
+    .AddCookie("Cookies"); 
 
 // Opcjonalnie Google, jeśli masz dane
 if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
@@ -167,36 +144,15 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 
 
 
-builder.Services.AddAuthorization(); // --
+builder.Services.AddAuthorization(); 
 
-builder.Services.AddEndpointsApiExplorer(); // --
+builder.Services.AddEndpointsApiExplorer(); 
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
     });
-
-
-/*builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazorApp",
-        builder =>
-        {
-            builder.WithOrigins("https://localhost:7033") // Zast?p odpowiednimi portami
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});*/
-
-/*builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-        policy.WithOrigins("https://localhost:7033") // adres klienta Blazor
-            .AllowAnyHeader()
-            .AllowAnyMethod());
-});*/
-
 
 builder.Services.AddCors(options =>
 {
@@ -214,7 +170,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 
-    // Opcjonalnie: zdefiniuj domy?ln? polityk?
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("https://localhost:7033", "https://localhost")
@@ -269,10 +224,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-//app.UseCors("AllowBlazorApp");
 app.UseCors();
 
-app.UseAuthentication(); // -- 6. Authentication
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

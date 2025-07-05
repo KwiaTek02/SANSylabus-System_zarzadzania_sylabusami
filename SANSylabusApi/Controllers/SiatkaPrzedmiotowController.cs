@@ -18,30 +18,24 @@ namespace SylabusAPI.Controllers
         public SiatkaPrzedmiotowController(ISiatkaService svc) => _svc = svc;
 
         // Endpoint: Pobranie danych siatki dla danego przedmiotu i typu (np. "obowiązkowy", "fakultatywny")
-        // GET: api/siatka/przedmiot/5/typ/obowiązkowy
         [HttpGet("przedmiot/{przedmiotId}/typ/{typ}")]
         public async Task<IActionResult> GetByPrzedmiot(int przedmiotId, string typ)
         {
             // Pobranie siatki powiązanej z konkretnym przedmiotem i typem zajęć
             var list = await _svc.GetByPrzedmiotAsync(przedmiotId, typ);
 
-            // Zwrócenie danych w odpowiedzi HTTP 200 OK
             return Ok(list);
         }
 
         // Endpoint: Aktualizacja konkretnej siatki przedmiotów na podstawie ID
-        // PUT: api/siatka/10
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSiatkaRequest req)
         {
-            // Próba aktualizacji siatki
             var updated = await _svc.UpdateAsync(id, req);
 
-            // Jeśli nie znaleziono rekordu do aktualizacji — HTTP 404 Not Found
             if (!updated)
                 return NotFound($"Nie znaleziono siatki z id={id}");
 
-            // Jeśli aktualizacja się powiodła — zwracamy HTTP 204 No Content
             return NoContent();
         }
     }
