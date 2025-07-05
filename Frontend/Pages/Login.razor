@@ -66,12 +66,15 @@
         </EditForm>
 
         <!-- PRZYCISK LOGOWANIA GOOGLE -->
-        <div class="google-login-container">
-            <button type="button" class="google-login-button" @onclick="LoginWithGoogle">
-                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon" />
-                <span>Zaloguj się przez Google</span>
-            </button>
-        </div>
+        @if (GoogleLoginAvailable)
+        {
+            <div class="google-login-container">
+                <button type="button" class="google-login-button" @onclick="LoginWithGoogle">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon" />
+                    <span>Zaloguj się przez Google</span>
+                </button>
+            </div>
+        }
 
         <!-- Link do rejestracji -->
         <div class="register-text">
@@ -95,10 +98,22 @@
     private bool ShowSuccess; 
     private string PasswordInputType => ShowPassword ? "text" : "password"; // Typ pola hasła
     private List<string> ValidationErrors = new(); // Lista błędów walidacyjnych
+    private bool GoogleLoginAvailable = false;
 
     // Sprawdzenie czy użytkownik już zalogowany (token w localStorage)
     protected override async Task OnInitializedAsync()
     {
+        
+        try
+        {
+            var providers = await Http.GetFromJsonAsync<Dictionary<string, bool>>("api/auth/providers");
+            GoogleLoginAvailable = providers?.GetValueOrDefault("google") == true;
+        }
+        catch
+        {
+            // Nie pokazuj Google login jeśli nie wiadomo
+            GoogleLoginAvailable = false;
+        }
         var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
         if (!string.IsNullOrWhiteSpace(token))
         {

@@ -151,11 +151,21 @@
     {
         if (SelectedPrzedmiotId is null)
         {
-            Console.WriteLine("Nie wybrano przedmiotu.");
+            //Console.WriteLine("Nie wybrano przedmiotu.");
+            ErrorMessage = "Nie wybrano przedmiotu.";
+            StateHasChanged();
             return;
         }
 
         var sylabusy = await Http.GetFromJsonAsync<List<SylabusDto>>($"/api/sylabusy/przedmiot/{SelectedPrzedmiotId}");
+
+        if (sylabusy == null || sylabusy.Count == 0)
+        {
+            ErrorMessage = "Nie można skopiować sylabusa, ponieważ żaden jeszcze nie istnieje dla tego przedmiotu.";
+            StateHasChanged();
+            return;
+        }
+
         var latest = sylabusy?.OrderByDescending(s => s.RokData).FirstOrDefault();
 
         // Sprawdzenie czy użytkownik jest koordynatorem najnowszego sylabusa
@@ -204,13 +214,14 @@
         if (result.IsSuccessStatusCode)
         {
             var created = await result.Content.ReadFromJsonAsync<SylabusDto>();
-            Console.WriteLine("Stworzono poprawnie kopię sylabusa");
             Navigation.NavigateTo($"/przedmiot/{SelectedPrzedmiotId}");
         }
         else
         {
             var errorText = await result.Content.ReadAsStringAsync();
-            Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
+            ErrorMessage = $"Błąd przy tworzeniu kopii sylabusa: {errorText}";
+            //Console.WriteLine($"Błąd POST /api/sylabusy: {result.StatusCode} - {errorText}");
+            StateHasChanged();
         }
     }
 

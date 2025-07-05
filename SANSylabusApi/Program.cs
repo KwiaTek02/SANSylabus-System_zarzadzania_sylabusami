@@ -1,4 +1,4 @@
-using Aspire.Hosting;
+﻿using Aspire.Hosting;
 using HealthChecks.SqlServer;
 using Aspire.Hosting.ApplicationModel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,6 +19,7 @@ using SylabusAPI.Services.Implementations;
 using SylabusAPI.Services.Interfaces;
 using SylabusAPI.Settings;
 using System.Text;
+using SANSylabusApi.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,7 @@ builder.Services.AddOpenTelemetry()
             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("SANSylabusApi"))
             .AddAspNetCoreInstrumentation()
             .AddEntityFrameworkCoreInstrumentation()
-            .AddOtlpExporter(); // domy�lnie eksportuje do Aspire
+            .AddOtlpExporter(); // domyślnie eksportuje do Aspire
     });
 
 builder.Services.AddOpenTelemetry()
@@ -73,7 +74,7 @@ builder.Services.AddSwaggerGen(options =>
         TermsOfService = new Uri("https://twoja-domena.pl/terms"),
         Contact = new OpenApiContact
         {
-            Name = "Zesp�? Wsparcia SylabusAPI",
+            Name = "Zespó? Wsparcia SylabusAPI",
             Url = new Uri("https://twoja-domena.pl/contact")
         },
         License = new OpenApiLicense
@@ -91,7 +92,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Wprowad? token w formacie: Bearer {tw�j_token_JWT}"
+        Description = "Wprowad? token w formacie: Bearer {twój_token_JWT}"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -124,12 +125,18 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 var jwt = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 var key = Encoding.UTF8.GetBytes(jwt.SecretKey!);
 
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+var isGoogleEnabled = !string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret);
+builder.Services.AddSingleton(new AuthProviderStatus { IsGoogleEnabled = isGoogleEnabled });
+
 builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; // Do autoryzacji JWT
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;    // Do rzuconych wyjątków 401
+        options.DefaultSignInScheme = "Cookies";                                     // Do SignInAsync
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.RequireHttpsMetadata = true;
         options.SaveToken = true;
@@ -143,20 +150,19 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwt.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
-    });
-
-
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = "Cookies";
-        options.DefaultChallengeScheme = "Google";
     })
-    .AddCookie("Cookies")
-    .AddGoogle("Google", options =>
-    {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-    });
+    .AddCookie("Cookies"); // Musi być, jeśli chcesz robić SignInAsync()
+
+// Opcjonalnie Google, jeśli masz dane
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    builder.Services.AddAuthentication()
+        .AddGoogle("Google", options =>
+        {
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+        });
+}
 
 
 

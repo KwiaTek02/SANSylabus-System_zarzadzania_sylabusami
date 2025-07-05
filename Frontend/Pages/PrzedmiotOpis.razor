@@ -54,6 +54,7 @@
     private List<SiatkaPrzedmiotowDto>? Siatki;
     private SiatkaPrzedmiotowDto? SiatkaStacjonarne;
     private SiatkaPrzedmiotowDto? SiatkaNiestacjonarne;
+    private bool IsLoaded = false;
 
     private string ActiveSection = "tresci"; // Aktywna zakładka
     [Inject] IJSRuntime JS { get; set; } = default!;
@@ -104,6 +105,10 @@
         {
             Console.Error.WriteLine($"❌ Błąd ogólny: {ex.Message}");
             Navigation.NavigateTo("/error", true);
+        }
+        finally
+        {
+            IsLoaded = true;
         }
     }
 
@@ -570,11 +575,23 @@
 }
 
 
-@if (Przedmiot == null || SelectedSylabus == null)
+@if (!IsLoaded)
 {
     <div class="text-center my-5">
         <div class="spinner-border text-primary" role="status"></div>
         <div>Ładowanie danych...</div>
+    </div>
+}
+else if (Przedmiot == null)
+{
+    <div class="alert alert-danger text-center mt-4">
+        Nie znaleziono przedmiotu o podanym ID.
+    </div>
+}
+else if (SelectedSylabus == null)
+{
+    <div class="alert alert-warning text-center mt-4">
+        Dla tego przedmiotu nie znaleziono żadnego sylabusa.
     </div>
 }
 else if (IsSylabusUszkodzony(SelectedSylabus))
