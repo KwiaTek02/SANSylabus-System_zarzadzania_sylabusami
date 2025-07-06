@@ -8,7 +8,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_USE_POLLING_FILE_WATCHER=true
-      - ConnectionStrings__DefaultConnection=Server=tcp:den1.mssql8.gear.host,1433;Database=kwiatek02db;User Id=kwiatek02db;Password=Bw55?dk6Dte~;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=tcp:den1.mssql8.gear.host,1433;Database=sylabusdb;User Id=sylabusdb;Password=Oc55i05~25E!;TrustServerCertificate=True;
       - Authentication__Google__ClientId=
       - Authentication__Google__ClientSecret=
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://aspire-dashboard:18889
