@@ -25,7 +25,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-
 /*builder.Logging
     .AddOpenTelemetry(logging =>
     {

@@ -25,7 +25,7 @@ services:
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://aspire-dashboard:18889
       - OTEL_RESOURCE_ATTRIBUTES=service.name=SANSylabusFrontend
-    ports:
+    ports: 
       - "443:443"
     depends_on:
       - backend
@@ -48,17 +48,6 @@ services:
       Dashboard__ResourceServiceClient__AuthMode: Unsecured
     networks:
       - appnet  
-
-  seq:
-    image: datalust/seq:latest
-    container_name: seq
-    ports:
-      - "5341:80"
-    environment:
-      - ACCEPT_EULA=Y
-      - SEQ_FIRSTRUN_ADMINPASSWORD=TwojeSilneHaslo123!
-    networks:
-      - appnet
 
 networks:
   appnet:
