@@ -28,7 +28,6 @@ namespace SylabusAPI.Tests
         [Fact]
         public async Task Register_ReturnsOk_WhenRegistrationSucceeds()
         {
-            // Arrange
             var request = new RegisterRequest
             {
                 ImieNazwisko = "Jan Kowalski",
@@ -42,10 +41,8 @@ namespace SylabusAPI.Tests
                 .Setup(s => s.RegisterAsync(request))
                 .ReturnsAsync(new AuthResponse { Token = "mock_token", ExpiresAt = DateTime.UtcNow.AddHours(1) });
 
-            // Act
             var result = await _controller.Register(request);
 
-            // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var response = Assert.IsType<AuthResponse>(okResult.Value);
             Assert.Equal("mock_token", response.Token);
